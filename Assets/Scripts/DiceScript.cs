@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -14,8 +15,6 @@ public class DiceScript : MonoBehaviour
     [SerializeField] private Transform throwTarget;   
     [SerializeField] private float directionRandomness = 0.2f;
     [SerializeField] private float stableTimeRequired = 0.5f;
-
-    [SerializeField] private int riggedValue = -1;
 
 
     private PlayerController controller;
@@ -52,16 +51,20 @@ public class DiceScript : MonoBehaviour
 
     private void RollDice(InputAction.CallbackContext ctx)
     {
-        if (diceThrown) return;
+        if (diceThrown)
+        {
+            ResetDice(ctx);
+            return;
+        }
 
         rb.constraints = RigidbodyConstraints.None;
 
         Vector3 direction = (throwTarget.position - throwOrigin.position).normalized;
-        direction += Random.insideUnitSphere * directionRandomness;
+        direction += UnityEngine.Random.insideUnitSphere * directionRandomness;
         direction.y = Mathf.Abs(direction.y);
 
         rb.AddForce(direction.normalized * rollForce, ForceMode.Impulse);
-        rb.AddTorque(Random.onUnitSphere * rollTorque, ForceMode.Impulse);
+        rb.AddTorque(UnityEngine.Random.onUnitSphere * rollTorque, ForceMode.Impulse);
 
         diceThrown = true;
         StartCoroutine(WaitForDiceToStop());
@@ -89,6 +92,7 @@ public class DiceScript : MonoBehaviour
 
         int result = GetTopSideValue();
         diceRollText.text = $"Roll: {result}";
+        StartCoroutine(ShowDiceResult());
     }
 
     private int GetTopSideValue()
@@ -98,7 +102,7 @@ public class DiceScript : MonoBehaviour
 
         foreach (var side in diceSides)
         {
-            float dot = Vector3.Dot(side.sideTransform.up, Vector3.up);
+            float dot = Vector3.Dot(side.sideTransform.up, Vector3.up); 
             if (dot > highestDot)
             {
                 highestDot = dot;
@@ -113,6 +117,7 @@ public class DiceScript : MonoBehaviour
         StopAllCoroutines();
 
         rb.constraints = RigidbodyConstraints.None;
+        rb.isKinematic = false;
 
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
@@ -124,5 +129,28 @@ public class DiceScript : MonoBehaviour
 
         diceThrown = false;
         diceRollText.text = "";
+    }
+
+    private IEnumerator ShowDiceResult()
+    {
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.isKinematic = true;
+
+        Vector3 start = rb.position;
+        Vector3 target = new Vector3(0, 10, 0);
+
+
+        float elapsedDiceTime = 0f;
+        float duration = 1.5f;
+
+        while (elapsedDiceTime < duration)
+        {
+            elapsedDiceTime += Time.deltaTime;
+            float progress = Mathf.Clamp01(elapsedDiceTime / duration);
+            rb.transform.position = Vector3.Lerp(rb.transform.position, target, progress);
+            yield return null;
+        }
+        rb.constraints = RigidbodyConstraints.FreezeAll;
     }
 }
