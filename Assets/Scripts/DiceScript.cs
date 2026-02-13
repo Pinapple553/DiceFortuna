@@ -9,15 +9,18 @@ public class DiceScript : MonoBehaviour
 {
     [SerializeField] private Rigidbody rb;
     [SerializeField] private TMP_Text diceRollText;
-    [SerializeField] private float rollForce = 5f;
-    [SerializeField] private float rollTorque = 2f;
-    [SerializeField] private Transform throwOrigin;   
-    [SerializeField] private Transform throwTarget;   
-    [SerializeField] private float directionRandomness = 0.2f;
-    [SerializeField] private float stableTimeRequired = 0.5f;
+    [Header("Dice Throw Parameters")]
+	[SerializeField] private float rollForce = 5f;
+	[SerializeField] private float rollTorque = 2f;
+	[SerializeField] private float directionRandomness = 0.2f;
+	[SerializeField] private Transform throwOrigin;
+	[SerializeField] private Transform throwTarget;
+	[SerializeField] private float stableTimeRequired = 0.5f;
+    
+    [SerializeField] private GameObject dicePrefab;
+    private List<GameObject> activeDice = new List<GameObject>();
 
-
-    private PlayerController controller;
+	private PlayerController controller;    
     private Vector3 startPosition;
     private Quaternion startRotation;
     private bool diceThrown;
@@ -57,20 +60,35 @@ public class DiceScript : MonoBehaviour
             return;
         }
 
-        rb.constraints = RigidbodyConstraints.None;
+		rb.constraints = RigidbodyConstraints.None;
 
-        Vector3 direction = (throwTarget.position - throwOrigin.position).normalized;
-        direction += UnityEngine.Random.insideUnitSphere * directionRandomness;
-        direction.y = Mathf.Abs(direction.y);
+        SetInitialState();
+        SimulatePhysics();
 
-        rb.AddForce(direction.normalized * rollForce, ForceMode.Impulse);
-        rb.AddTorque(UnityEngine.Random.onUnitSphere * rollTorque, ForceMode.Impulse);
 
-        diceThrown = true;
+		diceThrown = true;
         StartCoroutine(WaitForDiceToStop());
     }
+    private void SetInitialState()
+    {
+		Vector3 direction = (throwTarget.position - throwOrigin.position).normalized;
+		direction += UnityEngine.Random.insideUnitSphere * directionRandomness;
+		direction.y = Mathf.Abs(direction.y);
 
-    private IEnumerator WaitForDiceToStop()
+		rb.AddForce(direction.normalized * rollForce, ForceMode.Impulse);
+		rb.AddTorque(UnityEngine.Random.onUnitSphere * rollTorque, ForceMode.Impulse);
+	}
+    private void SimulatePhysics()
+    {
+		Physics.simulationMode = SimulationMode.Script;
+        for (int i = 0; i < 100; i++)
+        {
+            Physics.Simulate(Time.fixedDeltaTime);
+		}
+        Physics.simulationMode = SimulationMode.FixedUpdate;
+        GetTopSideValue(); 
+	}
+	private IEnumerator WaitForDiceToStop()
     {
         float stableTime = 0f;
 

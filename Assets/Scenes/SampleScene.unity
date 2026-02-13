@@ -2131,12 +2131,11 @@ MonoBehaviour:
   diceRollText: {fileID: 779854802}
   rollForce: 10
   rollTorque: 4
+  directionRandomness: 0.2
   throwOrigin: {fileID: 2026482932}
   throwTarget: {fileID: 1069206114}
-  directionRandomness: 0.2
   stableTimeRequired: 0.5
-  riggedValue: 5
-  rigStrength: 100
+  dicePrefab: {fileID: 8453891607705166947, guid: c616859571a7bf449b18841fe211b567, type: 3}
   diceSides:
   - value: 1
     sideTransform: {fileID: 1686594973}
