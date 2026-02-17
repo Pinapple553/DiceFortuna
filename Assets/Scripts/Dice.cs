@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class DiceScript : MonoBehaviour
+public class Dice : ScriptableObject
 {
     [SerializeField] private Rigidbody rb;
     [SerializeField] private TMP_Text diceRollText;
@@ -52,7 +52,7 @@ public class DiceScript : MonoBehaviour
         controller.Dice.Disable(); 
     }
 
-    private void RollDice(InputAction.CallbackContext ctx)
+    public void RollDice(InputAction.CallbackContext ctx)
     {
         if (diceThrown)
         {
