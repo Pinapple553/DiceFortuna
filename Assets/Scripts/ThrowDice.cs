@@ -7,24 +7,64 @@ using UnityEngine.InputSystem;
 
 public class ThrowDice : MonoBehaviour
 {
+	public AnimationRecorder animRecorder;
+
 	[Header("Dice Throw Parameters")]
 	[SerializeField] private float rollForce = 5f;
 	[SerializeField] private float rollTorque = 2f;
 	[SerializeField] private float directionRandomness = 0.2f;
+	[SerializeField] private float stableTimeRequired = 0.5f;
 	[SerializeField] private Transform throwOrigin;
 	[SerializeField] private Transform throwTarget;
-	[SerializeField] private float stableTimeRequired = 0.5f;
 
-	[SerializeField] private List<GameObject> dices = new List<GameObject>();
+	[SerializeField] private List<Dice> diceList = new List<Dice>();
+	public List<DiceData> diceDataList;
+	private List<Dice> activeDices = new List<Dice>();
+	public List<int> targetedResult;
 
 	private PlayerController controller;
 	private bool diceThrown;
+
+
+	[System.Serializable]
+	public struct DiceData
+	{
+		public GameObject diceObject;
+		public Rigidbody rb;
+		public Dice diceLogic;
+
+		public DiceData(GameObject diceObject)
+		{
+			this.diceObject = diceObject;
+			this.rb = diceObject.GetComponent<Rigidbody>();
+			this.diceLogic = diceObject.transform.GetChild(0).GetComponent<Dice>();
+			this.rb.maxAngularVelocity = 1000;
+		}
+	}
+
+	[System.Serializable]
+	public struct InitialState
+	{
+		public Vector3 position;
+		public Quaternion rotation;
+		public Vector3 force;
+		public Vector3 torque;
+
+		public InitialState(Vector3 position, Quaternion rotation,
+							Vector3 force, Vector3 torque)
+		{
+			this.position = position;
+			this.rotation = rotation;
+			this.force = force;
+			this.torque = torque;
+		}
+	}
 
 	private void Awake()
 	{
 		controller = new PlayerController();
 		controller.Dice.Roll.performed += RollAllDice;
-		controller.Dice.Reset.performed += ResetDice;
+		controller.Dice.Reset.performed += DestroyDice;
 	}
 
 	private void OnEnable()
@@ -38,34 +78,73 @@ public class ThrowDice : MonoBehaviour
 
 	private void RollAllDice(InputAction.CallbackContext ctx)
 	{
-		if (diceThrown)
+		if (diceList.Count > 0)
 		{
-			ResetDice(ctx);
-			return;
+				CreateDice();
 		}
-
-		if (dices.Count > 0)			
-		foreach (var dice in dices)
-		{
-				dice.RollDice(ctx);
-		}
-
-		SetInitialState();
-		SimulatePhysics();
-
+		animRecorder.StartSimulation(diceList);
 
 		diceThrown = true;
 		StartCoroutine(WaitForDiceToStop());
 	}
-	private void SetInitialState()
+	private void CreateDice()
 	{
+		foreach (Dice dice in diceList)
+		{
+			Instantiate(dice, throwOrigin.position, Quaternion.identity);
+			activeDices.Add(dice);
+		}
+		for (int i = 0; i < diceList.Count; i++)
+		{
+			InitialState initial = SetInitialState(rollForce, rollTorque, directionRandomness);
+
+			diceDataList[i].diceLogic.Reset();
+			diceDataList[i].diceObject.transform.position = initial.position;
+			diceDataList[i].diceObject.transform.rotation = initial.rotation;
+			diceDataList[i].rb.useGravity = true;
+			diceDataList[i].rb.isKinematic = false;
+			diceDataList[i].rb.linearVelocity = initial.force;
+			diceDataList[i].rb.AddTorque(initial.torque, ForceMode.VelocityChange);
+		}
+	}
+	private void DestroyDice(InputAction.CallbackContext ctx)
+	{
+		foreach (Dice dice in activeDices)
+		{
+			Destroy(dice.gameObject);
+		}
+		activeDices.Clear();
+	}
+	private InitialState SetInitialState(float forceMax=5f, float torqueMax =2f, float directionRandomAmount = 0.1f)
+	{
+		float x = transform.position.x + UnityEngine.Random.Range(-transform.localScale.x / 2, transform.localScale.x / 2);
+		float y = transform.position.y + UnityEngine.Random.Range(-transform.localScale.y / 2, transform.localScale.y / 2);
+		float z = transform.position.z + UnityEngine.Random.Range(-transform.localScale.z / 2, transform.localScale.z / 2);
+		Vector3 position = new Vector3(x, y, z);
+
+		x = UnityEngine.Random.Range(0, 360);
+		y = UnityEngine.Random.Range(0, 360);
+		z = UnityEngine.Random.Range(0, 360);
+		Quaternion rotation = Quaternion.Euler(x, y, z);
+
+		x = UnityEngine.Random.Range(0, forceMax);
+		y = UnityEngine.Random.Range(0, forceMax);
+		z = UnityEngine.Random.Range(0, forceMax);
+		Vector3 force = new Vector3(x, -y, z);
+
+		x = UnityEngine.Random.Range(0, torqueMax);
+		y = UnityEngine.Random.Range(0, torqueMax);
+		z = UnityEngine.Random.Range(0, torqueMax);
+		Vector3 torque = new Vector3(x, y, z);
+
+		//move this to where dice are thrown
 		Vector3 direction = (throwTarget.position - throwOrigin.position).normalized;
 		direction += UnityEngine.Random.insideUnitSphere * directionRandomness;
 		direction.y = Mathf.Abs(direction.y);
 
-		rb.AddForce(direction.normalized * rollForce, ForceMode.Impulse);
-		rb.AddTorque(UnityEngine.Random.onUnitSphere * rollTorque, ForceMode.Impulse);
+		return new InitialState(position,rotation,force,torque);
 	}
+	/*
 	private void SimulatePhysics()
 	{
 		Physics.simulationMode = SimulationMode.Script;
@@ -136,7 +215,6 @@ public class ThrowDice : MonoBehaviour
 		diceThrown = false;
 		diceRollText.text = "";
 	}
-
 	private IEnumerator ShowDiceResult()
 	{
 		rb.linearVelocity = Vector3.zero;
@@ -159,4 +237,5 @@ public class ThrowDice : MonoBehaviour
 		}
 		rb.constraints = RigidbodyConstraints.FreezeAll;
 	}
+	*/
 }
