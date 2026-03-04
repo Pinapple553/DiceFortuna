@@ -82,10 +82,10 @@ public class ThrowDice : MonoBehaviour
 		{
 				CreateDice();
 		}
-		animRecorder.StartSimulation(diceList);
+		//animRecorder.StartSimulation(diceList);
 
 		diceThrown = true;
-		StartCoroutine(WaitForDiceToStop());
+		//StartCoroutine(WaitForDiceToStop());
 	}
 	private void CreateDice()
 	{

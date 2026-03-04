@@ -2,15 +2,13 @@ using UnityEngine;
 
 public class AnimationRecorder : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public void StartRecording()
     {
-        
-    }
+        Debug.Log("Animation recording started. Not really!");
+	}
 
-    // Update is called once per frame
-    void Update()
+public void StartSimulation()
     {
-        
-    }
+		Debug.Log("SImulation");
+	}
 }

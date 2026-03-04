@@ -10,7 +10,7 @@ public class Dice : MonoBehaviour
 	[Header("References")]
 	[SerializeField] private Rigidbody rb;
 	[Header("Debug")]
-	public int defaultFaceResult = -1;
+	public int simulatedFaceResult = -1;
 	public int alteredFaceResult = -1;
 
 	[System.Serializable]
@@ -24,7 +24,7 @@ public class Dice : MonoBehaviour
 
 	public void Reset()
 	{
-		defaultFaceResult = -1;
+		simulatedFaceResult = -1;
 		alteredFaceResult = -1;
 	}
 	public void RotateDice(int alteredFaceResult)
@@ -37,7 +37,7 @@ public class Dice : MonoBehaviour
 		}
 		else
 		{
-			this.alteredFaceResult = defaultFaceResult;
+			this.alteredFaceResult = simulatedFaceResult;
 		}
 	}
 	public int GetTopSideValue()
