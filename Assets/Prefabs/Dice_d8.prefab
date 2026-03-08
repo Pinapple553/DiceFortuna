@@ -742,7 +742,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 126
+  m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!64 &5907475523544541501
 MeshCollider:
@@ -779,30 +779,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceRoll
   rb: {fileID: 7125914851210802642}
-  diceRollText: {fileID: 0}
-  rollForce: 10
-  rollTorque: 2
-  directionRandomness: 0.5
-  throwOrigin: {fileID: 6789477024557370375}
-  throwTarget: {fileID: 0}
-  stableTimeRequired: 0.5
   diceSides:
   - value: 1
+    effect: {fileID: 0}
     sideTransform: {fileID: 8784427981597007215}
   - value: 2
+    effect: {fileID: 0}
     sideTransform: {fileID: 4281213655761625860}
   - value: 3
+    effect: {fileID: 0}
     sideTransform: {fileID: 8879477283157770475}
   - value: 4
+    effect: {fileID: 0}
     sideTransform: {fileID: 3809682487616936257}
   - value: 5
+    effect: {fileID: 0}
     sideTransform: {fileID: 2660105480420470667}
   - value: 6
+    effect: {fileID: 0}
     sideTransform: {fileID: 3042644341781731625}
   - value: 7
+    effect: {fileID: 0}
     sideTransform: {fileID: 5334858176627353355}
   - value: 8
+    effect: {fileID: 0}
     sideTransform: {fileID: 246865051926860986}
+  simulatedFaceResult: -1
+  alteredFaceResult: -1
 --- !u!1 &8868397079754147639
 GameObject:
   m_ObjectHideFlags: 0
