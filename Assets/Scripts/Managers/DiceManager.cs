@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class GameManager : MonoBehaviour
+public class DiceManager : MonoBehaviour
 {
+    [SerializeField] private List<Dice> dice;
+
     [Header("Dice Throw Parameters")]
     [SerializeField] private float rollForce = 6f;
     [SerializeField] private float rollTorque = 8f;
@@ -43,6 +46,12 @@ public class GameManager : MonoBehaviour
     {
         StartCoroutine(RollRoutine());
     }
+    public IEnumerator Roll()
+    {
+        StartCoroutine(RollRoutine());
+
+        yield return new WaitUntil(AllDiceStopped);
+    }
 
     IEnumerator RollRoutine()
     {
@@ -57,6 +66,7 @@ public class GameManager : MonoBehaviour
             var sim = dice.Initialize(throwOrigin, throwTarget, rollForce, rollTorque, directionRandomness);
             recordedSimulations.Add(sim);
             dice.ThrowDice(sim);
+            yield return new WaitForSeconds(0.1f);
         }
 
         yield return new WaitUntil(AllDiceStopped);
@@ -96,4 +106,19 @@ public class GameManager : MonoBehaviour
 
         activeDice.Clear();
     }
+
+    public List<int> GetResults()
+    {
+        List<int> results = new();
+
+        foreach (var d in dice)
+        {
+            results.Add(d.GetTopSideValue());
+
+        }
+
+
+        return results;
+    }
 }
+

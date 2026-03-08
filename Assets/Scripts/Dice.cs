@@ -30,8 +30,7 @@ public class Dice : MonoBehaviour
         stableTimeRequired = t;
     }
 
-    public DiceSimulation Initialize(Transform origin, Transform target,
-        float forceMax, float torqueMax, float randomness)
+    public DiceSimulation Initialize(Transform origin, Transform target,float forceMax, float torqueMax, float randomness)
     {
         Vector3 direction = (target.position - origin.position).normalized;
         direction += Random.insideUnitSphere * randomness;
