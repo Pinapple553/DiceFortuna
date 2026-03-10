@@ -6,7 +6,9 @@ using UnityEngine.InputSystem;
 
 public class DiceManager : MonoBehaviour
 {
-    [SerializeField] private List<Dice> dice;
+    [SerializeField] public List<Dice> diceList;
+    [SerializeField] private UIManager ui;
+    [SerializeField] private AnimationRecorder anim;
 
     [Header("Dice Throw Parameters")]
     [SerializeField] private float rollForce = 6f;
@@ -17,18 +19,19 @@ public class DiceManager : MonoBehaviour
     [SerializeField] private Transform throwOrigin;
     [SerializeField] private Transform throwTarget;
 
-    [Header("Dice Prefabs")]
-    [SerializeField] private List<Dice> dicePrefabs = new();
+    [Header("Rig")]
+    [SerializeField] private int forcedValue = -1;
+
 
     private List<Dice> activeDice = new();
-    private List<DiceSimulation> recordedSimulations = new();
+    private List<DiceFrame> recordedSimulations = new();
 
     private PlayerController controller;
 
     private void Awake()
     {
         controller = new PlayerController();
-        controller.Dice.Roll.performed += RollAllDice;
+        controller.Dice.Roll.performed += ctx => StartCoroutine(RollRoutine());
         controller.Dice.Reset.performed += ResetDice;
     }
 
@@ -42,41 +45,68 @@ public class DiceManager : MonoBehaviour
         controller.Dice.Disable();
     }
 
-    private void RollAllDice(InputAction.CallbackContext ctx)
+    public bool AddDice(Dice dice)
     {
-        StartCoroutine(RollRoutine());
+        if (diceList.Count < 9)
+        {
+            diceList.Add(dice);
+            return true;
+        }
+        return false;
     }
-    public IEnumerator Roll()
+    public bool RemoveDice(Dice dice)
     {
-        StartCoroutine(RollRoutine());
-
-        yield return new WaitUntil(AllDiceStopped);
+        for (int i = diceList.Count-1; i >= 0 ; i--)
+        {
+            if (diceList[i].diceType == dice.diceType)
+            {
+                diceList.RemoveAt(i);
+                return true;
+            }
+        }
+        return false;
     }
-
-    IEnumerator RollRoutine()
+    public IEnumerator RollRoutine()
     {
         ResetDice(default);
-
         CreateDice();
 
-        recordedSimulations.Clear();
+        anim.StartSimulation(activeDice);
+
+        List<DiceSimulation> sims = new();
 
         foreach (var dice in activeDice)
         {
             var sim = dice.Initialize(throwOrigin, throwTarget, rollForce, rollTorque, directionRandomness);
-            recordedSimulations.Add(sim);
+            sims.Add(sim);
+
             dice.ThrowDice(sim);
-            yield return new WaitForSeconds(0.1f);
         }
 
         yield return new WaitUntil(AllDiceStopped);
+        anim.StopRecording();
 
         foreach (var dice in activeDice)
         {
             dice.CalculateResult();
         }
-    }
+        anim.ResetToInitialState();
 
+        if (forcedValue > 0)
+        {
+            foreach (var dice in activeDice)
+            {
+                dice.RotateToFace(forcedValue);
+            }
+        }
+
+        foreach (var dice in activeDice)
+        {
+            dice.GetComponent<Rigidbody>().isKinematic = true;
+        }
+
+        anim.PlayRecording();
+    }
     private bool AllDiceStopped()
     {
         foreach (var d in activeDice)
@@ -88,17 +118,15 @@ public class DiceManager : MonoBehaviour
         }
         return true;
     }
-
     private void CreateDice()
     {
-        foreach (var prefab in dicePrefabs)
+        foreach (var dice in diceList)
         {
-            var dice = Instantiate(prefab, throwOrigin.position, Random.rotation);
-            dice.SetStableTime(stableTimeRequired);
-            activeDice.Add(dice);
+            var d = Instantiate(dice, throwOrigin.position, Random.rotation);
+            d.SetStableTime(stableTimeRequired);
+            activeDice.Add(d);
         }
     }
-
     private void ResetDice(InputAction.CallbackContext ctx)
     {
         foreach (var d in activeDice)
@@ -106,19 +134,32 @@ public class DiceManager : MonoBehaviour
 
         activeDice.Clear();
     }
-
     public List<int> GetResults()
     {
         List<int> results = new();
-
-        foreach (var d in dice)
+        foreach (var d in activeDice)
         {
             results.Add(d.GetTopSideValue());
-
         }
-
-
         return results;
+    }
+    public int GetMaxResult()
+    {
+        int max = 0;
+        foreach (var d in diceList)
+        {
+            max+= d.MaxFaceValue();
+        }
+        return max;
+    }
+    public int GetMinResult()
+    {
+        int min = 0;
+        foreach (var d in diceList)
+        {
+            min += d.MinFaceValue();
+        }
+        return min;
     }
 }
 

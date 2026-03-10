@@ -6,6 +6,7 @@ public class Dice : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Rigidbody rb;
+    public string diceType;
 
     [Header("Dice Sides")]
     [SerializeField] private List<DiceSide> diceSides = new();
@@ -30,7 +31,7 @@ public class Dice : MonoBehaviour
         stableTimeRequired = t;
     }
 
-    public DiceSimulation Initialize(Transform origin, Transform target,float forceMax, float torqueMax, float randomness)
+    public DiceSimulation Initialize(Transform origin, Transform target, float forceMax, float torqueMax, float randomness)
     {
         Vector3 direction = (target.position - origin.position).normalized;
         direction += Random.insideUnitSphere * randomness;
@@ -85,9 +86,10 @@ public class Dice : MonoBehaviour
         DiceSide side = GetTopSide();
 
         if (side.effect != null)
+        {
             side.effect.ApplyEffect(this);
+        }
     }
-
     DiceSide GetTopSide()
     {
         DiceSide best = null;
@@ -106,26 +108,50 @@ public class Dice : MonoBehaviour
 
         return best;
     }
-
     public int GetTopSideValue()
     {
-        var side = GetTopSide();
-        return side != null ? side.value : 0;
+        DiceSide side = GetTopSide();
+        return side.value;
     }
-
     public void RotateToFace(int faceValue)
     {
+        DiceSide targetSide = null;
+
         foreach (var side in diceSides)
         {
             if (side.value == faceValue)
             {
-                Quaternion targetRot =
-                    Quaternion.FromToRotation(side.sideTransform.up, Vector3.up) * transform.rotation;
-
-                transform.rotation = targetRot;
-                alteredFaceResult = faceValue;
-                return;
+                targetSide = side;
+                break;
             }
         }
+
+        if (targetSide == null) return;
+
+        Quaternion targetRot = Quaternion.FromToRotation(targetSide.sideTransform.up, Vector3.up) * transform.rotation;
+
+        transform.rotation = targetRot;
+        alteredFaceResult = faceValue;
+    }
+
+    public int MaxFaceValue()
+    {
+        int max = 0;
+        foreach (var side in diceSides)
+        {
+            if (side.value > max)
+                max = side.value;
+        }
+        return max;
+    }
+    public int MinFaceValue()
+    {
+        int min = int.MaxValue;
+        foreach (var side in diceSides)
+        {
+            if (side.value < min)
+                min = side.value;
+        }
+        return min;
     }
 }

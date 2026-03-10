@@ -8,11 +8,12 @@ public struct DiceSimulation
     public Vector3 force;
     public Vector3 torque;
 
-    public DiceSimulation(Vector3 pos, Quaternion rot, Vector3 f, Vector3 t)
+    public DiceSimulation(Vector3 p, Quaternion r, Vector3 f, Vector3 t)
     {
-        position = pos;
-        rotation = rot;
+        position = p;
+        rotation = r;
         force = f;
         torque = t;
     }
 }
+

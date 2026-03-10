@@ -16,4 +16,16 @@ public class MoneySystem : MonoBehaviour
     {
         PlayerMoney += amount;
     }
+
+    public void UpdateMoney(bool win, int amount)
+    {
+        if (win)
+        {
+            PlayerMoney += amount * 2;
+        }
+        else
+        {
+            PlayerMoney -= amount;
+        }
+    }
 }

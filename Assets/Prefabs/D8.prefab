@@ -632,7 +632,7 @@ GameObject:
   - component: {fileID: 5907475523544541501}
   - component: {fileID: 4910487410337449019}
   m_Layer: 0
-  m_Name: Dice_d8
+  m_Name: D8
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -779,6 +779,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceRoll
   rb: {fileID: 7125914851210802642}
+  diceType: D8
   diceSides:
   - value: 1
     effect: {fileID: 0}
