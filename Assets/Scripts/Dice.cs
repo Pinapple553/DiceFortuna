@@ -30,55 +30,12 @@ public class Dice : MonoBehaviour
     {
         stableTimeRequired = t;
     }
-
-    public DiceSimulation Initialize(Transform origin, Transform target, float forceMax, float torqueMax, float randomness)
+    public void Reset()
     {
-        Vector3 direction = (target.position - origin.position).normalized;
-        direction += Random.insideUnitSphere * randomness;
-        direction.y = Mathf.Abs(direction.y);
-
-        Vector3 force = direction * Random.Range(forceMax * 0.5f, forceMax);
-        Vector3 torque = Random.insideUnitSphere * torqueMax;
-
-        Quaternion rot = Random.rotation;
-
-        return new DiceSimulation(transform.position, rot, force, torque);
-    }
-
-    public void ThrowDice(DiceSimulation sim)
-    {
-        transform.position = sim.position;
-        transform.rotation = sim.rotation;
-
-        rb.isKinematic = false;
-        rb.AddForce(sim.force, ForceMode.Impulse);
-        rb.AddTorque(sim.torque, ForceMode.Impulse);
-
-        StartCoroutine(WaitForStop());
-    }
-
-    IEnumerator WaitForStop()
-    {
-        float stableTime = 0f;
-
-        while (stableTime < stableTimeRequired)
-        {
-            if (rb.linearVelocity.sqrMagnitude < 0.01f &&
-                rb.angularVelocity.sqrMagnitude < 0.01f)
-                stableTime += Time.deltaTime;
-            else
-                stableTime = 0f;
-
-            yield return null;
-        }
-
-        rb.linearVelocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-        rb.isKinematic = true;
-
-        IsStopped = true;
-    }
-
+        stableTimeRequired = 0;
+		simulatedFaceResult = -1;
+        alteredFaceResult = -1;
+}
     public void CalculateResult()
     {
         simulatedFaceResult = GetTopSideValue();
@@ -90,7 +47,7 @@ public class Dice : MonoBehaviour
             side.effect.ApplyEffect(this);
         }
     }
-    DiceSide GetTopSide()
+    public DiceSide GetTopSide()
     {
         DiceSide best = null;
         float bestDot = -1f;

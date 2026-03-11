@@ -1,7 +1,7 @@
 public enum BetType
 {
-    Odd,
-    Even,
-    High,
-    Low
+	Odd,
+	Even,
+	High,
+	Low
 }

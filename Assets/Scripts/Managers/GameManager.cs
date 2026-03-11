@@ -22,23 +22,25 @@ public class GameManager : MonoBehaviour
         if (roundRunning) return;
         if (diceManager.diceList.Count == 0) return;
 
+
         BetData playerBet = ui.GetBet();
 
-        if (!moneySystem.Spend(playerBet.amount))
+		if (playerBet.amount <= 0) return;
+		if (!moneySystem.Spend(playerBet.amount))
         {
             return;
         }
 
-        StartCoroutine(RoundRoutine(playerBet));
+        RoundRoutine(playerBet);
     }
 
-    IEnumerator RoundRoutine(BetData playerBet)
+    void RoundRoutine(BetData playerBet)
     {
         roundRunning = true;
         
         ui.resetResult();
         
-        yield return diceManager.RollRoutine();
+        diceManager.RollRoutine();
         List<int> results = diceManager.GetResults();
 
         bool win = Evaluate(playerBet.betType, results);

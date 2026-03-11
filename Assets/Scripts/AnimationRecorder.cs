@@ -1,104 +1,164 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class AnimationRecorder : MonoBehaviour
 {
-    private List<Dice> dice = new();
-    private List<List<DiceFrame>> recordings = new();
+	[SerializeField] DiceManager diceManager;
+	public int recFrameLength = 150; //make responsive
+	private List<Dice> dice = new();
+	public List<RecordingData> recordings;
 
-    private Vector3[] startPos;
-    private Quaternion[] startRot;
-    private Vector3 startForce;
+	private Coroutine playback = null;
 
     private bool recording;
 
     public void StartSimulation(List<Dice> diceList)
     {
-        Physics.simulationMode = SimulationMode.Script;
-        dice = diceList;
+		if (playback != null)
+		{
+			StopCoroutine(playback);
+			playback = null;
+		}
+		Debug.Log("Simulation started");
+		recordings.Clear();
+		dice.Clear();
+		dice = diceList;
 
-        recordings.Clear();
-        startPos = new Vector3[dice.Count];
-        startRot = new Quaternion[dice.Count];
+		EnablePhysics();
+		GetInitialState();
+		recording = true;
+		RecordFrames();
+	}
+	private void GetInitialState()
+	{
+		foreach (var gameObject in dice)
+		{
+			Vector3 initialPosition = gameObject.transform.position;
+			Quaternion initialRotation = gameObject.transform.rotation;
 
-        for (int i = 0; i < dice.Count; i++)
-        {
-            recordings.Add(new List<DiceFrame>());
+			Rigidbody rb = gameObject.GetComponent<Rigidbody>();
+			rb.maxAngularVelocity = 1000;
 
-            startPos[i] = dice[i].transform.position;
-            startRot[i] = dice[i].transform.rotation;
-        }
+			RecordingData data = new RecordingData(rb, initialPosition, initialRotation);
+			recordings.Add(data);
+		}
+	}
 
-        recording = true;
-        StartCoroutine(RecordFrames());
-        Physics.simulationMode = SimulationMode.FixedUpdate;
-    }
-
-    IEnumerator RecordFrames()
+	private void RecordFrames()
     {
-        while (recording)
-        {
-            for (int i = 0; i < dice.Count; i++)
-            {
-                recordings[i].Add(
-                    new DiceFrame(
-                        dice[i].transform.position,
-                        dice[i].transform.rotation
-                    )
-                );
-            }
+		Physics.simulationMode = SimulationMode.Script;
+		for (int i = 0; i < recFrameLength; i++) {
+			Debug.Log("Frame");
+			for (int j = 0; j < dice.Count; j++)
+			{
+				Vector3 position = dice[j].transform.position;
+				Quaternion rotation = dice[j].transform.rotation;
+				//bool isContactWithArena = diceManager.diceDataList[j].ui.isContactWithFloor;
+				//bool isContactWithDice = diceManager.diceDataList[j].ui.isContactWithDice;
+				bool isNotMoving = CheckObjectHasStopped(diceManager.diceDataList[j].rb);
 
-            yield return null;
-        }
-    }
+				RecordedFrame frame = new RecordedFrame(position, rotation, isNotMoving);
+				recordings[j].recordedAnimation.Add(frame);
+			}
+			Physics.Simulate(Time.fixedDeltaTime);
+		}
 
-    public void StopRecording()
+		Physics.simulationMode = SimulationMode.FixedUpdate;
+
+	}
+	public void ResetToInitialState()
+	{
+		for (int i = 0; i < dice.Count; i++)
+		{
+			dice[i].transform.position = recordings[i].initialPosition;
+			dice[i].transform.rotation = recordings[i].initialRotation;
+		}
+	}
+
+	public void PlayRecording()
     {
-        recording = false;
-    }
-
-    public void ResetToInitialState()
-    {
-        for (int i = 0; i < dice.Count; i++)
-        {
-            Rigidbody rb = dice[i].GetComponent<Rigidbody>();
-
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-
-            dice[i].transform.position = startPos[i];
-            dice[i].transform.rotation = startRot[i];
-        }
-    }
-
-    public void PlayRecording()
-    {
-        StartCoroutine(Playback());
-    }
-
+		if (playback == null && recordings.Count > 0)
+		{
+			playback = StartCoroutine(Playback());
+		}
+	}
     IEnumerator Playback()
     {
-        if (recordings.Count == 0)
-            yield break;
+		DisablePhysics();
+		ResetToInitialState();
 
-        int frameCount = recordings[0].Count;
+		for (int i = 0; i < recFrameLength; i++)
+		{
+			for (int j = 0; j < recordings.Count; j++)
+			{
+				Vector3 position = recordings[j].recordedAnimation[i].position;
+				Quaternion rotation = recordings[j].recordedAnimation[i].rotation;
+				dice[j].transform.position = position;
+				dice[j].transform.rotation = rotation;
+			}
+			yield return new WaitForFixedUpdate();
+		}
 
-        // disable physics
-        for (int i = 0; i < dice.Count; i++)
-        {
-            dice[i].GetComponent<Rigidbody>().isKinematic = true;
-        }
+		playback = null;
+	}
+	public bool CheckObjectHasStopped(Rigidbody rb)
+	{
+		if (rb.linearVelocity == Vector3.zero && rb.angularVelocity == Vector3.zero)
+		{
+			return true;
+		}
+		else return false;
+	}
 
-        for (int f = 0; f < frameCount; f++)
-        {
-            for (int d = 0; d < dice.Count; d++)
-            {
-                dice[d].transform.position = recordings[d][f].position;
-                dice[d].transform.rotation = recordings[d][f].rotation;
-            }
+	public void EnablePhysics()
+	{
+		for (int i = 0; i < recordings.Count; i++)
+		{
+			recordings[i].rb.useGravity = true;
+			recordings[i].rb.isKinematic = false;
+		}
+	}
 
-            yield return null;
-        }
-    }
+	public void DisablePhysics()
+	{
+		for (int i = 0; i < recordings.Count; i++)
+		{
+			recordings[i].rb.useGravity = false;
+			recordings[i].rb.isKinematic = true;
+		}
+	}
+
+	[System.Serializable]
+	public struct RecordedFrame
+	{
+		public Vector3 position;
+		public Quaternion rotation;
+		public bool isNotMoving;
+
+		public RecordedFrame(Vector3 position, Quaternion rotation, bool isNotMoving)
+		{
+			this.position = position;
+			this.rotation = rotation;
+			this.isNotMoving = isNotMoving;
+		}
+	}
+
+	[System.Serializable]
+	public struct RecordingData
+	{
+		public Rigidbody rb;
+		public Vector3 initialPosition;
+		public Quaternion initialRotation;
+		public List<RecordedFrame> recordedAnimation;
+
+		public RecordingData(Rigidbody rb, Vector3 initialPosition, Quaternion initialRotation)
+		{
+			this.rb = rb;
+			this.initialPosition = initialPosition;
+			this.initialRotation = initialRotation;
+			this.recordedAnimation = new List<RecordedFrame>();
+		}
+	}
 }
