@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class AnimationRecorder : MonoBehaviour
-{
+{/*
     private List<Dice> dice = new();
     private List<List<DiceFrame>> recordings = new();
 
@@ -100,5 +100,5 @@ public class AnimationRecorder : MonoBehaviour
 
             yield return null;
         }
-    }
+    }*/
 }

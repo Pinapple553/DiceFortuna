@@ -5,6 +5,6 @@ public class RerollEffect : DiceSideEffect
 {
     public override void ApplyEffect(Dice dice)
     {
-        dice.RotateToFace(Random.Range(1, 7));
+        //dice.RotateToFace(Random.Range(1, 7));
     }
 }

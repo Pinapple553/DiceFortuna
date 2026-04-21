@@ -4,7 +4,7 @@ using UnityEngine;
 using static UnityEngine.InputSystem.InputSettings;
 
 public class GameManager : MonoBehaviour
-{
+{/*
     [SerializeField] private DiceManager diceManager;
     [SerializeField] private MoneySystem moneySystem;
     [SerializeField] private UIManager ui;
@@ -79,5 +79,5 @@ public class GameManager : MonoBehaviour
                 return total < hightResult;
         }
         return false;
-    }
+    }*/
 }

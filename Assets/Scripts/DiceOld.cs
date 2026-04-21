@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Dice : MonoBehaviour
-{
+public class DiceOld : MonoBehaviour
+{/*
     [Header("References")]
     [SerializeField] private Rigidbody rb;
     public string diceType;
@@ -153,5 +153,5 @@ public class Dice : MonoBehaviour
                 min = side.value;
         }
         return min;
-    }
+    }*/
 }

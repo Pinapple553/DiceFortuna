@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
-{
+{/*
     [SerializeField] private DiceManager diceManager;
     [SerializeField] private AIPlayer ai;
     private MoneySystem money;
@@ -179,5 +179,5 @@ public class UIManager : MonoBehaviour
         }
         return false;
 
-    }
+    }*/
 }

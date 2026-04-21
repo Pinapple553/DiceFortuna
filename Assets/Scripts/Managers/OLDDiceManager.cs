@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-
-public class DiceManager : MonoBehaviour
+/*
+public class OLDDiceManager : MonoBehaviour
 {
     [SerializeField] public List<Dice> diceList;
     [SerializeField] private UIManager ui;
@@ -161,5 +161,5 @@ public class DiceManager : MonoBehaviour
         }
         return min;
     }
-}
+}*/
 
