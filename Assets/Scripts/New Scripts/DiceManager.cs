@@ -5,19 +5,19 @@ using UnityEngine;
 public class DiceManager : MonoBehaviour
 {
 	[SerializeField] 
-	private List<Dice> diceList;
-	private void Start()
-	{
-		ThrowDice(diceList);
-	}
-	public void ThrowDice(List<Dice> diceList)
+	private List<DiceData> diceList;
+    private void Start()
+    {
+        ThrowDice(diceList);
+    }
+    public void ThrowDice(List<DiceData> diceList)
     {
         foreach (var dice in diceList)
         {
-            int result = Random.Range(0, dice.GetSideCount()); // Simulate a dice throw (1-6)
-            DiceSide[] diceSides = dice.GetSides();
-
-            Debug.Log($"Dice {dice.name} rolled: {diceSides[result].name}");
-		}
-	}
+            int index = Random.Range(0, dice.sides.Length);
+            var result = dice.sides[index];
+            result.effect?.Apply();
+            Debug.Log($"Dice {dice.name} rolled: {result.name}");
+        }
+    }
 }

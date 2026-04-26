@@ -1,17 +1,14 @@
 using UnityEngine;
 
-public class DiceSide : MonoBehaviour
+[System.Serializable]
+public class DiceSide
 {
-	[SerializeField]
-    private string sideName;
-	[SerializeField]
-	private int value;
-	[SerializeField]
-	private RollEffect effect;
+    public string name;
+    public Sprite sprite;
+    public RollEffect effect;
 
-	public DiceSide(string name, int value)
-	{
-		this.sideName = name;
-		this.value = value;
-	}
+    public void Apply()
+    {
+        effect?.Apply();
+    }
 }

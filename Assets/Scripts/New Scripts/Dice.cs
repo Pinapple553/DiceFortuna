@@ -2,23 +2,19 @@ using UnityEngine;
 
 public class Dice : MonoBehaviour
 {
-	[SerializeField]
-	private string diceName;
-	[SerializeField]
-	private DiceSide[] sides;
-	[SerializeField]
-	private RollEffect effect;
-	public Dice(string name, DiceSide[] sides)
-	{
-		this.diceName = name;
-		this.sides = sides;
-	}
+    [SerializeField] private DiceData data;
+
+    public DiceSide Roll()
+    {
+        int index = Random.Range(0, data.sides.Length);
+        return data.sides[index];
+    }
 	public DiceSide[] GetSides()
 	{
-		return sides;
+		return data.sides;
 	}
 	public int GetSideCount()
 	{
-		return sides.Length;
+		return data.sides.Length;
 	}
 }
