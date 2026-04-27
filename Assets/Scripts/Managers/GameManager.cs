@@ -4,7 +4,7 @@ using UnityEngine;
 using static UnityEngine.InputSystem.InputSettings;
 
 public class GameManager : MonoBehaviour
-{/*
+{
     [SerializeField] private DiceManager diceManager;
     [SerializeField] private MoneySystem moneySystem;
     [SerializeField] private UIManager ui;
@@ -14,8 +14,9 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        ui.Init(moneySystem);
+        
     }
+
 
     public void StartRound()
     {
@@ -32,13 +33,12 @@ public class GameManager : MonoBehaviour
         StartCoroutine(RoundRoutine(playerBet));
     }
 
-    IEnumerator RoundRoutine(BetData playerBet)
+    private void RoundRoutine(BetData playerBet)
     {
         roundRunning = true;
         
         ui.resetResult();
         
-        yield return diceManager.RollRoutine();
         List<int> results = diceManager.GetResults();
 
         bool win = Evaluate(playerBet.betType, results);
@@ -62,7 +62,8 @@ public class GameManager : MonoBehaviour
         {
             total += r;
         }
-        int maxResult = diceManager.GetMaxResult();
+        //int maxResult = diceManager.GetMaxResult();
+        int maxResult = 100;
         float hightResult = maxResult/2;
         switch (bet)
         {
@@ -79,5 +80,5 @@ public class GameManager : MonoBehaviour
                 return total < hightResult;
         }
         return false;
-    }*/
+    }
 }

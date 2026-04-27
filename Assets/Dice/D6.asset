@@ -15,11 +15,11 @@ MonoBehaviour:
   diceName: D6
   sides:
   - name: 6
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: d9bcb2fed5dc75b42b20d7ee62f0cfa0, type: 3}
     effect: {fileID: 0}
   - name: 1
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: 71c432f8b989f684990993d3e6a4b786, type: 3}
     effect: {fileID: 0}
   - name: 2
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: 7e671d22c7605b448873c74dad1e9a01, type: 3}
     effect: {fileID: 0}
