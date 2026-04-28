@@ -39,18 +39,40 @@ public class DiceManager : MonoBehaviour
         }
     }
 
-    public void RemoveDice(DiceData dice)
+    public bool RemoveDice(DiceData dice)
     {
         if (diceList.Contains(dice))
         {
             diceList.Remove(dice);
             Debug.Log($"Removed dice: {dice.name}");
+            return true;
         }
         else
         {
             Debug.LogWarning($"Dice not found: {dice.name}");
+            return false;
         }
 
     }
+    public bool AddDice(DiceData dice)
+    {
+        if (diceList.Count >= 8) return false;
 
+        diceList.Add(dice);
+        Debug.Log($"Added dice: {dice.name}");
+        return true;
+    }
+    public List<int> GetResults()
+    {
+        List<int> results = new List<int>();    
+        foreach (var dice in diceList)
+        {
+            int index = Random.Range(0, dice.sides.Length);
+            var result = dice.sides[index];
+            results.Add(result.value);
+            result.effect?.Apply();
+            Debug.Log($"Dice {dice.name} rolled: {result.name}");
+        }
+        return results;
+	 }
 }

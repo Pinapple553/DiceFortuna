@@ -10,13 +10,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private UIManager ui;
     [SerializeField] private AIPlayer ai;
 
-    private bool roundRunning;
-
-    private void Start()
-    {
-        
-    }
-
+    private bool roundRunning = false;
 
     public void StartRound()
     {
@@ -29,8 +23,7 @@ public class GameManager : MonoBehaviour
         {
             return;
         }
-
-        StartCoroutine(RoundRoutine(playerBet));
+        RoundRoutine(playerBet);
     }
 
     private void RoundRoutine(BetData playerBet)
@@ -48,10 +41,8 @@ public class GameManager : MonoBehaviour
         ui.UpdateUI();
         ui.ShowResult(win, playerBet.amount);
        
-        
         //ai round turn
         BetData aiBet = ai.ChooseBet();
-
 
         roundRunning = false;
     }

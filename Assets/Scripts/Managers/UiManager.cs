@@ -27,7 +27,12 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject blankDiceIcon;
     [SerializeField] private List<DiceIcon> diceIcons;
 
-    [System.Serializable]
+    [SerializeField] private Sprite emptyDiceSlot;
+
+    [Header("DiceDisplay")]
+    [SerializeField] private Image[] diceDisplayImages;
+
+	[System.Serializable]
     public class DiceIcon
     {
         public string diceType;
@@ -40,12 +45,7 @@ public class UIManager : MonoBehaviour
 
     private void Awake()
     {
-        //Dictionary to link diceType name to the icon
-        lookup = new Dictionary<string, GameObject>();
-        foreach (var icon in diceIcons)
-        {
-            lookup[icon.diceType] = icon.iconObject;
-        }
+        UpdateDiceDisplay();
     }
 
     public void Init(MoneySystem moneySystem)
@@ -61,38 +61,33 @@ public class UIManager : MonoBehaviour
 
     }
 
-    public void AddDice(Dice dice)
+    public void AddDice(DiceData dice)
     {
         if (!diceManager.AddDice(dice)) return;
-
-        if (lookup.TryGetValue(dice.name, out var diceIcon))
-        {
-            GameObject newDiceIcon = Instantiate(diceIcon);
-            newDiceIcon.name = dice.name;
-            newDiceIcon.transform.SetParent(activeDiceContainer.transform);
-        }
-        else
-        {
-            blankDiceIcon.transform.parent = activeDiceContainer.transform;
-        }
-    }
-    public void RemoveDice(Dice dice)
+		UpdateDiceDisplay();
+	}
+    public void RemoveDice(DiceData dice)
     {
         if (!diceManager.RemoveDice(dice)) return;
+		UpdateDiceDisplay();
 
-        for (int i = 0; i < activeDiceContainer.transform.childCount; i++)
+	}
+
+    private void UpdateDiceDisplay(){
+       
+        for (int i = 0; i < diceDisplayImages.Length; i++)
         {
-            Transform child = activeDiceContainer.transform.GetChild(i);
-
-            if (child.name == dice.diceType)
+            if (i >= diceManager.diceList.Count){
+                diceDisplayImages[i].sprite = emptyDiceSlot;
+			}
+            else
             {
-                Destroy(child.gameObject);
-                return;
-            }
-        }
+                diceDisplayImages[i].sprite = diceManager.diceList[i].sides[0].sprite;
+			}
+		}
     }
 
-    public void SetBetOdd()
+	public void SetBetOdd()
     {
         betType = BetType.Odd;
         ResetBetButtons();

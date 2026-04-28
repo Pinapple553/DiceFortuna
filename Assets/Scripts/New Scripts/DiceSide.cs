@@ -4,7 +4,8 @@ using UnityEngine;
 public class DiceSide
 {
     public string name;
-    public Sprite sprite;
+    public int value =0;
+	public Sprite sprite;
     public RollEffect effect;
 
     public void Apply()
