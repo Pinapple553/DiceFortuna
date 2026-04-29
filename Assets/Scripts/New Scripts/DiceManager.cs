@@ -6,23 +6,26 @@ using UnityEngine.InputSystem.XR;
 public class DiceManager : MonoBehaviour
 {
     private PlayerController controller;
-
 	public List<DiceData> diceList;
-    private void Start()
-    {
-        ThrowDice();
-    }
-    private void Awake()
-    {
-        controller = new PlayerController();
-        controller.Dice.Roll.performed += ctx => ThrowDice();
-    }
 
+	public static DiceManager Instance;
+	private void Awake()
+    {
+		if (Instance != null && Instance != this)
+		{
+			Destroy(this.gameObject);
+		}
+		else
+		{
+			Instance = this;
+		}
+		controller = new PlayerController();
+        controller.Dice.Roll.performed += ctx => ThrowDice();
+	}
     private void OnEnable()
     {
         controller.Dice.Enable();
     }
-
     private void OnDisable()
     {
         controller.Dice.Disable();
@@ -43,23 +46,24 @@ public class DiceManager : MonoBehaviour
     {
         if (diceList.Contains(dice))
         {
-            diceList.Remove(dice);
-            Debug.Log($"Removed dice: {dice.name}");
+            for (int i = diceList.Count-1; i >= 0; i--)
+            {
+                if (diceList[i] == dice)
+                {
+                    diceList.RemoveAt(i);
+                    return true;
+                }
+			}
+            diceList.Remove(dice); //incase it breaks
             return true;
-        }
-        else
-        {
-            Debug.LogWarning($"Dice not found: {dice.name}");
-            return false;
-        }
-
+		}
+        return false;
     }
     public bool AddDice(DiceData dice)
     {
         if (diceList.Count >= 8) return false;
 
         diceList.Add(dice);
-        Debug.Log($"Added dice: {dice.name}");
         return true;
     }
     public List<int> GetResults()

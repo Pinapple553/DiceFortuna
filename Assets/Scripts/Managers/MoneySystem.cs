@@ -2,30 +2,28 @@ using UnityEngine;
 
 public class MoneySystem : MonoBehaviour
 {
-    public int PlayerMoney { get; private set; } = 100;
-
     public bool Spend(int amount)
     {
-        if (amount > PlayerMoney) return false;
+        if (amount > Player.Instance.money) return false;
 
-        PlayerMoney -= amount;
+        Player.Instance.money -= amount;
         return true;
     }
 
     public void Add(int amount)
     {
-        PlayerMoney += amount;
+		Player.Instance.money += amount;
     }
 
     public void UpdateMoney(bool win, int amount)
     {
         if (win)
         {
-            PlayerMoney += amount * 2;
+			Player.Instance.money += amount * 2;
         }
         else
         {
-            PlayerMoney -= amount;
+			Player.Instance.money -= amount;
         }
     }
 }

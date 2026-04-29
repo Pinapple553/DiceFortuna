@@ -2,12 +2,12 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    [SerializeField] private DiceManager diceManager;
     [SerializeField] private AIPlayer ai;
     private MoneySystem money;
 
@@ -23,14 +23,15 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text aiMoneyText;
     [SerializeField] private TMP_Text resultText;
     [SerializeField] private TMP_Text betText;
-    [SerializeField] private GameObject activeDiceContainer;
-    [SerializeField] private GameObject blankDiceIcon;
-    [SerializeField] private List<DiceIcon> diceIcons;
 
     [SerializeField] private Sprite emptyDiceSlot;
 
     [Header("DiceDisplay")]
-    [SerializeField] private Image[] diceDisplayImages;
+    [SerializeField] private DiceButton[] diceDisplayButtons;
+
+    [Header("DiceSelector")]
+    [SerializeField] private GridLayoutGroup diceSelectorGrid;
+    [SerializeField] private DiceButton diceIconPrefab;
 
 	[System.Serializable]
     public class DiceIcon
@@ -43,10 +44,20 @@ public class UIManager : MonoBehaviour
     private int betAmount = 10;
     private BetType betType = BetType.Odd;
 
-    private void Awake()
-    {
-        UpdateDiceDisplay();
-    }
+	public static UIManager Instance;
+	private void Awake()
+	{
+		if (Instance != null && Instance != this)
+		{
+			Destroy(this.gameObject);
+		}
+		else
+		{
+			Instance = this;
+		}
+		UpdateDiceDisplay();
+		UpdateDiceSelector();
+	}
 
     public void Init(MoneySystem moneySystem)
     {
@@ -58,34 +69,55 @@ public class UIManager : MonoBehaviour
         resetResult();
         UpdateMoney();
         UpdateBetAmount();
-
-    }
+        UpdateDiceSelector();
+	}
 
     public void AddDice(DiceData dice)
     {
-        if (!diceManager.AddDice(dice)) return;
+        if (!DiceManager.Instance.AddDice(dice)) return;
 		UpdateDiceDisplay();
 	}
     public void RemoveDice(DiceData dice)
     {
-        if (!diceManager.RemoveDice(dice)) return;
+        if (!DiceManager.Instance.RemoveDice(dice)) return;
 		UpdateDiceDisplay();
 
 	}
 
     private void UpdateDiceDisplay(){
        
-        for (int i = 0; i < diceDisplayImages.Length; i++)
+        for (int i = 0; i < diceDisplayButtons.Length; i++)
         {
-            if (i >= diceManager.diceList.Count){
-                diceDisplayImages[i].sprite = emptyDiceSlot;
+            if (i >= DiceManager.Instance.diceList.Count){
+				diceDisplayButtons[i].SetIcon(emptyDiceSlot);
+                diceDisplayButtons[i].dice = null;
 			}
             else
             {
-                diceDisplayImages[i].sprite = diceManager.diceList[i].sides[0].sprite;
+				diceDisplayButtons[i].SetIcon(DiceManager.Instance.diceList[i].sides[0].sprite);
+				diceDisplayButtons[i].dice = DiceManager.Instance.diceList[i];
 			}
 		}
     }
+
+    private void UpdateDiceSelector()
+    {
+        foreach (Transform child in diceSelectorGrid.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        List<DiceData> uniqueDice = new List<DiceData>();
+		foreach (var dice in Player.Instance.ownedDiceList)
+        { 
+            if(uniqueDice.Contains(dice)) continue;
+            uniqueDice.Add(dice);
+
+			var icon = Instantiate(diceIconPrefab, diceSelectorGrid.transform);
+            icon.dice = dice;
+            icon.amountOwned = Player.Instance.GetDiceAmount(dice);
+			icon.UpdateButtonUI();
+        }
+	}
 
 	public void SetBetOdd()
     {
@@ -124,7 +156,7 @@ public class UIManager : MonoBehaviour
     }
     public void IncreaseAmount(int amount)
     {
-        if (!(betAmount + amount > money.PlayerMoney))
+        if (!(betAmount + amount > Player.Instance.money))
         {
             betAmount += amount;
         }
@@ -162,7 +194,7 @@ public class UIManager : MonoBehaviour
 
     public void UpdateMoney()
     {
-        moneyText.text = $"YOU: {money.PlayerMoney}";
+        moneyText.text = $"YOU: {Player.Instance.money}";
         aiMoneyText.text = $"OPONENT: {ai.AiMoney}";
     }
 
@@ -173,6 +205,5 @@ public class UIManager : MonoBehaviour
             return true;
         }
         return false;
-
     }
 }
