@@ -12100,6 +12100,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 701d92cee09b3b84e913b726405f6d4a, type: 2}
   - {fileID: 11400000, guid: 701d92cee09b3b84e913b726405f6d4a, type: 2}
   - {fileID: 11400000, guid: 701d92cee09b3b84e913b726405f6d4a, type: 2}
+  - {fileID: 11400000, guid: 4e0926f38f448e04da0b9b4809ef8529, type: 2}
   ownedItemsList: 
   money: 100
 --- !u!1 &2065536930
