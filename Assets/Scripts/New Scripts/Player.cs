@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -30,4 +31,10 @@ public class Player : MonoBehaviour
         }
         return count;
 	}
+    public int GetAvailableAmount(DiceData dice)
+    {
+        int owned = GetDiceAmount(dice);
+        int active = DiceManager.Instance.activeDiceList.Count(i => i.data == dice);
+        return owned - active;
+    }
 }

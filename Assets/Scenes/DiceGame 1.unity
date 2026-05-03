@@ -681,8 +681,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -15, y: -438}
-  m_SizeDelta: {x: 269.19, y: 192.91}
+  m_AnchoredPosition: {x: 0.0000019073, y: -262}
+  m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &183195123
 MonoBehaviour:
@@ -696,6 +696,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a024959bd6ff0ec45a5ade19b7fceabe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceButton
+  instanceId: 0
   dice: {fileID: 0}
   amountOwned: 0
   icon: {fileID: 183195125}
@@ -1717,7 +1718,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1230819824ecc534e94ee93e0d1ba6ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceManager
-  diceList: []
 --- !u!4 &284288479
 Transform:
   m_ObjectHideFlags: 0
@@ -2235,7 +2235,7 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_NormalColor: {r: 0.5921569, g: 0.24705884, b: 0.9568628, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -3590,7 +3590,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.9688195, b: 0.61320746, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3912,7 +3912,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 870513406}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: IncreaseAmount
+        m_MethodName: changeAmount
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4468,8 +4468,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 587, y: 315}
-  m_SizeDelta: {x: 269.19, y: 192.91}
+  m_AnchoredPosition: {x: 206, y: 179}
+  m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &825817978
 MonoBehaviour:
@@ -4483,6 +4483,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a024959bd6ff0ec45a5ade19b7fceabe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceButton
+  instanceId: 0
   dice: {fileID: 0}
   amountOwned: 0
   icon: {fileID: 825817980}
@@ -5806,8 +5807,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 556, y: -366}
-  m_SizeDelta: {x: 269.19, y: 192.91}
+  m_AnchoredPosition: {x: 192, y: -178}
+  m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1012327368
 MonoBehaviour:
@@ -5821,6 +5822,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a024959bd6ff0ec45a5ade19b7fceabe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceButton
+  instanceId: 0
   dice: {fileID: 0}
   amountOwned: 0
   icon: {fileID: 1012327370}
@@ -5975,7 +5977,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.38431373}
+  m_Color: {r: 0.7924528, g: 0.73803717, b: 0.6840513, a: 0.38431373}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6642,9 +6644,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 380ed95535b28284fafa02b4127fec3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  diceManager: {fileID: 284288478}
   moneySystem: {fileID: 1726249175}
-  ui: {fileID: 870513406}
   ai: {fileID: 750178018}
 --- !u!4 &1182385893
 Transform:
@@ -6698,8 +6698,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -5, y: 387.00006}
-  m_SizeDelta: {x: 269.19, y: 192.91}
+  m_AnchoredPosition: {x: 12, y: 262}
+  m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1194446369
 MonoBehaviour:
@@ -6713,6 +6713,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a024959bd6ff0ec45a5ade19b7fceabe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceButton
+  instanceId: 0
   dice: {fileID: 0}
   amountOwned: 0
   icon: {fileID: 1194446371}
@@ -6999,7 +7000,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.61980397, g: 0.25943398, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -8418,8 +8419,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -727, y: 27}
-  m_SizeDelta: {x: 269.19, y: 192.91}
+  m_AnchoredPosition: {x: -267, y: 10}
+  m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1422101967
 MonoBehaviour:
@@ -8433,6 +8434,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a024959bd6ff0ec45a5ade19b7fceabe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceButton
+  instanceId: 0
   dice: {fileID: 0}
   amountOwned: 0
   icon: {fileID: 1422101969}
@@ -8565,8 +8567,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -49, y: -21}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 2.152, y: -80.77307}
+  m_SizeDelta: {x: 302.304, y: 118.06}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1462295750
 CanvasRenderer:
@@ -8828,14 +8830,14 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 870513406}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: SetBetEven
-        m_Mode: 1
+        m_MethodName: SetBetType
+        m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: Even
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!222 &1484872335
@@ -9360,8 +9362,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 700, y: 5}
-  m_SizeDelta: {x: 269.19, y: 192.91}
+  m_AnchoredPosition: {x: 268, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1582468071
 MonoBehaviour:
@@ -9375,6 +9377,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a024959bd6ff0ec45a5ade19b7fceabe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceButton
+  instanceId: 0
   dice: {fileID: 0}
   amountOwned: 0
   icon: {fileID: 1582468073}
@@ -10317,8 +10320,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -505, y: 318}
-  m_SizeDelta: {x: 269.19, y: 192.91}
+  m_AnchoredPosition: {x: -192, y: 193}
+  m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1703091941
 MonoBehaviour:
@@ -10332,6 +10335,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a024959bd6ff0ec45a5ade19b7fceabe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceButton
+  instanceId: 0
   dice: {fileID: 0}
   amountOwned: 0
   icon: {fileID: 1703091943}
@@ -10844,8 +10848,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -580, y: -328}
-  m_SizeDelta: {x: 269.19, y: 192.91}
+  m_AnchoredPosition: {x: -176, y: -186}
+  m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1752080271
 MonoBehaviour:
@@ -10859,6 +10863,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a024959bd6ff0ec45a5ade19b7fceabe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceButton
+  instanceId: 0
   dice: {fileID: 0}
   amountOwned: 0
   icon: {fileID: 1752080273}
@@ -10984,8 +10989,8 @@ RectTransform:
   m_GameObject: {fileID: 1760028218}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.48339, y: 0.61982, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1194446368}
   - {fileID: 825817977}
@@ -10999,8 +11004,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 8.561768}
-  m_SizeDelta: {x: -573.186, y: -296.729}
+  m_AnchoredPosition: {x: 65, y: -11}
+  m_SizeDelta: {x: -1308.3, y: -472.812}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1760028220
 MonoBehaviour:
@@ -11015,15 +11020,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7952175, g: 0, b: 1, a: 0.39215687}
+  m_Color: {r: 0.6792453, g: 0.6051458, b: 0.509434, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -11125,12 +11130,12 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 870513406}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: DecreaseAmount
+        m_MethodName: changeAmount
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 5
+          m_IntArgument: -5
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -11786,14 +11791,14 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 870513406}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: SetBetLow
-        m_Mode: 1
+        m_MethodName: SetBetType
+        m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: Low
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!222 &1933076767
@@ -12020,7 +12025,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.5660378, g: 0.44892794, b: 0.31238878, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -12182,14 +12187,14 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 870513406}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: SetBetOdd
-        m_Mode: 1
+        m_MethodName: SetBetType
+        m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: Odd
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!222 &2065536933
@@ -12530,14 +12535,14 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 870513406}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: SetBetHigh
-        m_Mode: 1
+        m_MethodName: SetBetType
+        m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: High
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!222 &2081161838

@@ -6,9 +6,10 @@ using UnityEngine.InputSystem.XR;
 public class DiceManager : MonoBehaviour
 {
     private PlayerController controller;
-	public List<DiceData> diceList;
+    public List<DiceInstance> activeDiceList = new List<DiceInstance>();
 
-	public static DiceManager Instance;
+    public static DiceManager Instance;
+
 	private void Awake()
     {
 		if (Instance != null && Instance != this)
@@ -31,52 +32,51 @@ public class DiceManager : MonoBehaviour
         controller.Dice.Disable();
     }
 
-    public void ThrowDice()
+    public bool AddDice(DiceData dice)
     {
-        foreach (var dice in diceList)
-        {
-            int index = Random.Range(0, dice.sides.Length);
-            var result = dice.sides[index];
-            result.effect?.Apply();
-            Debug.Log($"Dice {dice.name} rolled: {result.name}");
-        }
+        if (activeDiceList.Count >= 8) return false;
+        activeDiceList.Add(new DiceInstance(dice));
+        return true;
     }
 
     public bool RemoveDice(DiceData dice)
     {
-        if (diceList.Contains(dice))
+        for (int i = activeDiceList.Count - 1; i >= 0; i--)
         {
-            for (int i = diceList.Count-1; i >= 0; i--)
+            if (activeDiceList[i].data == dice)
             {
-                if (diceList[i] == dice)
-                {
-                    diceList.RemoveAt(i);
-                    return true;
-                }
-			}
-            diceList.Remove(dice); //incase it breaks
-            return true;
-		}
+                activeDiceList.RemoveAt(i);
+                return true;
+            }
+        }
         return false;
     }
-    public bool AddDice(DiceData dice)
+    public List<int> ThrowDice()
     {
-        if (diceList.Count >= 8) return false;
-
-        diceList.Add(dice);
-        return true;
-    }
-    public List<int> GetResults()
-    {
-        List<int> results = new List<int>();    
-        foreach (var dice in diceList)
+        List<int> results = new List<int>();
+        foreach (var instance in activeDiceList)
         {
-            int index = Random.Range(0, dice.sides.Length);
-            var result = dice.sides[index];
-            results.Add(result.value);
+            int index = Random.Range(0, instance.data.sides.Length);
+            instance.currentSideIndex = index;
+            var result = instance.data.sides[index];
             result.effect?.Apply();
-            Debug.Log($"Dice {dice.name} rolled: {result.name}");
+            results.Add(result.value);
         }
         return results;
-	 }
+    }
+
+    public int GetMaxResult()
+    {
+        int max = 0;
+        foreach (var instance in activeDiceList)
+        {
+            int instanceMax = 0;
+            foreach (var side in instance.data.sides)
+            {
+                if (side.value > instanceMax) instanceMax = side.value;
+            }
+            max += instanceMax;
+        }
+        return max;
+    }
 }

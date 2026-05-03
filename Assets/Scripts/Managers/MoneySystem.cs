@@ -23,7 +23,7 @@ public class MoneySystem : MonoBehaviour
         }
         else
         {
-			Player.Instance.money -= amount;
+			 //Player.Instance.money -= amount;
         }
     }
 }

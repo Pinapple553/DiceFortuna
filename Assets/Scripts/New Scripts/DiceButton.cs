@@ -5,7 +5,9 @@ using UnityEngine.UI;
 
 public class DiceButton : MonoBehaviour
 {
-	[Header("Dice Info")]
+    public int instanceId;
+
+    [Header("Dice Info")]
 	public DiceData dice;
 	public int amountOwned;
 	int amountAdded;

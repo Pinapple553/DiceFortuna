@@ -33,6 +33,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GridLayoutGroup diceSelectorGrid;
     [SerializeField] private DiceButton diceIconPrefab;
 
+    private List<DiceInstance> inventoryDice = new List<DiceInstance>();
+
 	[System.Serializable]
     public class DiceIcon
     {
@@ -55,13 +57,10 @@ public class UIManager : MonoBehaviour
 		{
 			Instance = this;
 		}
-		UpdateDiceDisplay();
-		UpdateDiceSelector();
 	}
-
-    public void Init(MoneySystem moneySystem)
+    private void Start()
     {
-        money = moneySystem;
+        inventoryDice = Player.Instance.ownedDiceList.ConvertAll(d => new DiceInstance(d));
         UpdateUI();
     }
     public void UpdateUI()
@@ -70,36 +69,37 @@ public class UIManager : MonoBehaviour
         UpdateMoney();
         UpdateBetAmount();
         UpdateDiceSelector();
-	}
+        UpdateDiceDisplay();
+    }
 
     public void AddDice(DiceData dice)
     {
         if (!DiceManager.Instance.AddDice(dice)) return;
-		UpdateDiceDisplay();
+        UpdateUI();
 	}
     public void RemoveDice(DiceData dice)
     {
         if (!DiceManager.Instance.RemoveDice(dice)) return;
-		UpdateDiceDisplay();
+        UpdateUI();
 
 	}
-
     private void UpdateDiceDisplay(){
        
         for (int i = 0; i < diceDisplayButtons.Length; i++)
         {
-            if (i >= DiceManager.Instance.diceList.Count){
-				diceDisplayButtons[i].SetIcon(emptyDiceSlot);
+            if (i >= DiceManager.Instance.activeDiceList.Count) {
+                diceDisplayButtons[i].SetIcon(emptyDiceSlot);
                 diceDisplayButtons[i].dice = null;
-			}
+            }
             else
             {
-				diceDisplayButtons[i].SetIcon(DiceManager.Instance.diceList[i].sides[0].sprite);
-				diceDisplayButtons[i].dice = DiceManager.Instance.diceList[i];
-			}
+                var instance = DiceManager.Instance.activeDiceList[i];
+                diceDisplayButtons[i].SetIcon(instance.data.sides[instance.currentSideIndex].sprite);
+                diceDisplayButtons[i].dice = instance.data;
+                diceDisplayButtons[i].instanceId = instance.instanceId;
+            }
 		}
     }
-
     private void UpdateDiceSelector()
     {
         foreach (Transform child in diceSelectorGrid.transform)
@@ -107,41 +107,36 @@ public class UIManager : MonoBehaviour
             Destroy(child.gameObject);
         }
         List<DiceData> uniqueDice = new List<DiceData>();
-		foreach (var dice in Player.Instance.ownedDiceList)
+		foreach (DiceData dice in Player.Instance.ownedDiceList)
         { 
             if(uniqueDice.Contains(dice)) continue;
             uniqueDice.Add(dice);
 
 			var icon = Instantiate(diceIconPrefab, diceSelectorGrid.transform);
             icon.dice = dice;
-            icon.amountOwned = Player.Instance.GetDiceAmount(dice);
-			icon.UpdateButtonUI();
+            icon.amountOwned = Player.Instance.GetAvailableAmount(dice);
+            icon.UpdateButtonUI();
         }
 	}
-
-	public void SetBetOdd()
+    public void SetBetType(string type)
     {
-        betType = BetType.Odd;
+        betType = (BetType)System.Enum.Parse(typeof(BetType), type);
         ResetBetButtons();
-        oddButtonImage.color = Color.red;
-    }
-    public void SetBetEven()
-    {
-        betType = BetType.Even;
-        ResetBetButtons();
-        evenButtonImage.color = Color.red;
-    }
-    public void SetBetHigh()
-    {
-        betType = BetType.High;
-        ResetBetButtons();
-        highButtonImage.color = Color.red;
-    }
-    public void SetBetLow()
-    {
-        betType = BetType.Low;
-        ResetBetButtons();
-        lowButtonImage.color = Color.red;
+        switch (betType)
+        {
+            case BetType.Odd:
+                oddButtonImage.color = Color.red;
+                break;
+            case BetType.Even:
+                evenButtonImage.color = Color.red;
+                break;
+            case BetType.High:
+                highButtonImage.color = Color.red;
+                break;
+            case BetType.Low:
+                lowButtonImage.color = Color.red;
+                break;
+        }
     }
     private void ResetBetButtons()
     {
@@ -154,31 +149,21 @@ public class UIManager : MonoBehaviour
     {
         betText.text = $"Amount: {betAmount}";
     }
-    public void IncreaseAmount(int amount)
+    public void changeAmount(int amount)
     {
-        if (!(betAmount + amount > Player.Instance.money))
+        if (!(betAmount + amount > Player.Instance.money) && !(betAmount + amount < 0))
         {
             betAmount += amount;
         }
-        UpdateBetAmount();
+        UpdateUI();
     }
-
-    public void DecreaseAmount(int amount)
-    {
-        if (betAmount - amount >= 0)
-        {
-            betAmount -= amount;
-        }
-        UpdateBetAmount();
-    }
-
     public BetData GetBet()
     {
         return new BetData(betType, betAmount);
     }
     public void resetResult()
     {
-        resultText.text ="...";
+        resultText.text ="";
     }
     public void ShowResult(bool win, int amount)
     {
@@ -191,13 +176,11 @@ public class UIManager : MonoBehaviour
             resultText.text = $"LOSE -{amount}";
         }
     }
-
     public void UpdateMoney()
     {
         moneyText.text = $"YOU: {Player.Instance.money}";
         aiMoneyText.text = $"OPONENT: {ai.AiMoney}";
     }
-
     public bool AllSelected()
     {
         if (betAmount > 0)
