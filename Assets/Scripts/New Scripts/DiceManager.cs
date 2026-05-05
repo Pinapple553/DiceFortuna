@@ -64,7 +64,6 @@ public class DiceManager : MonoBehaviour
         }
         return results;
     }
-
     public int GetMaxResult()
     {
         int max = 0;
@@ -78,5 +77,19 @@ public class DiceManager : MonoBehaviour
             max += instanceMax;
         }
         return max;
+    }
+    public int GetMinResult()
+    {
+        int min = 0;
+        foreach (var instance in activeDiceList)
+        {
+            int instanceMin = int.MaxValue;
+            foreach (var side in instance.data.sides)
+            {
+                if (side.value < instanceMin) instanceMin = side.value;
+            }
+            min += instanceMin;
+        }
+        return min;
     }
 }

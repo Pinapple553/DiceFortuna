@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DiceData
   diceName: coin
   sides:
+  - name: 2
+    value: 2
+    sprite: {fileID: 21300000, guid: 7e671d22c7605b448873c74dad1e9a01, type: 3}
+    effect: {fileID: 0}
   - name: 1
     value: 1
     sprite: {fileID: 21300000, guid: 71c432f8b989f684990993d3e6a4b786, type: 3}
-    effect: {fileID: 0}
-  - name: 20
-    value: 20
-    sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
     effect: {fileID: 0}

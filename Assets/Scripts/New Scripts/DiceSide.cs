@@ -6,7 +6,7 @@ public class DiceSide
     public string name;
     public int value =0;
 	public Sprite sprite;
-    public RollEffect effect;
+    public Effect effect;
 
     public void Apply()
     {

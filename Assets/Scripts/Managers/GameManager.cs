@@ -27,7 +27,6 @@ public class GameManager : MonoBehaviour
     private void RoundRoutine(BetData playerBet)
     {
         roundRunning = true;
-
         UIManager.Instance.resetResult();
         
         List<int> results = DiceManager.Instance.ThrowDice();
@@ -37,10 +36,9 @@ public class GameManager : MonoBehaviour
         ai.UpdateMoney(!win, playerBet.amount);
 
         UIManager.Instance.UpdateUI();
+        UIManager.Instance.ShowDiceResults(results);
         UIManager.Instance.ShowResult(win, playerBet.amount);
        
-        //ai round turn
-        BetData aiBet = ai.ChooseBet();
 
         roundRunning = false;
     }
@@ -52,7 +50,8 @@ public class GameManager : MonoBehaviour
             total += r;
         }
         int maxResult = DiceManager.Instance.GetMaxResult();
-        float highResult = maxResult/2;
+        int minResult = DiceManager.Instance.GetMinResult();
+        float highResult = (maxResult + minResult) / 2f;
         switch (bet)
         {
             case BetType.Odd:

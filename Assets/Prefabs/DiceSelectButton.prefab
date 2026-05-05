@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &4869650762225032394
+--- !u!1 &820950110366130352
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,11 +8,11 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6986849488141200803}
-  - component: {fileID: 1152368704902398018}
-  - component: {fileID: 2012041496783304831}
-  - component: {fileID: 4491573953403465518}
-  - component: {fileID: 7907314133476474695}
+  - component: {fileID: 8742693507855033277}
+  - component: {fileID: 2041598103445696754}
+  - component: {fileID: 6537492217605835689}
+  - component: {fileID: 6742803984320774495}
+  - component: {fileID: 2854943726660960488}
   m_Layer: 5
   m_Name: DiceSelectButton
   m_TagString: Untagged
@@ -20,19 +20,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &6986849488141200803
+--- !u!224 &8742693507855033277
 RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4869650762225032394}
+  m_GameObject: {fileID: 820950110366130352}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6708005386599887865}
+  - {fileID: 7360845206529882523}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -40,21 +40,21 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &1152368704902398018
+--- !u!222 &2041598103445696754
 CanvasRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4869650762225032394}
+  m_GameObject: {fileID: 820950110366130352}
   m_CullTransparentMesh: 1
---- !u!114 &2012041496783304831
+--- !u!114 &6537492217605835689
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4869650762225032394}
+  m_GameObject: {fileID: 820950110366130352}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
@@ -78,13 +78,13 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &4491573953403465518
+--- !u!114 &6742803984320774495
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4869650762225032394}
+  m_GameObject: {fileID: 820950110366130352}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
@@ -118,11 +118,11 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 2012041496783304831}
+  m_TargetGraphic: {fileID: 6537492217605835689}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7907314133476474695}
+      - m_Target: {fileID: 2854943726660960488}
         m_TargetAssemblyTypeName: DiceButton, Assembly-CSharp
         m_MethodName: AddDice
         m_Mode: 1
@@ -134,24 +134,24 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &7907314133476474695
+--- !u!114 &2854943726660960488
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4869650762225032394}
+  m_GameObject: {fileID: 820950110366130352}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a024959bd6ff0ec45a5ade19b7fceabe, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: '::'
+  m_EditorClassIdentifier: Assembly-CSharp::DiceButton
   instanceId: 0
   dice: {fileID: 0}
   amountOwned: 0
-  icon: {fileID: 2012041496783304831}
-  amountText: {fileID: 7313085901940442380}
---- !u!1 &5890393501484932968
+  icon: {fileID: 6537492217605835689}
+  amountText: {fileID: 4383713078685687985}
+--- !u!1 &4507090597047718963
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -159,9 +159,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6708005386599887865}
-  - component: {fileID: 7864490772277622371}
-  - component: {fileID: 7313085901940442380}
+  - component: {fileID: 7360845206529882523}
+  - component: {fileID: 1742966052753286298}
+  - component: {fileID: 4383713078685687985}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -169,40 +169,40 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &6708005386599887865
+--- !u!224 &7360845206529882523
 RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5890393501484932968}
+  m_GameObject: {fileID: 4507090597047718963}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 6986849488141200803}
+  m_Father: {fileID: 8742693507855033277}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 28.558, y: -36.9}
   m_SizeDelta: {x: -57.117, y: -54.331}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &7864490772277622371
+--- !u!222 &1742966052753286298
 CanvasRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5890393501484932968}
+  m_GameObject: {fileID: 4507090597047718963}
   m_CullTransparentMesh: 1
---- !u!114 &7313085901940442380
+--- !u!114 &4383713078685687985
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5890393501484932968}
+  m_GameObject: {fileID: 4507090597047718963}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}

@@ -22,6 +22,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text moneyText;
     [SerializeField] private TMP_Text aiMoneyText;
     [SerializeField] private TMP_Text resultText;
+    [SerializeField] private TMP_Text diceResultText;
     [SerializeField] private TMP_Text betText;
 
     [SerializeField] private Sprite emptyDiceSlot;
@@ -164,6 +165,15 @@ public class UIManager : MonoBehaviour
     public void resetResult()
     {
         resultText.text ="";
+    }
+    public void ShowDiceResults(List<int> results)
+    {
+        int res = 0;
+        foreach (int r in results)
+        {
+            res += r;
+        }
+        diceResultText.text = res.ToString();
     }
     public void ShowResult(bool win, int amount)
     {
