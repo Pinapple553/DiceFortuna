@@ -1,10 +1,10 @@
 using UnityEngine;
 
-public class Effect : MonoBehaviour
+[CreateAssetMenu(fileName = "NewEffect", menuName = "Dice/Effects")]
+public class Effect : ScriptableObject
 {
-    public void Apply()
-    {
-         //effect go poof!
-         Debug.Log("Roll effect applied!");
-    }
-}
+    [SerializeField] private string effectName;
+	public void Apply(DiceInstance dice, float chance){
+        EffectManager.Instance.ApplyEffect(effectName,dice,chance);
+	}
+}	

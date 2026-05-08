@@ -17,8 +17,10 @@ MonoBehaviour:
   - name: 2
     value: 2
     sprite: {fileID: 21300000, guid: 7e671d22c7605b448873c74dad1e9a01, type: 3}
-    effect: {fileID: 0}
+    effect: {fileID: 11400000, guid: 6bb8a77f578f3b04e961218441e830a9, type: 2}
+    effectChance: 1
   - name: 1
     value: 1
     sprite: {fileID: 21300000, guid: 71c432f8b989f684990993d3e6a4b786, type: 3}
     effect: {fileID: 0}
+    effectChance: 1

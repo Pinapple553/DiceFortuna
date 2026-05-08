@@ -56,11 +56,7 @@ public class DiceManager : MonoBehaviour
         List<int> results = new List<int>();
         foreach (var instance in activeDiceList)
         {
-            int index = Random.Range(0, instance.data.sides.Length);
-            instance.currentSideIndex = index;
-            var result = instance.data.sides[index];
-            result.effect?.Apply();
-            results.Add(result.value);
+            results.Add(DiceAnimation.Instance.Roll(instance));
         }
         return results;
     }

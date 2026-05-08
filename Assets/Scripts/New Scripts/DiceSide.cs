@@ -7,9 +7,5 @@ public class DiceSide
     public int value =0;
 	public Sprite sprite;
     public Effect effect;
-
-    public void Apply()
-    {
-        effect?.Apply();
-    }
+    public float effectChance = 1f;
 }
