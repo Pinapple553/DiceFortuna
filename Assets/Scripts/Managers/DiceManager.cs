@@ -36,23 +36,28 @@ public class DiceManager : MonoBehaviour
 
     public bool AddDice(DiceData dice)
     {
-        if(GameManager.Instance.roundRunning) return false;
+        if (!GameManager.Instance.roundRunning) return false;
+        if (GameManager.Instance.diceRolling) return false;
         if (activeDiceList.Count >= 8) return false;
         activeDiceList.Add(new DiceInstance(dice));
+        UIManager.Instance.UpdateUI();
         return true;
     }
 
     public bool RemoveDice(DiceData dice)
     {
-        if (GameManager.Instance.roundRunning) return false;
+        if (!GameManager.Instance.roundRunning) return false;
+        if (GameManager.Instance.diceRolling) return false;
         for (int i = activeDiceList.Count - 1; i >= 0; i--)
         {
             if (activeDiceList[i].data == dice)
             {
                 activeDiceList.RemoveAt(i);
+                UIManager.Instance.UpdateUI();
                 return true;
             }
         }
+        UIManager.Instance.UpdateUI();
         return false;
     }
     public void ThrowDice()

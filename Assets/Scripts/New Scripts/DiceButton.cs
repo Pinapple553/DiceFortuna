@@ -16,15 +16,15 @@ public class DiceButton : MonoBehaviour
 	[SerializeField] private Image icon;
 	[SerializeField] private TMP_Text amountText;
 	public void AddDice(){
-		if(amountOwned-amountAdded>0)
+		if (amountOwned-amountAdded>0)
 		{
-			UIManager.Instance.AddDice(dice);
-			amountAdded +=1;
+            if (!DiceManager.Instance.AddDice(dice)) return;
+            amountAdded +=1;
 		}
 		UpdateButtonUI();
 	}
 	public void RemoveDice(){
-		UIManager.Instance.RemoveDice(dice);
+        if (!DiceManager.Instance.RemoveDice(dice)) return;
 		amountAdded -=1;
 	}
 

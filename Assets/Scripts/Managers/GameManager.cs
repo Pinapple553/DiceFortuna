@@ -13,6 +13,9 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
 
     public bool roundRunning = false;
+    public bool diceRolling = false;
+
+    [SerializeField] private int roundCost = 20;
 
     private void Awake()
     {
@@ -26,28 +29,42 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void StartButtonClick()
+    {
+        if (!roundRunning)
+        {
+            StartRound();
+        }
+        else
+        {
+            Roll();
+        }
+    }
+
     public void StartRound()
     {
-        if (roundRunning)
+        if (!moneySystem.Spend(roundCost))
+        {
+            return;
+        }
+        roundRunning = true;
+        UIManager.Instance.StartRoundUI(true);
+        UIManager.Instance.UpdateUI();
+    }
+    private void Roll()
+    {
+        if (diceRolling)
         {
             DiceAnimation.Instance.SkipAll();
             return;
         }
-
         if (DiceManager.Instance.activeDiceList.Count == 0) return;
-
-        BetData playerBet = UIManager.Instance.GetBet();
-
-        if (!moneySystem.Spend(playerBet.amount))
-        {
-            return;
-        }
+      
         StartCoroutine(RoundRoutine());
     }
-
     private IEnumerator RoundRoutine()
     {
-        roundRunning = true;
+        diceRolling = true;
         UIManager.Instance.resetResult();
         
         DiceManager.Instance.ThrowDice();
@@ -57,7 +74,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         UIManager.Instance.ShowRollResults();
 
-        roundRunning = false;
+        diceRolling = false;
     }
     private IEnumerator EvaluateRoll()
     {

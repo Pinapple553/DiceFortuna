@@ -19,6 +19,7 @@ public class UIManager : MonoBehaviour
 
 
     [Header("GameObjects")]
+    [SerializeField] private TMP_Text startButtonText;
     [SerializeField] private TMP_Text moneyText;
     [SerializeField] private TMP_Text aiMoneyText;
     [SerializeField] private TMP_Text resultText;
@@ -72,18 +73,6 @@ public class UIManager : MonoBehaviour
         UpdateDiceSelector();
         UpdateDiceDisplay();
     }
-
-    public void AddDice(DiceData dice)
-    {
-        if (!DiceManager.Instance.AddDice(dice)) return;
-        UpdateUI();
-	}
-    public void RemoveDice(DiceData dice)
-    {
-        if (!DiceManager.Instance.RemoveDice(dice)) return;
-        UpdateUI();
-
-	}
     private void UpdateDiceDisplay(){
        
         for (int i = 0; i < diceDisplayButtons.Length; i++)
@@ -193,5 +182,10 @@ public class UIManager : MonoBehaviour
             return true;
         }
         return false;
+    }
+
+    public void StartRoundUI(bool start)
+    {
+        startButtonText.text = start ? "Roll" : "Start";
     }
 }

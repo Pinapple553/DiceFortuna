@@ -1523,6 +1523,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1230819824ecc534e94ee93e0d1ba6ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceManager
+  currentResult: 0
 --- !u!4 &284288479
 Transform:
   m_ObjectHideFlags: 0
@@ -1967,8 +1968,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 548027972}
   m_HandleRect: {fileID: 548027971}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 1
+  m_Value: 0
+  m_Size: 0.3110292
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -4342,6 +4343,7 @@ MonoBehaviour:
   evenButtonImage: {fileID: 1484872336}
   highButtonImage: {fileID: 2081161839}
   lowButtonImage: {fileID: 1933076768}
+  startButtonText: {fileID: 1128641923}
   moneyText: {fileID: 2113532170}
   aiMoneyText: {fileID: 199555724}
   resultText: {fileID: 260350199}
@@ -5569,7 +5571,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: ROLL
+  m_text: Start
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -5816,6 +5818,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   moneySystem: {fileID: 1726249175}
   ai: {fileID: 750178018}
+  roundRunning: 0
+  diceRolling: 0
+  roundCost: 20
 --- !u!4 &1182385893
 Transform:
   m_ObjectHideFlags: 0
@@ -6147,7 +6152,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1182385892}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: StartRound
+        m_MethodName: StartButtonClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8853,7 +8858,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0.000061035156}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1711945928
