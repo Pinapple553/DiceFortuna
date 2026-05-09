@@ -10,7 +10,21 @@ public class GameManager : MonoBehaviour
     [SerializeField] private MoneySystem moneySystem;
     [SerializeField] private AIPlayer ai;
 
-    private bool roundRunning = false;
+    public static GameManager Instance;
+
+    public bool roundRunning = false;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            Instance = this;
+        }
+    }
 
     public void StartRound()
     {
