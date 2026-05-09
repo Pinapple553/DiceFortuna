@@ -10,7 +10,9 @@ public class DiceManager : MonoBehaviour
 
     public static DiceManager Instance;
 
-	private void Awake()
+    public int currentResult = 0;
+
+    private void Awake()
     {
 		if (Instance != null && Instance != this)
 		{
@@ -51,15 +53,33 @@ public class DiceManager : MonoBehaviour
         }
         return false;
     }
-    public List<int> ThrowDice()
+    public void ThrowDice()
     {
-        List<int> results = new List<int>();
         foreach (var instance in activeDiceList)
         {
-            results.Add(DiceAnimation.Instance.Roll(instance));
+            DiceAnimation.Instance.Roll(instance);
         }
-        return results;
     }
+    public bool IsAnyDiceRolling()
+    {
+        foreach (var instance in activeDiceList)
+        {
+            if (instance.isRolling) return true;
+        }
+        return false;
+    }
+    public int GetCurrentResult()
+    {
+        int result = 0;
+        foreach (var instance in activeDiceList)
+        {
+            result += instance.data.sides[instance.currentSideIndex].value;
+        }
+        currentResult = result;
+        return result;
+    }
+
+
     public int GetMaxResult()
     {
         int max = 0;

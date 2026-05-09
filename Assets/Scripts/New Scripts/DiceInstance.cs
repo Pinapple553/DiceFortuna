@@ -5,6 +5,7 @@ public class DiceInstance
 {
     public DiceData data;
     public int currentSideIndex = 0;
+    public bool isRolling = false;
     public int instanceId;
     private static int nextId = 0;
 

@@ -15,11 +15,11 @@ public class DiceAnimation : MonoBehaviour
 			Instance = this;
 		}
 	}
-	public int Roll(DiceInstance dice)
+	public void Roll(DiceInstance dice)
 	{
 		StartCoroutine(RollCoroutine(dice));
-		return dice.data.sides[dice.currentSideIndex].value;
-	}
+		dice.isRolling = true;
+    }
 	private IEnumerator RollCoroutine(DiceInstance dice)
 	{
 		yield return RollAnimation(dice);
@@ -33,7 +33,7 @@ public class DiceAnimation : MonoBehaviour
 	private IEnumerator RollAnimation(DiceInstance dice)
 	{
 		float delay = 0.05f;
-		int rollCount = Random.Range(10, 20);
+		int rollCount = Random.Range(10, 14);
 		for (int i = 0; i < rollCount; i++)
 		{
 			int index = Random.Range(0, dice.data.sides.Length);
@@ -42,7 +42,8 @@ public class DiceAnimation : MonoBehaviour
 			UIManager.Instance.UpdateUI();
 			yield return new WaitForSeconds(delay);
 
-			delay *= 1.2f; // slows down
+			delay *= 1.2f;
 		}
-	}
+		dice.isRolling = false;
+    }
 }

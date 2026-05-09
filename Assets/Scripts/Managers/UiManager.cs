@@ -166,14 +166,9 @@ public class UIManager : MonoBehaviour
     {
         resultText.text ="";
     }
-    public void ShowDiceResults(List<int> results)
+    public void ShowRollResults()
     {
-        int res = 0;
-        foreach (int r in results)
-        {
-            res += r;
-        }
-        diceResultText.text = res.ToString();
+        diceResultText.text = DiceManager.Instance.currentResult.ToString();
     }
     public void ShowResult(bool win, int amount)
     {

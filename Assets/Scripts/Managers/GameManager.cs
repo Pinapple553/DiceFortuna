@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEngine.InputSystem.InputSettings;
 
@@ -21,27 +23,36 @@ public class GameManager : MonoBehaviour
         {
             return;
         }
-        RoundRoutine(playerBet);
+        StartCoroutine(RoundRoutine());
     }
 
-    private void RoundRoutine(BetData playerBet)
+    private IEnumerator RoundRoutine()
     {
         roundRunning = true;
         UIManager.Instance.resetResult();
         
-        List<int> results = DiceManager.Instance.ThrowDice();
-
-        bool win = Evaluate(playerBet.betType, results);
-        moneySystem.UpdateMoney(win, playerBet.amount);
-        ai.UpdateMoney(!win, playerBet.amount);
+        DiceManager.Instance.ThrowDice();
+        yield return StartCoroutine(EvaluateRoll());
+        yield return new WaitForSeconds(0.5f);
 
         UIManager.Instance.UpdateUI();
-        UIManager.Instance.ShowDiceResults(results);
-        UIManager.Instance.ShowResult(win, playerBet.amount);
-       
+        UIManager.Instance.ShowRollResults();
 
         roundRunning = false;
     }
+    private IEnumerator EvaluateRoll()
+    {
+        while (DiceManager.Instance.IsAnyDiceRolling())
+        {
+            yield return null;
+        }
+        DiceManager.Instance.GetCurrentResult();
+        yield break;
+    }
+
+
+
+
     bool Evaluate(BetType bet, List<int> results)
     {
         int total = 0;
