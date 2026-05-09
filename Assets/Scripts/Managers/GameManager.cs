@@ -82,6 +82,7 @@ public class GameManager : MonoBehaviour
         {
             yield return null;
         }
+        yield return UIManager.Instance.CountAllDice();
         DiceManager.Instance.GetCurrentResult();
         yield break;
     }

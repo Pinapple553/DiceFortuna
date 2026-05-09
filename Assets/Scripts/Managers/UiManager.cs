@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System.Collections;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using TMPro;
@@ -90,6 +91,27 @@ public class UIManager : MonoBehaviour
             }
 		}
     }
+    public IEnumerator CountAllDice() 
+    {
+        int result = 0;
+        for (int i = 0; i < diceDisplayButtons.Length; i++)
+        {
+            if (i >= DiceManager.Instance.activeDiceList.Count)
+            {
+                break;
+            }
+            else
+            {
+                diceDisplayButtons[i].transform.localScale = Vector3.one * 1.5f;
+                int currentValue = DiceManager.Instance.activeDiceList[i].data.sides[DiceManager.Instance.activeDiceList[i].currentSideIndex].value;
+                result += currentValue;
+                diceResultText.text = result.ToString();    
+                yield return new WaitForSeconds(0.2f);
+                diceDisplayButtons[i].transform.localScale = Vector3.one;
+            }
+        }
+    }
+
     private void UpdateDiceSelector()
     {
         foreach (Transform child in diceSelectorGrid.transform)

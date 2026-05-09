@@ -42,6 +42,7 @@ public class DiceAnimation : MonoBehaviour
 
         var result = dice.data.sides[index];
         result.effect?.Apply(dice, result.effectChance);
+        UIManager.Instance.UpdateUI();
 
         dice.isRolling = false;
         activeRolls.Remove(dice);
@@ -72,4 +73,5 @@ public class DiceAnimation : MonoBehaviour
         }
         activeRolls.Clear();
     }
+
 }
