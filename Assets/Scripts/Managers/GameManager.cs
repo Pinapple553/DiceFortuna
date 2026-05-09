@@ -14,7 +14,12 @@ public class GameManager : MonoBehaviour
 
     public void StartRound()
     {
-        if (roundRunning) return;
+        if (roundRunning)
+        {
+            DiceAnimation.Instance.SkipAll();
+            return;
+        }
+
         if (DiceManager.Instance.activeDiceList.Count == 0) return;
 
         BetData playerBet = UIManager.Instance.GetBet();
@@ -33,9 +38,9 @@ public class GameManager : MonoBehaviour
         
         DiceManager.Instance.ThrowDice();
         yield return StartCoroutine(EvaluateRoll());
-        yield return new WaitForSeconds(0.5f);
 
         UIManager.Instance.UpdateUI();
+        yield return new WaitForSeconds(0.5f);
         UIManager.Instance.ShowRollResults();
 
         roundRunning = false;
