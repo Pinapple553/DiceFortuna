@@ -102,16 +102,53 @@ public class UIManager : MonoBehaviour
             }
             else
             {
-                diceDisplayButtons[i].transform.localScale = Vector3.one * 1.5f;
+                yield return StartCoroutine(ScaleRoutine(diceDisplayButtons[i].transform, 1.5f));
                 int currentValue = DiceManager.Instance.activeDiceList[i].data.sides[DiceManager.Instance.activeDiceList[i].currentSideIndex].value;
-                result += currentValue;
-                diceResultText.text = result.ToString();    
+
+                for (int j = 0; j < currentValue; j++)
+                {
+                    result++;
+                    DiceManager.Instance.currentResult = result;
+                    diceResultText.text = result.ToString();
+                    yield return new WaitForSeconds(0.05f);
+                }
                 yield return new WaitForSeconds(0.2f);
                 diceDisplayButtons[i].transform.localScale = Vector3.one;
             }
         }
     }
+    public IEnumerator ShowCombo(List<int> indices, DiceCombo combo)
+    {
+        resultText.text = combo.GetName();
+        int bonus = combo.GetBonus();
+        foreach (int i in indices)
+        {   
+            yield return StartCoroutine(ScaleRoutine(diceDisplayButtons[i].transform, 1.5f));
+        }
+        yield return new WaitForSeconds(0.3f);
+     
+        int startValue = DiceManager.Instance.currentResult;
+        for (int i = 0; i < bonus; i++)
+        {
+            startValue++;
+            diceResultText.text = startValue.ToString();
+            yield return new WaitForSeconds(0.05f);
+        }
 
+        foreach (int i in indices)
+        {
+            diceDisplayButtons[i].transform.localScale = Vector3.one;
+        }
+
+        yield return new WaitForSeconds(0.2f);
+    }
+
+    private IEnumerator ScaleRoutine(Transform target, float scale)
+    {
+        target.localScale = Vector3.one * scale;
+        yield return new WaitForSeconds(0.2f);
+        target.localScale = Vector3.one;
+    }
     private void UpdateDiceSelector()
     {
         foreach (Transform child in diceSelectorGrid.transform)

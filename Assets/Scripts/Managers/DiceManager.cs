@@ -1,10 +1,13 @@
 using NUnit.Framework;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem.XR;
 
 public class DiceManager : MonoBehaviour
 {
+    [SerializeField] private List<DiceCombo> combos;
+
     private PlayerController controller;
     public List<DiceInstance> activeDiceList = new List<DiceInstance>();
 
@@ -75,18 +78,6 @@ public class DiceManager : MonoBehaviour
         }
         return false;
     }
-    public int GetCurrentResult()
-    {
-        int result = 0;
-        foreach (var instance in activeDiceList)
-        {
-            result += instance.data.sides[instance.currentSideIndex].value;
-        }
-        currentResult = result;
-        return result;
-    }
-
-
     public int GetMaxResult()
     {
         int max = 0;
@@ -114,5 +105,31 @@ public class DiceManager : MonoBehaviour
             min += instanceMin;
         }
         return min;
+    }
+    public List<int> GetAllValues()
+    {
+        List<int> values = new();
+        foreach (var dice in activeDiceList)
+        {
+            values.Add(dice.data.sides[dice.currentSideIndex].value);
+        }
+        return values;
+    }
+    public IEnumerator CountAllBonuses()
+    {
+        List<int> values = GetAllValues();
+        int totalBonus = 0;
+
+        foreach (var combo in combos)
+        {
+            List<int> match = combo.GetMatchingIndices(values);
+            if (match.Count > 0)
+            {
+                yield return UIManager.Instance.ShowCombo(match, combo);
+                totalBonus += combo.GetBonus();
+            }
+        }
+
+        currentResult += totalBonus;
     }
 }

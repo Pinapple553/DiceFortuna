@@ -83,37 +83,9 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         yield return UIManager.Instance.CountAllDice();
-        DiceManager.Instance.GetCurrentResult();
+        yield return DiceManager.Instance.CountAllBonuses(); //count all bonuses like double, triple, etc and add extra points to the result
         yield break;
     }
 
 
-
-
-    bool Evaluate(BetType bet, List<int> results)
-    {
-        int total = 0;
-        foreach (var r in results)
-        {
-            total += r;
-        }
-        int maxResult = DiceManager.Instance.GetMaxResult();
-        int minResult = DiceManager.Instance.GetMinResult();
-        float highResult = (maxResult + minResult) / 2f;
-        switch (bet)
-        {
-            case BetType.Odd:
-                return total % 2 == 1;
-
-            case BetType.Even:
-                return total % 2 == 0;
-
-            case BetType.High:
-                return total > highResult;
-
-            case BetType.Low:
-                return total < highResult;
-        }
-        return false;
-    }
 }
