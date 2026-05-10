@@ -13,15 +13,18 @@ public class UIManager : MonoBehaviour
     private MoneySystem money;
 
     [Header("GameObjects")]
-    [SerializeField] private TMP_Text startButtonText;
+    [SerializeField] private TMP_Text gameButtonText;
     [SerializeField] private TMP_Text moneyText;
     [SerializeField] private TMP_Text aiMoneyText;
     [SerializeField] private TMP_Text pointsText;
-
     [SerializeField] private Sprite emptyDiceSlot;
+
+    [SerializeField] private GameObject roundInfoPanel;
 
     [Header("DiceDisplay")]
     [SerializeField] private DiceButton[] diceDisplayButtons;
+    private DiceButton[] playerDisplayButtons;
+    private DiceButton[] opponentDisplayButtons;
 
     [Header("DiceSelector")]
     [SerializeField] private GridLayoutGroup diceSelectorGrid;
@@ -55,7 +58,12 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         inventoryDice = Player.Instance.ownedDiceList.ConvertAll(d => new DiceInstance(d));
+
+
+        playerDisplayButtons = new DiceButton[] { diceDisplayButtons[0], diceDisplayButtons[2], diceDisplayButtons[4], diceDisplayButtons[6] };
+        opponentDisplayButtons = new DiceButton[] { diceDisplayButtons[1], diceDisplayButtons[3], diceDisplayButtons[5], diceDisplayButtons[7] };
         UpdateUI();
+
     }
     public void UpdateUI()
     {
@@ -135,6 +143,11 @@ public class UIManager : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
     }
 
+    public void CloseRoundInfo(bool close)
+    {
+        roundInfoPanel.SetActive(!close);
+    }
+
     private IEnumerator ScaleRoutine(Transform target, float scale)
     {
         target.localScale = Vector3.one * scale;
@@ -193,8 +206,8 @@ public class UIManager : MonoBehaviour
         return false;
     }
 
-    public void StartRoundUI(bool start)
+    public void SetGameButtonText(string text)
     {
-        startButtonText.text = start ? "Roll" : "Start";
+        gameButtonText.text = text;
     }
 }

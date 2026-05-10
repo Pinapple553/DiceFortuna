@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     public bool diceRolling = false;
 
     [SerializeField] private int roundCost = 20;
+    [SerializeField] private int winPayout = 40;
 
     private void Awake()
     {
@@ -35,6 +36,18 @@ public class GameManager : MonoBehaviour
         {
             StartRound();
         }
+        UIManager.Instance.CloseRoundInfo(true);
+    }
+
+    public void GameButtonClick()
+    {
+        if (!DiceManager.Instance.diceSelected)
+        {
+            if (DiceManager.Instance.SelectDice())
+            {
+                UIManager.Instance.SetGameButtonText("Roll");
+            }
+        }
         else
         {
             Roll();
@@ -48,7 +61,7 @@ public class GameManager : MonoBehaviour
             return;
         }
         roundRunning = true;
-        UIManager.Instance.StartRoundUI(true);
+        UIManager.Instance.SetGameButtonText("Select");
         UIManager.Instance.UpdateUI();
     }
     private void Roll()
@@ -83,7 +96,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         yield return UIManager.Instance.CountAllDice();
-        yield return DiceManager.Instance.CountAllBonuses(); //count all bonuses like double, triple, etc and add extra points to the result
+        yield return DiceManager.Instance.CountAllBonuses();
         yield break;
     }
 

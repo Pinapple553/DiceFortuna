@@ -6,14 +6,17 @@ using UnityEngine.InputSystem.XR;
 
 public class DiceManager : MonoBehaviour
 {
-    [SerializeField] private List<DiceCombo> combos;
-
-    private PlayerController controller;
-    public List<DiceInstance> activeDiceList = new List<DiceInstance>();
-
     public static DiceManager Instance;
+    private PlayerController controller;
+
+    [SerializeField] private List<DiceCombo> combos;
+    
+    public List<DiceInstance> activeDiceList = new List<DiceInstance>();
+    public List<DiceInstance> playerDiceList = new List<DiceInstance>();
 
     public int currentResult = 0;
+    public bool diceSelected = false;
+    private int maxPlayerDice = 4;
 
     private void Awake()
     {
@@ -41,12 +44,11 @@ public class DiceManager : MonoBehaviour
     {
         if (!GameManager.Instance.roundRunning) return false;
         if (GameManager.Instance.diceRolling) return false;
-        if (activeDiceList.Count >= 8) return false;
-        activeDiceList.Add(new DiceInstance(dice));
+        if (playerDiceList.Count >= maxPlayerDice) return false;
+        playerDiceList.Add(new DiceInstance(dice));
         UIManager.Instance.UpdateUI();
         return true;
     }
-
     public bool RemoveDice(DiceData dice)
     {
         if (!GameManager.Instance.roundRunning) return false;
@@ -63,6 +65,16 @@ public class DiceManager : MonoBehaviour
         UIManager.Instance.UpdateUI();
         return false;
     }
+    public bool SelectDice()
+    {
+        if (!GameManager.Instance.roundRunning) return false;
+        if (diceSelected) return false;
+        activeDiceList = new List<DiceInstance>(playerDiceList);
+        diceSelected = true;
+        UIManager.Instance.UpdateUI();
+        return true;
+    }
+
     public void ThrowDice()
     {
         foreach (var instance in activeDiceList)
