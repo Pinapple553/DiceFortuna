@@ -30,6 +30,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void Start()
+    {
+        UIManager.Instance.CloseRoundInfo(false);
+    }
     public void StartButtonClick()
     {
         if (!roundRunning)

@@ -69,6 +69,7 @@ public class DiceManager : MonoBehaviour
     {
         if (!GameManager.Instance.roundRunning) return false;
         if (diceSelected) return false;
+        if (playerDiceList.Count == 0) return false;
         activeDiceList = new List<DiceInstance>(playerDiceList);
         diceSelected = true;
         UIManager.Instance.UpdateUI();
