@@ -12,20 +12,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private AIPlayer ai;
     private MoneySystem money;
 
-    [Header("Bet Buttons")]
-    [SerializeField] private Image oddButtonImage;
-    [SerializeField] private Image evenButtonImage;
-    [SerializeField] private Image highButtonImage;
-    [SerializeField] private Image lowButtonImage;
-
-
     [Header("GameObjects")]
     [SerializeField] private TMP_Text startButtonText;
     [SerializeField] private TMP_Text moneyText;
     [SerializeField] private TMP_Text aiMoneyText;
-    [SerializeField] private TMP_Text resultText;
-    [SerializeField] private TMP_Text diceResultText;
-    [SerializeField] private TMP_Text betText;
+    [SerializeField] private TMP_Text pointsText;
 
     [SerializeField] private Sprite emptyDiceSlot;
 
@@ -70,7 +61,6 @@ public class UIManager : MonoBehaviour
     {
         resetResult();
         UpdateMoney();
-        UpdateBetAmount();
         UpdateDiceSelector();
         UpdateDiceDisplay();
     }
@@ -104,12 +94,12 @@ public class UIManager : MonoBehaviour
             {
                 yield return StartCoroutine(ScaleRoutine(diceDisplayButtons[i].transform, 1.5f));
                 int currentValue = DiceManager.Instance.activeDiceList[i].data.sides[DiceManager.Instance.activeDiceList[i].currentSideIndex].value;
-
+                PointPopupGenerator.Instance.CreatePopUp(currentValue.ToString());
                 for (int j = 0; j < currentValue; j++)
                 {
                     result++;
                     DiceManager.Instance.currentResult = result;
-                    diceResultText.text = result.ToString();
+                    pointsText.text = result.ToString();
                     yield return new WaitForSeconds(0.05f);
                 }
                 yield return new WaitForSeconds(0.2f);
@@ -119,19 +109,21 @@ public class UIManager : MonoBehaviour
     }
     public IEnumerator ShowCombo(List<int> indices, DiceCombo combo)
     {
-        resultText.text = combo.GetName();
+        pointsText.text = combo.GetName();
         int bonus = combo.GetBonus();
         foreach (int i in indices)
         {   
             yield return StartCoroutine(ScaleRoutine(diceDisplayButtons[i].transform, 1.5f));
         }
         yield return new WaitForSeconds(0.3f);
-     
+
+        PointPopupGenerator.Instance.CreatePopUp(combo.GetName());
+
         int startValue = DiceManager.Instance.currentResult;
         for (int i = 0; i < bonus; i++)
         {
             startValue++;
-            diceResultText.text = startValue.ToString();
+            pointsText.text = startValue.ToString();
             yield return new WaitForSeconds(0.05f);
         }
 
@@ -167,37 +159,6 @@ public class UIManager : MonoBehaviour
             icon.UpdateButtonUI();
         }
 	}
-    public void SetBetType(string type)
-    {
-        betType = (BetType)System.Enum.Parse(typeof(BetType), type);
-        ResetBetButtons();
-        switch (betType)
-        {
-            case BetType.Odd:
-                oddButtonImage.color = Color.red;
-                break;
-            case BetType.Even:
-                evenButtonImage.color = Color.red;
-                break;
-            case BetType.High:
-                highButtonImage.color = Color.red;
-                break;
-            case BetType.Low:
-                lowButtonImage.color = Color.red;
-                break;
-        }
-    }
-    private void ResetBetButtons()
-    {
-        oddButtonImage.color = Color.white;
-        evenButtonImage.color = Color.white;
-        highButtonImage.color = Color.white;
-        lowButtonImage.color = Color.white;
-    }
-    private void UpdateBetAmount()
-    {
-        betText.text = $"Amount: {betAmount}";
-    }
     public void changeAmount(int amount)
     {
         if (!(betAmount + amount > Player.Instance.money) && !(betAmount + amount < 0))
@@ -212,22 +173,11 @@ public class UIManager : MonoBehaviour
     }
     public void resetResult()
     {
-        resultText.text ="";
+        pointsText.text ="";
     }
     public void ShowRollResults()
     {
-        diceResultText.text = DiceManager.Instance.currentResult.ToString();
-    }
-    public void ShowResult(bool win, int amount)
-    {
-        if (win)
-        {
-            resultText.text = $"WIN +{amount}";
-        }
-        else
-        {
-            resultText.text = $"LOSE -{amount}";
-        }
+        pointsText.text = DiceManager.Instance.currentResult.ToString();
     }
     public void UpdateMoney()
     {
