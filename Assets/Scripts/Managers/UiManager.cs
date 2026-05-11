@@ -16,12 +16,14 @@ public class UIManager : MonoBehaviour
 
 	[Header("Panels")]
 	[SerializeField] private GameObject roundInfoPanel;
-	[SerializeField] private GameObject coinFlipPanel;    
-	[SerializeField] private TMP_Text coinFlipResultText;
 	[SerializeField] private GameObject itemPhasePanel;
 	[SerializeField] private GameObject messagePanel;
-	[SerializeField] private TMP_Text messageText;      
-	[SerializeField] private GameObject roundEndPanel;   
+	[SerializeField] private TMP_Text messageText;
+	[SerializeField] private GameObject roundEndPanel;
+
+	[Header("CoinFlip")]
+	[SerializeField] private GameObject coinFlipUI;
+	[SerializeField] private Animator coinFlipAnimator;
 
 	[Header("DiceDisplay")]
 	[SerializeField] private DiceButton[] diceDisplayButtons;
@@ -38,7 +40,9 @@ public class UIManager : MonoBehaviour
 
 	public static UIManager Instance;
 	public bool coinFlipResolved = false;
-	
+
+	private bool selectorShowDice = true;
+
 	//test
 	private int currentLives = 3;
 
@@ -50,7 +54,7 @@ public class UIManager : MonoBehaviour
 	private void Start()
 	{
 		if (messagePanel != null) messagePanel.SetActive(false);
-		if (coinFlipPanel != null) coinFlipPanel.SetActive(false);
+		if (coinFlipUI != null) coinFlipUI.SetActive(false);
 		if (itemPhasePanel != null) itemPhasePanel.SetActive(false);
 		if (roundEndPanel != null) roundEndPanel.SetActive(false);
 		UpdateUI();
@@ -111,19 +115,43 @@ public class UIManager : MonoBehaviour
 			Destroy(child.gameObject);
 		}
 
-		var uniqueDice = new List<DiceData>();
-		foreach (DiceData dice in GameManager.Instance.player.ownedDiceList)
+		if (selectorShowDice)
 		{
-			if (uniqueDice.Contains(dice)) continue;
-			uniqueDice.Add(dice);
-			var icon = Instantiate(diceIconPrefab, diceSelectorGrid.transform);
-			icon.dice = dice;
-			icon.amountOwned = GameManager.Instance.player.GetAvailableAmount(dice);
-			icon.UpdateButtonUI();
+            var uniqueDice = new List<DiceData>();
+            foreach (DiceData dice in GameManager.Instance.player.ownedDiceList)
+            {
+                if (uniqueDice.Contains(dice)) continue;
+                uniqueDice.Add(dice);
+                var icon = Instantiate(diceIconPrefab, diceSelectorGrid.transform);
+                icon.dice = dice;
+                icon.amountOwned = GameManager.Instance.player.GetAvailableAmount(dice);
+                icon.UpdateButtonUI();
+            }
+        }
+		else
+		{
+			foreach (var item in GameManager.Instance.player.ownedItemsList)
+			{
+				//display items 
+			}
+        }
+    }
+
+	public void SelectorMode(string mode)
+	{
+		if (mode == "dice")
+		{
+			selectorShowDice = true;
+		}
+		else
+		{
+			selectorShowDice = false;
 		}
 	}
 
-	public void ShowDiceInfo(DiceData dice)
+
+
+    public void ShowDiceInfo(DiceData dice)
 	{
 		if (diceInfoIcon != null) diceInfoIcon.sprite = dice.sides[0].sprite;
 		if (diceInfoName != null) diceInfoName.text = dice.diceName;
@@ -176,8 +204,8 @@ public class UIManager : MonoBehaviour
 			yield return new WaitForSeconds(0.05f);
 		}
 		foreach (int i in inDices)
-		{ 
-			diceDisplayButtons[i].transform.localScale = Vector3.one; 
+		{
+			diceDisplayButtons[i].transform.localScale = Vector3.one;
 		}
 
 		yield return new WaitForSeconds(0.2f);
@@ -189,21 +217,11 @@ public class UIManager : MonoBehaviour
 		yield return new WaitForSeconds(0.2f);
 		target.localScale = Vector3.one;
 	}
-	public void ShowCoinFlip(bool show)
-	{
-		if (coinFlipPanel != null) coinFlipPanel.SetActive(show);
-	}
-	public void ShowCoinResult(bool isHeads, bool playerGoesFirst)
-	{
-		if (coinFlipResultText != null)
-			coinFlipResultText.text = (isHeads ? "Heads!" : "Tails!") + "\n" + (playerGoesFirst ? "You go first." : "Opponent goes first.");
-	}
+
 	public void ShowItemPhase(bool show)
 	{
 		if (itemPhasePanel != null) itemPhasePanel.SetActive(show);
 	}
-
-	// ── Message popup ─────────────────────────────────────────────────────────
 
 	public void ShowMessage(string text)
 	{
@@ -219,27 +237,48 @@ public class UIManager : MonoBehaviour
 		if (panel != null) panel.SetActive(false);
 	}
 
-	// ── Round end ─────────────────────────────────────────────────────────────
-
 	public void ShowRoundEndPanel()
 	{
 		if (roundEndPanel != null) roundEndPanel.SetActive(true);
 	}
-
-	// Wire to "Play Again" button
 	public void OnPlayAgainClicked()
 	{
 		if (roundEndPanel != null) roundEndPanel.SetActive(false);
 		GameManager.Instance.StartButtonClick();
 	}
-
-	// ── Lives ─────────────────────────────────────────────────────────────────
-
 	public void LoseLife()
 	{
 		if (currentLives <= 0) return;
 		currentLives--;
-		if (currentLives <= 0)
-			ShowMessage("Out of straws! Game over.");
+		if (currentLives <= 0) ShowMessage("Out of straws! Game over.");
 	}
+
+	public IEnumerator StartCoinAnimation()
+	{
+        coinFlipAnimator.SetTrigger("Enter");
+        yield return new WaitForSeconds(2f);
+        coinFlipUI.SetActive(true);
+    }
+	public IEnumerator PlayCoinAnimation(bool heads)
+	{
+        coinFlipUI.SetActive(false);
+        if (heads)
+		{
+            coinFlipAnimator.SetTrigger("Enter");
+            yield return new WaitForSeconds(1f);
+            yield break;
+		}
+		else
+		{
+            coinFlipAnimator.SetTrigger("Flip");
+			yield return new WaitForSeconds(1f);
+            yield break;
+        }
+	}
+
+	public IEnumerator ExitCoinAnimation()
+	{
+		coinFlipAnimator.SetTrigger("Exit");
+		yield return new WaitForSeconds(1f);
+    } 
 }

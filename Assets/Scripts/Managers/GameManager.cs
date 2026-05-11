@@ -46,7 +46,7 @@ public class GameManager : MonoBehaviour
 	public void PlayerChoseCoinSide(bool heads)
 	{
 		playerChoseHeads = heads;
-		UIManager.Instance.coinFlipResolved = true;  // unblock the coroutine
+		UIManager.Instance.coinFlipResolved = true;
 	}
 	public void PassItemsButton()
 	{
@@ -76,15 +76,17 @@ public class GameManager : MonoBehaviour
 	private IEnumerator CoinFlipRoutine()
 	{
 		UIManager.Instance.coinFlipResolved = false;
-		UIManager.Instance.ShowCoinFlip(true);
-		yield return new WaitUntil(() => UIManager.Instance.coinFlipResolved);
+        yield return StartCoroutine(UIManager.Instance.StartCoinAnimation());
 
+        //wait for player to choose heads or tails
+        yield return new WaitUntil(() => UIManager.Instance.coinFlipResolved);
+		
 		bool coinIsHeads = Random.value >= 0.5f;
-		playerGoesFirst = (coinIsHeads == playerChoseHeads);
+        playerGoesFirst = (coinIsHeads == playerChoseHeads);
+        yield return StartCoroutine(UIManager.Instance.PlayCoinAnimation(coinIsHeads));
 
-		UIManager.Instance.ShowCoinResult(coinIsHeads, playerGoesFirst);
-		yield return new WaitForSeconds(2f);
-		UIManager.Instance.ShowCoinFlip(false);
+        //player confirms okay after seeing result
+        yield return StartCoroutine(UIManager.Instance.ExitCoinAnimation());
 
 		StartCoroutine(MatchRoutine());
 	}
