@@ -24,3 +24,4 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 71c432f8b989f684990993d3e6a4b786, type: 3}
     effect: {fileID: 0}
     effectChance: 1
+  description: It only has two sides, 1 or 2

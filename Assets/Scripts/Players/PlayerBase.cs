@@ -5,21 +5,24 @@ using UnityEngine;
 public abstract class PlayerBase : ScriptableObject
 {
 	public List<DiceData> ownedDiceList;
-	public List<int> ownedItemsList;
-	public List<DiceInstance> selectedDiceList;
+	public List<ItemData> ownedItemsList;    
+	public List<DiceInstance> selectedDiceList = new List<DiceInstance>();
+
+	[HideInInspector]
+	public List<ItemInstance> itemHand = new List<ItemInstance>();
+
 	public int fortunaPoints;
 	public int maxDice = 4;
-
+	public int maxItemsPerRound = 5;
 
 	public int GetDiceAmount(DiceData dice)
 	{
 		int count = 0;
 		foreach (var d in ownedDiceList)
-		{
 			if (d == dice) count++;
-		}
 		return count;
 	}
+
 	public int GetAvailableAmount(DiceData dice)
 	{
 		int owned = GetDiceAmount(dice);
@@ -36,6 +39,7 @@ public abstract class PlayerBase : ScriptableObject
 		}
 		return false;
 	}
+
 	public bool RemoveDice(DiceData dice)
 	{
 		if (DiceManager.Instance.RemoveDice(dice, this))
@@ -50,5 +54,30 @@ public abstract class PlayerBase : ScriptableObject
 			}
 		}
 		return false;
+	}
+	public void BuildItemHand()
+	{
+		itemHand = new List<ItemInstance>();
+		foreach (var item in ownedItemsList)
+		{
+			itemHand.Add(new ItemInstance(item));
+		}
+	}
+
+	public int ItemsUsedThisRound()
+	{
+		return itemHand.Count(i => i.used);
+	}
+
+	public bool CanUseItem()
+	{
+		return ItemsUsedThisRound() < maxItemsPerRound;
+	}
+	public bool TryUseItem(ItemInstance item)
+	{
+		if (item.used) return false;
+		if (!CanUseItem()) return false;
+		item.used = true;
+		return true;
 	}
 }
