@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 using TMPro;
 using Unity.VisualScripting;
@@ -9,9 +10,6 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    [SerializeField] private AIPlayer ai;
-    private MoneySystem money;
-
     [Header("GameObjects")]
     [SerializeField] private TMP_Text gameButtonText;
     [SerializeField] private TMP_Text moneyText;
@@ -30,7 +28,13 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GridLayoutGroup diceSelectorGrid;
     [SerializeField] private DiceButton diceIconPrefab;
 
-    private List<DiceInstance> inventoryDice = new List<DiceInstance>();
+    [Header("DiceInfo")]
+    [SerializeField] private Image diceInfoIcon;
+    [SerializeField] private TMP_Text diceInfoName;
+	[SerializeField] private TMP_Text sides;
+	[SerializeField] private TMP_Text diceInfoDescription;
+
+	private List<DiceInstance> inventoryDice = new List<DiceInstance>();
 
 	[System.Serializable]
     public class DiceIcon
@@ -57,7 +61,7 @@ public class UIManager : MonoBehaviour
 	}
     private void Start()
     {
-        inventoryDice = Player.Instance.ownedDiceList.ConvertAll(d => new DiceInstance(d));
+        inventoryDice = GameManager.Instance.player.ownedDiceList.ConvertAll(d => new DiceInstance(d));
 
 
         playerDisplayButtons = new DiceButton[] { diceDisplayButtons[0], diceDisplayButtons[2], diceDisplayButtons[4], diceDisplayButtons[6] };
@@ -147,7 +151,13 @@ public class UIManager : MonoBehaviour
     {
         roundInfoPanel.SetActive(!close);
     }
-
+    public void ShowDiceInfo(DiceData dice)
+    {
+        diceInfoIcon.sprite = dice.sides[0].sprite;
+        diceInfoName.text = dice.name;
+        diceInfoDescription.text = dice.description;
+        sides.text = dice.sides.Count().ToString();
+    }
     private IEnumerator ScaleRoutine(Transform target, float scale)
     {
         target.localScale = Vector3.one * scale;
@@ -161,20 +171,20 @@ public class UIManager : MonoBehaviour
             Destroy(child.gameObject);
         }
         List<DiceData> uniqueDice = new List<DiceData>();
-		foreach (DiceData dice in Player.Instance.ownedDiceList)
+		foreach (DiceData dice in GameManager.Instance.player.ownedDiceList)
         { 
             if(uniqueDice.Contains(dice)) continue;
             uniqueDice.Add(dice);
 
 			var icon = Instantiate(diceIconPrefab, diceSelectorGrid.transform);
             icon.dice = dice;
-            icon.amountOwned = Player.Instance.GetAvailableAmount(dice);
+            icon.amountOwned = GameManager.Instance.player.GetAvailableAmount(dice);
             icon.UpdateButtonUI();
         }
 	}
     public void changeAmount(int amount)
     {
-        if (!(betAmount + amount > Player.Instance.money) && !(betAmount + amount < 0))
+        if (!(betAmount + amount > GameManager.Instance.player.fortunaPoints) && !(betAmount + amount < 0))
         {
             betAmount += amount;
         }
@@ -194,8 +204,8 @@ public class UIManager : MonoBehaviour
     }
     public void UpdateMoney()
     {
-        moneyText.text = $"YOU: {Player.Instance.money}";
-        aiMoneyText.text = $"OPONENT: {ai.AiMoney}";
+        moneyText.text = $"YOU: {GameManager.Instance.player.fortunaPoints}";
+        aiMoneyText.text = $"OPONENT: {GameManager.Instance.ai.fortunaPoints}";
     }
     public bool AllSelected()
     {

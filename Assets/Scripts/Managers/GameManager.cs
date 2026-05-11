@@ -7,18 +7,18 @@ using static UnityEngine.InputSystem.InputSettings;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private MoneySystem moneySystem;
-    [SerializeField] private AIPlayer ai;
+	public AIPlayer ai;
+	public Player player;
 
-    public static GameManager Instance;
+	public static GameManager Instance;
 
     public bool roundRunning = false;
     public bool diceRolling = false;
 
-    [SerializeField] private int roundCost = 20;
-    [SerializeField] private int winPayout = 40;
+    [SerializeField] private int roundLength = 3;
+	int currentRound = 0;
 
-    private void Awake()
+	private void Awake()
     {
         if (Instance != null && Instance != this)
         {
@@ -60,10 +60,7 @@ public class GameManager : MonoBehaviour
 
     public void StartRound()
     {
-        if (!moneySystem.Spend(roundCost))
-        {
-            return;
-        }
+        //Submit Token
         roundRunning = true;
         UIManager.Instance.SetGameButtonText("Select");
         UIManager.Instance.UpdateUI();
@@ -81,17 +78,27 @@ public class GameManager : MonoBehaviour
     }
     private IEnumerator RoundRoutine()
     {
-        diceRolling = true;
-        UIManager.Instance.resetResult();
-        
-        DiceManager.Instance.ThrowDice();
-        yield return StartCoroutine(EvaluateRoll());
+        if(currentRound < roundLength)
+        {
+			diceRolling = true;
+			UIManager.Instance.resetResult();
 
-        UIManager.Instance.UpdateUI();
-        yield return new WaitForSeconds(0.5f);
-        UIManager.Instance.ShowRollResults();
+			DiceManager.Instance.ThrowDice();
+			yield return StartCoroutine(EvaluateRoll());
 
-        diceRolling = false;
+			UIManager.Instance.UpdateUI();
+			yield return new WaitForSeconds(0.5f);
+			UIManager.Instance.ShowRollResults();
+
+            diceRolling = false;
+
+			currentRound++;
+        }
+        else
+		{
+            DetermineWinner();
+		}
+
     }
     private IEnumerator EvaluateRoll()
     {
@@ -103,6 +110,9 @@ public class GameManager : MonoBehaviour
         yield return DiceManager.Instance.CountAllBonuses();
         yield break;
     }
-
+    private void DetermineWinner()
+    {
+       
+    }
 
 }

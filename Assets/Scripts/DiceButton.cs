@@ -18,13 +18,13 @@ public class DiceButton : MonoBehaviour
 	public void AddDice(){
 		if (amountOwned-amountAdded>0)
 		{
-            if (!DiceManager.Instance.AddDice(dice)) return;
+            if (!DiceManager.Instance.AddDice(dice, GameManager.Instance.player)) return;
             amountAdded +=1;
 		}
 		UpdateButtonUI();
 	}
 	public void RemoveDice(){
-        if (!DiceManager.Instance.RemoveDice(dice)) return;
+        if (!DiceManager.Instance.RemoveDice(dice, GameManager.Instance.player)) return;
 		amountAdded -=1;
 	}
 
@@ -35,5 +35,9 @@ public class DiceButton : MonoBehaviour
 	public void SetIcon(Sprite sprite)
 	{
 		icon.sprite = sprite;
+	}
+
+	public void OnPointerEnter(){
+		UIManager.Instance.ShowDiceInfo(dice);
 	}
 }

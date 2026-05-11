@@ -16,7 +16,6 @@ public class DiceManager : MonoBehaviour
 
     public int currentResult = 0;
     public bool diceSelected = false;
-    private int maxPlayerDice = 4;
 
     private void Awake()
     {
@@ -40,24 +39,24 @@ public class DiceManager : MonoBehaviour
         controller.Dice.Disable();
     }
 
-    public bool AddDice(DiceData dice)
+    public bool AddDice(DiceData dice, PlayerBase player)
     {
         if (!GameManager.Instance.roundRunning) return false;
         if (GameManager.Instance.diceRolling) return false;
-        if (playerDiceList.Count >= maxPlayerDice) return false;
-        playerDiceList.Add(new DiceInstance(dice));
+        if (player.selectedDiceList.Count >= player.maxDice) return false;
+		player.selectedDiceList.Add(new DiceInstance(dice));
         UIManager.Instance.UpdateUI();
         return true;
     }
-    public bool RemoveDice(DiceData dice)
+    public bool RemoveDice(DiceData dice, PlayerBase player)
     {
         if (!GameManager.Instance.roundRunning) return false;
         if (GameManager.Instance.diceRolling) return false;
-        for (int i = activeDiceList.Count - 1; i >= 0; i--)
+        for (int i = player.selectedDiceList.Count - 1; i >= 0; i--)
         {
-            if (activeDiceList[i].data == dice)
+            if (player.selectedDiceList[i].data == dice)
             {
-                activeDiceList.RemoveAt(i);
+                player.selectedDiceList.RemoveAt(i);
                 UIManager.Instance.UpdateUI();
                 return true;
             }
@@ -69,6 +68,7 @@ public class DiceManager : MonoBehaviour
     {
         if (!GameManager.Instance.roundRunning) return false;
         if (diceSelected) return false;
+        //AI select dice
         if (playerDiceList.Count == 0) return false;
         activeDiceList = new List<DiceInstance>(playerDiceList);
         diceSelected = true;
