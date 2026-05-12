@@ -19,7 +19,7 @@ public class SceneManager : MonoBehaviour
     }
     public void LoadScene(string sceneName)
    {
-       lastScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().ToString();
+       lastScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
        UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName);
     }
     public void CloseScene()

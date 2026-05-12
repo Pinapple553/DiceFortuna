@@ -6,14 +6,17 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/DiceGame.unity
-    guid: 3530f60412ec0ee4e9bfeef99799e88b
+    path: Assets/Scenes/MainMenu.unity
+    guid: 37312ee9be743e144b18d9042ca99a7f
   - enabled: 1
     path: Assets/Scenes/LevelPicker.unity
     guid: 84e99720b9c1f8946a8ef71eabafa694
   - enabled: 1
-    path: Assets/Scenes/MainMenu.unity
-    guid: 37312ee9be743e144b18d9042ca99a7f
+    path: Assets/Scenes/SaveLoad.unity
+    guid: da98751dd5a7cf540b8dbc93f02532e7
+  - enabled: 1
+    path: Assets/Scenes/DiceGame.unity
+    guid: 3530f60412ec0ee4e9bfeef99799e88b
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
