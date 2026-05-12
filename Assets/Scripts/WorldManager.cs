@@ -28,7 +28,7 @@ public class WorldManager : MonoBehaviour
 		SaveFileData saveFileData = new SaveFileData();
 		saveFileData.dateSaved = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 		saveFileData.fortunaPoints = 0;
-		saveFileData.levelIndex = 2;
+		saveFileData.levelIndex = 1;
 
 		string json = JsonUtility.ToJson(saveFileData, true);
 		File.WriteAllText($"{Application.persistentDataPath}/Saves/SaveSlot{saveSlot}.json", json);

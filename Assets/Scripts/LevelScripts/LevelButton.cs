@@ -12,7 +12,22 @@ public class LevelButton : MonoBehaviour
 	public void UpdateLevelButton()
 	{
 		levelTitle.text = levelData.levelName;
-		levelStatus.text = WorldManager.Instance.IsLevelCompleted(levelData) ? "Completed" : "Not Completed";
+		if (WorldManager.Instance.IsLevelCompleted(levelData))
+		{
+			levelTitle.color = Color.green;
+			levelStatus.text = "Completed";
+
+		}
+		else if (WorldManager.Instance.GetSaveData(WorldManager.Instance.loadedSaveSlot).levelIndex == levelData.levelIndex)
+		{
+			levelTitle.color = Color.black;
+			levelStatus.text = "Current Level";
+		}
+		else
+		{
+			levelTitle.color = Color.lightGray;
+			levelStatus.text = "Locked";
+		}
 		rewardIcon.sprite = (WorldManager.Instance.IsLevelCompleted(levelData) ? levelData.unlockedRewardIcon : levelData.lockedRewardIcon);
 	}
 

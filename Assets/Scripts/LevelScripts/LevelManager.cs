@@ -16,7 +16,7 @@ public class LevelManager : MonoBehaviour
 
 	public void UpdateLevelButtons()
 	{
-		int currentLevelIndex = WorldManager.Instance.GetSaveData(WorldManager.Instance.loadedSaveSlot).levelIndex;
+
 		foreach (Transform child in levelContainer.transform)
 		{
 			Destroy(child.gameObject);
@@ -27,6 +27,7 @@ public class LevelManager : MonoBehaviour
 			button.SetLevelData(LevelList[i]);
 			button.SetLevelIndex(i);
 			button.UpdateLevelButton();
+
 			if (i < LevelList.Count-1){
    				GameObject shopButton = Instantiate(ShopButtonPrefab, levelContainer.transform);
 			}
