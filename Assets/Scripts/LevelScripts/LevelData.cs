@@ -4,6 +4,7 @@ using UnityEngine;
 public class LevelData : ScriptableObject
 {
 	public string levelName;
+	public int levelIndex;
 	public string levelDescription;
 	public Sprite levelImage;
 	public Sprite lockedRewardIcon;

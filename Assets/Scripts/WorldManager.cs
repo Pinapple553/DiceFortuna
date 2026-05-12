@@ -20,15 +20,15 @@ public class WorldManager : MonoBehaviour
 
 
 	public bool IsLevelCompleted(LevelData levelData){
-		return false;
+		if (GetSaveData(loadedSaveSlot).levelIndex > levelData.levelIndex) return true;
+		else return false;	
 	}
-
 	public void NewSave(int saveSlot)
 	{
 		SaveFileData saveFileData = new SaveFileData();
 		saveFileData.dateSaved = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 		saveFileData.fortunaPoints = 0;
-		saveFileData.levelIndex = 0;
+		saveFileData.levelIndex = 2;
 
 		string json = JsonUtility.ToJson(saveFileData, true);
 		File.WriteAllText($"{Application.persistentDataPath}/Saves/SaveSlot{saveSlot}.json", json);
@@ -44,6 +44,15 @@ public class WorldManager : MonoBehaviour
 			File.Delete(filePath);
 		}
 	}
+	public void LoadSave(int saveSlot)
+	{
+		SaveFileData saveFileData = GetSaveData(saveSlot);
+		if (saveFileData != null)
+		{
+			loadedSaveSlot = saveSlot;
+			SceneManager.Instance.LoadScene("LevelPicker");
+		}
+	}
 	public SaveFileData GetSaveData(int saveSlot)
 	{
 		string filePath = $"{Application.persistentDataPath}/Saves/SaveSlot{saveSlot}.json";
@@ -56,15 +65,5 @@ public class WorldManager : MonoBehaviour
 			}
 		}
 		return null;
-	}
-
-	public void LoadSave(int saveSlot)
-	{
-		SaveFileData saveFileData = GetSaveData(saveSlot);
-		if (saveFileData != null)
-		{
-			loadedSaveSlot = saveSlot;
-			UnityEngine.SceneManagement.SceneManager.LoadScene("LevelPicker");
-		}
 	}
 }

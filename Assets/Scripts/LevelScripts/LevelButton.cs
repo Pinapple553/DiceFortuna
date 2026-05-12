@@ -9,15 +9,22 @@ public class LevelButton : MonoBehaviour
 	[SerializeField] private Image rewardIcon;
 	[SerializeField] private LevelData levelData;
 
-	private void Start()
-	{
-		UpdateLevelButton();
-	}
-
-	private void UpdateLevelButton()
+	public void UpdateLevelButton()
 	{
 		levelTitle.text = levelData.levelName;
 		levelStatus.text = WorldManager.Instance.IsLevelCompleted(levelData) ? "Completed" : "Not Completed";
 		rewardIcon.sprite = (WorldManager.Instance.IsLevelCompleted(levelData) ? levelData.unlockedRewardIcon : levelData.lockedRewardIcon);
 	}
+
+	public void SetLevelData(LevelData data)
+	{
+		levelData = data;
+		UpdateLevelButton();
+	}
+
+	public void SetLevelIndex(int index)
+	{
+		levelData.levelIndex = index;
+	}
+
 }
