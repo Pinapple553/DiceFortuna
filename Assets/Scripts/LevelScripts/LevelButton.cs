@@ -18,7 +18,7 @@ public class LevelButton : MonoBehaviour
 			levelStatus.text = "Completed";
 
 		}
-		else if (WorldManager.Instance.GetSaveData(WorldManager.Instance.loadedSaveSlot).levelIndex == levelData.levelIndex)
+		else if (WorldManager.Instance.GetSaveData(WorldManager.Instance.loadedSaveSlot).currentLevelIndex == levelData.levelIndex)
 		{
 			levelTitle.color = Color.black;
 			levelStatus.text = "Current Level";
@@ -40,6 +40,15 @@ public class LevelButton : MonoBehaviour
 	public void SetLevelIndex(int index)
 	{
 		levelData.levelIndex = index;
+	}
+
+	public void OnLevelButtonClick()
+	{
+		if (WorldManager.Instance.GetSaveData(WorldManager.Instance.loadedSaveSlot).currentLevelIndex == levelData.levelIndex)
+		{
+			WorldManager.Instance.currentLevelIndex = levelData.levelIndex;
+			SceneManager.Instance.LoadScene("DiceGame");
+		}
 	}
 
 }

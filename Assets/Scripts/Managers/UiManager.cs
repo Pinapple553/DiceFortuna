@@ -40,6 +40,7 @@ public class UIManager : MonoBehaviour
 
 	public static UIManager Instance;
 	public bool coinFlipResolved = false;
+	public bool roundFinished = false;
 
 	private bool selectorShowDice = true;
 
@@ -241,10 +242,10 @@ public class UIManager : MonoBehaviour
 	{
 		if (roundEndPanel != null) roundEndPanel.SetActive(true);
 	}
-	public void OnPlayAgainClicked()
+	public void OnFinishClicked()
 	{
 		if (roundEndPanel != null) roundEndPanel.SetActive(false);
-		GameManager.Instance.StartButtonClick();
+		roundFinished = true;
 	}
 	public void LoseLife()
 	{

@@ -5,7 +5,10 @@ using UnityEngine;
 [System.Serializable]
 public class SaveFileData
 {	
-	public int levelIndex = 0; 
 	public int fortunaPoints;
 	public string dateSaved;
+	public LevelInstance[] levels;
+	public int currentLevelIndex;
+	public List<DiceData> ownedDice;
+	public List<ItemData> ownedItems;
 }

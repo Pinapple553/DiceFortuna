@@ -202,25 +202,35 @@ public class GameManager : MonoBehaviour
 		bool tie = (playerScore == aiScore);
 		bool playerWins = (playerScore > aiScore);
 
+		string resultStatus="unknown";
 		if (tie)
 		{
 			UIManager.Instance.ShowMessage("TIE! Token stays on the table.");
+			resultStatus="Tied";
+
 		}
 		else if (playerWins)
 		{
 			UIManager.Instance.ShowMessage($"YOU WIN!  {playerScore} vs {aiScore}");
+			resultStatus="Won";
 		}
 		else
 		{
 			UIManager.Instance.ShowMessage($"YOU LOSE  {playerScore} vs {aiScore}");
 			UIManager.Instance.LoseLife();
+			resultStatus = "Lost";
 		}
 
 		UIManager.Instance.UpdateMoney();
 		roundRunning = false;
 
 		yield return new WaitForSeconds(2f);
+		UIManager.Instance.roundFinished = false;
 		UIManager.Instance.ShowRoundEndPanel();
+
+		yield return new WaitUntil(() => UIManager.Instance.roundFinished);
+		WorldManager.Instance.Save(WorldManager.Instance.currentLevelIndex, DiceManager.Instance.currentResult, resultStatus);
+		SceneManager.Instance.LoadScene("LevelPicker");
 	}
 	private bool AnyRolling(List<DiceInstance> list)
 	{
