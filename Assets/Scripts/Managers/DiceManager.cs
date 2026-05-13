@@ -66,6 +66,7 @@ public class DiceManager : MonoBehaviour
 		if (diceSelected) return false;
 		if (GameManager.Instance.player.selectedDiceList.Count == 0) return false;
 		activeDiceList = new List<DiceInstance>(GameManager.Instance.player.selectedDiceList);
+		activeDiceList.AddRange(GameManager.Instance.ai.selectedDiceList);
 		diceSelected = true;
 		UIManager.Instance.UpdateUI();
 		return true;

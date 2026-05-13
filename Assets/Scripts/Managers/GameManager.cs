@@ -39,8 +39,8 @@ public class GameManager : MonoBehaviour
 
 	public void LockInDiceAndFlipCoin()
 	{
-		if (!DiceManager.Instance.SelectDice()) return;
 		AISelectDice();
+		if (!DiceManager.Instance.SelectDice()) return;
 		StartCoroutine(CoinFlipRoutine());
 	}
 	public void PlayerChoseCoinSide(bool heads)
@@ -85,7 +85,7 @@ public class GameManager : MonoBehaviour
         playerGoesFirst = (coinIsHeads == playerChoseHeads);
         yield return StartCoroutine(UIManager.Instance.PlayCoinAnimation(coinIsHeads));
 
-        //player confirms okay after seeing result
+        //add: player confirms okay after seeing result
         yield return StartCoroutine(UIManager.Instance.ExitCoinAnimation());
 
 		StartCoroutine(MatchRoutine());
@@ -112,11 +112,11 @@ public class GameManager : MonoBehaviour
 		diceRolling = true;
 		UIManager.Instance.resetResult();
 		
-		foreach (var d in roller.selectedDiceList)
+		foreach (var d in DiceManager.Instance.activeDiceList)
 		{
 			DiceAnimation.Instance.Roll(d);
 		}
-		yield return new WaitUntil(() => !AnyRolling(roller.selectedDiceList));
+		yield return new WaitUntil(() => !AnyRolling(DiceManager.Instance.activeDiceList));
 
 		if (isPlayerRoll) //player
 		{
@@ -125,11 +125,8 @@ public class GameManager : MonoBehaviour
 		}
 		else //ai
 		{
-			foreach (var d in roller.selectedDiceList)
-			{
-				DiceManager.Instance.aiCurrentResult += d.data.sides[d.currentSideIndex].value;
-			}
-				
+			yield return UIManager.Instance.CountAllDice();
+			yield return DiceManager.Instance.CountAllBonuses();
 		}
 
 		UIManager.Instance.ShowRollResults();
