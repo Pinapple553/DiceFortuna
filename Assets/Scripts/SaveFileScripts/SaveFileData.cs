@@ -9,6 +9,6 @@ public class SaveFileData
 	public string dateSaved;
 	public LevelInstance[] levels;
 	public int currentLevelIndex;
-	public List<DiceData> ownedDice;
-	public List<ItemData> ownedItems;
+	public List<int> ownedDiceIds;
+	public List<int> ownedItemIds;
 }

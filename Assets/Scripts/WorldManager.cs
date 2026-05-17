@@ -6,7 +6,10 @@ using UnityEngine;
 public class WorldManager : MonoBehaviour
 {
 	public LevelData[] levels;
-	public int loadedSaveSlot;
+    public DiceData[] allDiceInGame;   
+    public ItemData[] allItemsInGame; 
+
+    public int loadedSaveSlot;
 	public int currentLevelIndex;
 	public Player player;
 	
@@ -22,12 +25,20 @@ public class WorldManager : MonoBehaviour
 		else Destroy(gameObject);
 	}
 
+    public bool IsLevelCompleted(LevelData levelData)
+    {
+        SaveFileData data = GetSaveData(loadedSaveSlot);
+        return data != null && data.currentLevelIndex > levelData.levelIndex;
+    }
+    private string SavePath(int slot) => $"{Application.persistentDataPath}/Saves/SaveSlot{slot}.json";
 
-	public bool IsLevelCompleted(LevelData levelData){
-		if (GetSaveData(loadedSaveSlot).currentLevelIndex > levelData.levelIndex) return true;
-		else return false;	
-	}
-	public void NewSave(int saveSlot)
+    private void WriteSave(int slot, SaveFileData data)
+    {
+        string dir = $"{Application.persistentDataPath}/Saves";
+        if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+        File.WriteAllText(SavePath(slot), JsonUtility.ToJson(data, true));
+    }
+    public void NewSave(int saveSlot)
 	{
 		SaveFileData saveFileData = new SaveFileData();
 		saveFileData.dateSaved = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -38,13 +49,18 @@ public class WorldManager : MonoBehaviour
 		{
 			LevelInstance levelInstance = new LevelInstance();
 			levelInstance.levelIndex = i;
-			levelInstance.status = "Locked";
-			levelInstance.fortunaPointsEarned = 0;
+            if (i == 0) levelInstance.status = "Current";
+            else levelInstance.status = "Locked";
+            levelInstance.fortunaPointsEarned = 0;
 			levelInstances[i] = levelInstance;
 		}
 		saveFileData.levels = levelInstances;
 
-		string json = JsonUtility.ToJson(saveFileData, true);
+        if (!Directory.Exists($"{Application.persistentDataPath}/Saves"))
+        {
+            Directory.CreateDirectory($"{Application.persistentDataPath}/Saves");
+        }
+        string json = JsonUtility.ToJson(saveFileData, true);
 		File.WriteAllText($"{Application.persistentDataPath}/Saves/SaveSlot{saveSlot}.json", json);
 	}
 	public void Save(int levelIndex, int roundFortunaPoints, string levelStatus){
@@ -52,15 +68,36 @@ public class WorldManager : MonoBehaviour
 		if (saveFileData != null)
 		{
 			saveFileData.dateSaved = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-			saveFileData.fortunaPoints += roundFortunaPoints;
-			saveFileData.currentLevelIndex = levelIndex;
+            if (levelStatus == "Won")
+            {
+                player.fortunaPoints += roundFortunaPoints;
+            }
+            saveFileData.fortunaPoints = player.fortunaPoints;
 
-			saveFileData.levels[levelIndex].status = levelStatus;
+            if (levelIndex + 1 < levels.Length)
+            {
+                saveFileData.currentLevelIndex = levelIndex + 1;
+                currentLevelIndex = saveFileData.currentLevelIndex;
+            }
+
+            saveFileData.levels[levelIndex].status = levelStatus;
 			saveFileData.levels[levelIndex].fortunaPointsEarned = roundFortunaPoints;
 
-			string json = JsonUtility.ToJson(saveFileData, true);
-			File.WriteAllText($"{Application.persistentDataPath}/Saves/SaveSlot{loadedSaveSlot}.json", json);
-		}
+            saveFileData.ownedDiceIds = new List<int>();
+            foreach (DiceData d in player.ownedDiceList)
+            {
+                int id = System.Array.IndexOf(allDiceInGame, d);
+                if (id >= 0) saveFileData.ownedDiceIds.Add(id);
+            }
+            saveFileData.ownedItemIds = new List<int>();
+            foreach (ItemData item in player.ownedItemsList)
+            {
+                int id = System.Array.IndexOf(allItemsInGame, item);
+                if (id >= 0) saveFileData.ownedItemIds.Add(id);
+            }
+
+            WriteSave(loadedSaveSlot, saveFileData);
+        }
 	}
 	public void DeleteSave(int saveSlot)
 	{
@@ -93,4 +130,56 @@ public class WorldManager : MonoBehaviour
 		}
 		return null;
 	}
+
+
+    public void LoadPlayerData()
+    {
+        SaveFileData save = GetSaveData(loadedSaveSlot);
+        if (save == null) return;
+
+        player.fortunaPoints = save.fortunaPoints;
+
+        player.ownedDiceList = new List<DiceData>();
+        if (save.ownedDiceIds != null)
+        {
+            foreach (int id in save.ownedDiceIds)
+            {
+                if (id >= 0 && id < allDiceInGame.Length)
+                    player.ownedDiceList.Add(allDiceInGame[id]);
+            }
+        }
+
+        player.ownedItemsList = new List<ItemData>();
+        if (save.ownedItemIds != null)
+        {
+            foreach (int id in save.ownedItemIds)
+            {
+                if (id >= 0 && id < allItemsInGame.Length)
+                    player.ownedItemsList.Add(allItemsInGame[id]);
+            }
+        }
+    }
+    public void SavePlayerData()
+    {
+        SaveFileData save = GetSaveData(loadedSaveSlot);
+        if (save == null) return;
+
+        save.fortunaPoints = player.fortunaPoints;
+
+        save.ownedDiceIds = new List<int>();
+        foreach (DiceData d in player.ownedDiceList)
+        {
+            int id = System.Array.IndexOf(allDiceInGame, d);
+            if (id >= 0) save.ownedDiceIds.Add(id);
+        }
+
+        save.ownedItemIds = new List<int>();
+        foreach (ItemData item in player.ownedItemsList)
+        {
+            int id = System.Array.IndexOf(allItemsInGame, item);
+            if (id >= 0) save.ownedItemIds.Add(id);
+        }
+
+        WriteSave(loadedSaveSlot, save);
+    }
 }
