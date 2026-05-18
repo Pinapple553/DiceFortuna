@@ -19,16 +19,31 @@ public abstract class PlayerBase : ScriptableObject
 	{
 		int count = 0;
 		foreach (var d in ownedDiceList)
-			if (d == dice) count++;
+		if (d == dice) count++;
 		return count;
 	}
+    public int GetItemAmount(ItemData item)
+    {
+        int count = 0;
+        foreach (var i in ownedItemsList)
+            if (i == item) count++;
+        return count;
+    }
 
-	public int GetAvailableAmount(DiceData dice)
+
+    public int GetAvailableDiceAmount(DiceData dice)
 	{
 		int owned = GetDiceAmount(dice);
 		int active = DiceManager.Instance.activeDiceList.Count(i => i.data == dice);
 		return owned - active;
 	}
+
+	public int GetAvailableItemAmount(ItemData item)
+	{
+        int owned = GetItemAmount(item);
+        int active = DiceManager.Instance.activeDiceList.Count(i => i.data == item);
+        return owned - active;
+    }
 
 	public bool AddDice(DiceData dice)
 	{

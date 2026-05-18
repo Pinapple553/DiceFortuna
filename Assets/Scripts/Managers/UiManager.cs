@@ -9,8 +9,8 @@ public class UIManager : MonoBehaviour
 {
 	[Header("Core Text")]
 	[SerializeField] private TMP_Text gameButtonText;
-	[SerializeField] private TMP_Text moneyText;
-	[SerializeField] private TMP_Text aiMoneyText;
+	[SerializeField] private TMP_Text playerPointText;
+	[SerializeField] private TMP_Text aiPointText;
 	[SerializeField] private TMP_Text pointsText;
 	[SerializeField] private Sprite emptyDiceSlot;
 
@@ -31,8 +31,9 @@ public class UIManager : MonoBehaviour
 	[Header("DiceSelector")]
 	[SerializeField] private GridLayoutGroup diceSelectorGrid;
 	[SerializeField] private DiceButton diceIconPrefab;
+    [SerializeField] private ItemButton itemIconPrefab;
 
-	[Header("DiceInfo")]
+    [Header("DiceInfo")]
 	[SerializeField] private Image diceInfoIcon;
 	[SerializeField] private TMP_Text diceInfoName;
 	[SerializeField] private TMP_Text diceInfoSides;
@@ -71,8 +72,8 @@ public class UIManager : MonoBehaviour
 
 	public void UpdateMoney()
 	{
-		if (moneyText != null) moneyText.text = $"YOU: {GameManager.Instance.player.fortunaPoints}";
-		if (aiMoneyText != null) aiMoneyText.text = $"OPONENT: {GameManager.Instance.ai.fortunaPoints}";
+		if (playerPointText != null) playerPointText.text = $"YOU: {GameManager.Instance.player.fortunaPoints}";
+		if (aiPointText != null) aiPointText.text = $"OPONENT: {GameManager.Instance.ai.fortunaPoints}";
 	}
 
 	public void SetGameButtonText(string text)
@@ -125,16 +126,22 @@ public class UIManager : MonoBehaviour
                 uniqueDice.Add(dice);
                 var icon = Instantiate(diceIconPrefab, diceSelectorGrid.transform);
                 icon.dice = dice;
-                icon.amountOwned = GameManager.Instance.player.GetAvailableAmount(dice);
+                icon.amountOwned = GameManager.Instance.player.GetAvailableDiceAmount(dice);
                 icon.UpdateButtonUI();
             }
         }
 		else
 		{
-			foreach (var item in GameManager.Instance.player.ownedItemsList)
+            var uniqueItems = new List<ItemData>();
+            foreach (var item in GameManager.Instance.player.ownedItemsList)
 			{
-				//display items 
-			}
+                if (uniqueItems.Contains(item)) continue;
+                uniqueItems.Add(item);
+                var icon = Instantiate(itemIconPrefab, diceSelectorGrid.transform);
+                /*icon.dice = item;
+                icon.amountOwned = GameManager.Instance.player.GetAvailableItemAmount(item);
+                icon.UpdateButtonUI();*/
+            }
         }
     }
 
@@ -148,6 +155,7 @@ public class UIManager : MonoBehaviour
 		{
 			selectorShowDice = false;
 		}
+		UpdateDiceSelector();
 	}
 
 
