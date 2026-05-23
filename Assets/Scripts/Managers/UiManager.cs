@@ -7,14 +7,31 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-	[Header("Core Text")]
-	[SerializeField] private TMP_Text gameButtonText;
-	[SerializeField] private TMP_Text playerPointText;
-	[SerializeField] private TMP_Text aiPointText;
-	[SerializeField] private TMP_Text pointsText;
-	[SerializeField] private Sprite emptyDiceSlot;
+	[Header("Center")]
+	[SerializeField] private TMP_Text rollPointsText;
+	[SerializeField] private Button rollButton;
+	[SerializeField] private TMP_Text rollButtonText;
+    [SerializeField] private DiceButton[] diceDisplayButtons;
+    [SerializeField] private Sprite emptyDiceSlot;
 
-	[Header("Panels")]
+	[Header("ItemBar")]
+	[SerializeField] private HorizontalLayoutGroup itemSelector;
+    [SerializeField] private DiceButton diceButtonPrefab;
+    [SerializeField] private ItemButton itemButtonPrefab;
+    [HideInInspector] private bool selectorShowDice = true;
+
+	[Header("RoundInfo")]
+	[SerializeField] private TMP_Text currentRoundText;
+	[SerializeField] private PlayerInfoCard playerRoundInfo;
+    [SerializeField] private PlayerInfoCard NPCRoundInfo;
+
+	[Header("MatchInfo")]
+	[SerializeField] private VerticalLayoutGroup matchEffects;
+	[SerializeField] private Button matchEffectButtonPrefab;
+    [SerializeField] private PlayerInfoCard playerMatchInfo;
+    [SerializeField] private PlayerInfoCard NPCMatchInfo;
+
+    [Header("Panels")]
 	[SerializeField] private GameObject roundInfoPanel;
 	[SerializeField] private GameObject itemPhasePanel;
 	[SerializeField] private GameObject messagePanel;
@@ -24,28 +41,13 @@ public class UIManager : MonoBehaviour
 	[Header("CoinFlip")]
 	[SerializeField] private GameObject coinFlipUI;
 	[SerializeField] private Animator coinFlipAnimator;
+    [HideInInspector] public bool coinFlipResolved = false;
+    [HideInInspector] public bool roundFinished = false;
 
-	[Header("DiceDisplay")]
-	[SerializeField] private DiceButton[] diceDisplayButtons;
+	
+	[HideInInspector] public static UIManager Instance;
 
-	[Header("DiceSelector")]
-	[SerializeField] private GridLayoutGroup diceSelectorGrid;
-	[SerializeField] private DiceButton diceIconPrefab;
-    [SerializeField] private ItemButton itemIconPrefab;
-
-    [Header("DiceInfo")]
-	[SerializeField] private Image diceInfoIcon;
-	[SerializeField] private TMP_Text diceInfoName;
-	[SerializeField] private TMP_Text diceInfoSides;
-	[SerializeField] private TMP_Text diceInfoDescription;
-
-	public static UIManager Instance;
-	public bool coinFlipResolved = false;
-	public bool roundFinished = false;
-
-	private bool selectorShowDice = true;
-
-	//test
+	//debug
 	private int currentLives = 3;
 
 	private void Awake()
@@ -72,21 +74,21 @@ public class UIManager : MonoBehaviour
 
 	public void UpdateMoney()
 	{
-		if (playerPointText != null) playerPointText.text = $"YOU: {GameManager.Instance.player.fortunaPoints}";
-		if (aiPointText != null) aiPointText.text = $"OPONENT: {GameManager.Instance.ai.fortunaPoints}";
+		//if (playerPointText != null) playerPointText.text = $"YOU: {GameManager.Instance.player.fortunaPoints}";
+		//if (aiPointText != null) aiPointText.text = $"OPONENT: {GameManager.Instance.ai.fortunaPoints}";
 	}
 
 	public void SetGameButtonText(string text)
 	{
-		if (gameButtonText != null) gameButtonText.text = text;
+		//if (gameButtonText != null) gameButtonText.text = text;
 	}
 	public void resetResult()
 	{
-		if (pointsText != null) pointsText.text = "";
+		if (rollPointsText != null) rollPointsText.text = "";
 	}
 	public void ShowRollResults()
 	{
-		if (pointsText != null) pointsText.text = DiceManager.Instance.currentResult.ToString();
+		if (rollPointsText != null) rollPointsText.text = DiceManager.Instance.currentResult.ToString();
 	}
 	public void CloseRoundInfo(bool close)
 	{
@@ -112,7 +114,7 @@ public class UIManager : MonoBehaviour
 	}
 	private void UpdateDiceSelector()
 	{
-		foreach (Transform child in diceSelectorGrid.transform)
+		foreach (Transform child in itemSelector.transform)
 		{
 			Destroy(child.gameObject);
 		}
@@ -124,7 +126,7 @@ public class UIManager : MonoBehaviour
             {
                 if (uniqueDice.Contains(dice)) continue;
                 uniqueDice.Add(dice);
-                var icon = Instantiate(diceIconPrefab, diceSelectorGrid.transform);
+                var icon = Instantiate(diceButtonPrefab, itemSelector.transform);
                 icon.dice = dice;
                 icon.amountOwned = GameManager.Instance.player.GetAvailableDiceAmount(dice);
                 icon.UpdateButtonUI();
@@ -137,7 +139,7 @@ public class UIManager : MonoBehaviour
 			{
                 if (uniqueItems.Contains(item)) continue;
                 uniqueItems.Add(item);
-                var icon = Instantiate(itemIconPrefab, diceSelectorGrid.transform);
+                var icon = Instantiate(itemButtonPrefab, itemSelector.transform);
                 /*icon.dice = item;
                 icon.amountOwned = GameManager.Instance.player.GetAvailableItemAmount(item);
                 icon.UpdateButtonUI();*/
@@ -160,13 +162,13 @@ public class UIManager : MonoBehaviour
 
 
 
-    public void ShowDiceInfo(DiceData dice)
+    /*public void ShowDiceInfo(DiceData dice)
 	{
 		if (diceInfoIcon != null) diceInfoIcon.sprite = dice.sides[0].sprite;
 		if (diceInfoName != null) diceInfoName.text = dice.diceName;
 		if (diceInfoDescription != null) diceInfoDescription.text = dice.description;
 		if (diceInfoSides != null) diceInfoSides.text = dice.sides.Length.ToString();
-	}
+	}*/
 	public IEnumerator CountAllDice()
 	{
 		int result = 0;
@@ -183,7 +185,7 @@ public class UIManager : MonoBehaviour
 			{
 				result++;
 				DiceManager.Instance.currentResult = result;
-				pointsText.text = result.ToString();
+				rollPointsText.text = result.ToString();
 				yield return new WaitForSeconds(0.05f);
 			}
 
@@ -194,7 +196,7 @@ public class UIManager : MonoBehaviour
 
 	public IEnumerator ShowCombo(List<int> inDices, DiceCombo combo)
 	{
-		pointsText.text = combo.GetName();
+        rollPointsText.text = combo.GetName();
 		int bonus = combo.GetBonus();
 
 		foreach (int i in inDices)
@@ -209,7 +211,7 @@ public class UIManager : MonoBehaviour
 		for (int i = 0; i < bonus; i++)
 		{
 			startValue++;
-			pointsText.text = startValue.ToString();
+			rollPointsText.text = startValue.ToString();
 			yield return new WaitForSeconds(0.05f);
 		}
 		foreach (int i in inDices)

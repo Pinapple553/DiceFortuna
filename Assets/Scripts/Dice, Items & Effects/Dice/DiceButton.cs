@@ -38,6 +38,6 @@ public class DiceButton : MonoBehaviour
 	}
 
 	public void OnPointerEnter(){
-		UIManager.Instance.ShowDiceInfo(dice);
+		//UIManager.Instance.ShowDiceInfo(dice);
 	}
 }
