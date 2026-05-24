@@ -10,26 +10,30 @@ public class DiceButton : MonoBehaviour
     [Header("Dice Info")]
 	public DiceData dice;
 	public int amountOwned;
-	int amountAdded;
+	public int amountSelected;
 
 	[Header("UI")]
 	[SerializeField] private Image icon;
-	[SerializeField] private TMP_Text amountText;
-	public void AddDice(){
-		if (amountOwned-amountAdded>0)
-		{
-            if (!DiceManager.Instance.AddDice(dice, GameManager.Instance.player)) return;
-            amountAdded +=1;
-		}
-		UpdateButtonUI();
+	[SerializeField] private TMP_Text amountOwnedText;
+	[SerializeField] private Button amountSelectedButton;
+	[SerializeField] private TMP_Text amountSelectedText;
+	public void SelectDice(){
+		if (amountSelected >= amountOwned) return;
+        if (!DiceManager.Instance.AddDice(dice, GameManager.Instance.player)) return;
+		amountSelected++;
+        UpdateButtonUI();
 	}
-	public void RemoveDice(){
+	public void DeselectDice(){
+        if (amountSelected <= 0) return;
         if (!DiceManager.Instance.RemoveDice(dice, GameManager.Instance.player)) return;
-		amountAdded -=1;
-	}
+        amountSelected--;
+        UpdateButtonUI();
+    }
 
-	public void UpdateButtonUI() { 
-		amountText.text = (amountOwned - amountAdded).ToString();
+	public void UpdateButtonUI() {
+		amountOwnedText.text = amountOwned.ToString();
+		amountSelectedButton.gameObject.SetActive(amountSelected>0);
+		amountSelectedText.text = amountSelected.ToString();
 		icon.sprite = dice.sides[0].sprite;
 	}
 	public void SetIcon(Sprite sprite)

@@ -8,8 +8,11 @@ public class ItemButton : MonoBehaviour
     public int instanceId;
 
     [Header("Item Info")]
-    public ItemData itemData;
-    public int amountOwned;
+    public ItemData data;
+
+    [Header("UI")]
+    [SerializeField] private Image icon;
+    [SerializeField] private TMP_Text usesText;
 
     private bool inItemPhase;
     private ItemInstance itemInstance;

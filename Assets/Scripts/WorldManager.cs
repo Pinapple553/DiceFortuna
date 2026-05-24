@@ -6,11 +6,11 @@ using UnityEngine;
 public class WorldManager : MonoBehaviour
 {
 	public LevelData[] levels;
-    public DiceData[] allDiceInGame;   
-    public ItemData[] allItemsInGame; 
+    public DiceData[] allDiceInGame;
+    public ItemData[] allItemsInGame;
 
     public int loadedSaveSlot;
-	public int currentLevelIndex;
+	public int currentLevelIndex = 1;
 	public Player player;
 	
 
@@ -30,8 +30,7 @@ public class WorldManager : MonoBehaviour
         SaveFileData data = GetSaveData(loadedSaveSlot);
         return data != null && data.currentLevelIndex > levelData.levelIndex;
     }
-    private string SavePath(int slot) => $"{Application.persistentDataPath}/Saves/SaveSlot{slot}.json";
-
+    private string SavePath(int slot) { return $"{Application.persistentDataPath}/Saves/SaveSlot{slot}.json"; }
     private void WriteSave(int slot, SaveFileData data)
     {
         string dir = $"{Application.persistentDataPath}/Saves";
@@ -70,9 +69,9 @@ public class WorldManager : MonoBehaviour
 			saveFileData.dateSaved = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             if (levelStatus == "Won")
             {
-                player.fortunaPoints += roundFortunaPoints;
+                player.totalFortunaPoints += roundFortunaPoints;
             }
-            saveFileData.fortunaPoints = player.fortunaPoints;
+            saveFileData.fortunaPoints = player.totalFortunaPoints;
 
             if (levelIndex + 1 < levels.Length)
             {
@@ -130,14 +129,12 @@ public class WorldManager : MonoBehaviour
 		}
 		return null;
 	}
-
-
     public void LoadPlayerData()
     {
         SaveFileData save = GetSaveData(loadedSaveSlot);
         if (save == null) return;
 
-        player.fortunaPoints = save.fortunaPoints;
+        player.totalFortunaPoints = save.fortunaPoints;
 
         player.ownedDiceList = new List<DiceData>();
         if (save.ownedDiceIds != null)
@@ -164,7 +161,7 @@ public class WorldManager : MonoBehaviour
         SaveFileData save = GetSaveData(loadedSaveSlot);
         if (save == null) return;
 
-        save.fortunaPoints = player.fortunaPoints;
+        save.fortunaPoints = player.totalFortunaPoints;
 
         save.ownedDiceIds = new List<int>();
         foreach (DiceData d in player.ownedDiceList)

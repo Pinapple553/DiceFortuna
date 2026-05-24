@@ -7,11 +7,9 @@ public class GameManager : MonoBehaviour
 	public AIPlayer ai;
 	public Player player;
 
-	public static GameManager Instance;
-
-	public bool roundRunning = false;
-	public bool diceRolling = false;
-	public int pendingItemTargetIndex = -1;
+    public bool diceSelected = false;
+    public bool roundRunning = false;
+    public bool diceRolling = false;
 
 	[HideInInspector] public bool playerChoseHeads = true;
 	[HideInInspector] public bool playerGoesFirst = true;
@@ -19,28 +17,46 @@ public class GameManager : MonoBehaviour
 	[HideInInspector] public bool playerPassedItems = false;
 	[HideInInspector] public bool aiPassedItems = false;
 
-	[SerializeField] private int rollsPerMatch = 2;
+	private int rounds = 2;
 
-	private void Awake()
+    public static GameManager Instance;
+    private void Awake()
 	{
 		if (Instance != null && Instance != this) Destroy(this.gameObject);
 		else Instance = this;
 	}
-
 	private void Start()
 	{
+        Loadlevel();
 		UIManager.Instance.CloseRoundInfo(false);
+	}
+	private void Loadlevel()
+	{
+		LevelData level = WorldManager.Instance.levels[WorldManager.Instance.currentLevelIndex];
+		if (level == null) return;
+		rounds = level.rounds;
 	}
 	public void StartButtonClick()
 	{
 		if (!roundRunning) StartRound();
 		UIManager.Instance.CloseRoundInfo(true);
 	}
-
-	public void LockInDiceAndFlipCoin()
+	public void ItemBarButtonClick()
+	{
+		if (!diceSelected) LockInDice();
+		else UseSelectedItem();
+		UIManager.Instance.UpdateUI();
+	}
+    private void LockInDice()
 	{
 		AISelectDice();
-		if (!DiceManager.Instance.SelectDice()) return;
+		if (!DiceManager.Instance.SelectDice())
+		{
+			UIManager.Instance.ShowMessage("Select atleast one dice to start the round!");
+			return;
+		}
+		UIManager.Instance.SelectorMode("item");
+		UIManager.Instance.UppdateItemBar();
 		StartCoroutine(CoinFlipRoutine());
 	}
 	public void PlayerChoseCoinSide(bool heads)
@@ -55,10 +71,7 @@ public class GameManager : MonoBehaviour
 	public void StartRound()
 	{
 		roundRunning = true;
-		player.BuildItemHand();
-		ai.BuildItemHand();
 		DiceManager.Instance.ResetRound();
-		UIManager.Instance.SetGameButtonText("Select Dice");
 		UIManager.Instance.UpdateUI();
 	}
 	private void AISelectDice()
@@ -68,9 +81,9 @@ public class GameManager : MonoBehaviour
 		int count = Mathf.Min(ai.maxDice, pool.Count); //in case ai owns fewer dice than max allowed
 		for (int i = 0; i < count; i++)
 		{
-			int idx = Random.Range(0, pool.Count);
-			ai.selectedDiceList.Add(new DiceInstance(pool[idx]));
-			pool.RemoveAt(idx);
+			int index = Random.Range(0, pool.Count);
+			ai.selectedDiceList.Add(new DiceInstance(pool[index]));
+			pool.RemoveAt(index);
 		}
 	}
 	private IEnumerator CoinFlipRoutine()
@@ -92,7 +105,7 @@ public class GameManager : MonoBehaviour
 	}
 	private IEnumerator MatchRoutine()
 	{
-		for (int roll = 0; roll < rollsPerMatch; roll++)
+		for (int roll = 0; roll < rounds; roll++)
 		{
 			PlayerBase first = playerGoesFirst ? player : ai;
 			PlayerBase second = playerGoesFirst ? ai : player;
@@ -159,39 +172,18 @@ public class GameManager : MonoBehaviour
 		}
 		UIManager.Instance.ShowItemPhase(false);
 	}
-
-	private IEnumerator AIUseItem()
+    private void UseSelectedItem()
 	{
-		yield return new WaitForSeconds(0.8f);
 
-		if (Random.value < 0.4f)
-		{
-			var unused = ai.itemHand.FindAll(item => !item.used);
-			if (unused.Count > 0)
-			{
-				var chosen = unused[Random.Range(0, unused.Count)];
-				ai.TryUseItem(chosen);
-				pendingItemTargetIndex = Random.Range(0, ai.selectedDiceList.Count);
-				yield return chosen.data.effect.Apply(ai, ai.selectedDiceList);
-				UIManager.Instance.UpdateUI();
-				yield break;
-			}
-		}
-		aiPassedItems = true;
+	}
+    private IEnumerator AIUseItem()
+	{
+		return null;
 	}
 	public IEnumerator PlayerUseItem(ItemInstance item)
 	{
-		if (!isPlayerItemTurn) yield break;
-		if (!player.TryUseItem(item)) yield break;
-
-		yield return item.data.effect.Apply(player, player.selectedDiceList);
-
-		//recount 
-		DiceManager.Instance.currentResult = 0;
-		yield return UIManager.Instance.CountAllDice();
-		yield return DiceManager.Instance.CountAllBonuses();
-		UIManager.Instance.UpdateUI();
-	}
+        return null;
+    }
 	private IEnumerator ResolveWinner()
 	{
 		int playerScore = DiceManager.Instance.currentResult;
@@ -214,11 +206,11 @@ public class GameManager : MonoBehaviour
 		else
 		{
 			UIManager.Instance.ShowMessage($"YOU LOSE  {playerScore} vs {aiScore}");
-			UIManager.Instance.LoseLife();
+			//-1 token(life)
 			resultStatus = "Lost";
 		}
 
-		UIManager.Instance.UpdateMoney();
+		UIManager.Instance.UpdateRoundInfo();
 		roundRunning = false;
 
 		yield return new WaitForSeconds(2f);

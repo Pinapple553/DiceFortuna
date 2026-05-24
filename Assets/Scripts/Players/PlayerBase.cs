@@ -8,13 +8,18 @@ public abstract class PlayerBase : ScriptableObject
 	public List<ItemData> ownedItemsList;    
 	public List<DiceInstance> selectedDiceList = new List<DiceInstance>();
 
-	[HideInInspector]
-	public List<ItemInstance> itemHand = new List<ItemInstance>();
-
-	public int fortunaPoints;
+	public int totalFortunaPoints = 0;
+	public int roundFortunaPoints = 0;
+	public int matchFortunaPoints = 0;
 	public int maxDice = 4;
-	public int maxItemsPerRound = 5;
+	public int maxRoundItems = 3;
+	public int maxMatchItems = 5;
+	public int itemsUsed = 0;
 
+	public bool CanUseItem() 
+	{
+		return itemsUsed < maxRoundItems && itemsUsed < maxMatchItems;
+	}
 	public int GetDiceAmount(DiceData dice)
 	{
 		int count = 0;
@@ -22,6 +27,15 @@ public abstract class PlayerBase : ScriptableObject
 		if (d == dice) count++;
 		return count;
 	}
+    public int GetSelectedDiceAmout(DiceData dice)
+    {
+        int amount = 0;
+        foreach (var d in selectedDiceList)
+        {
+            if (d.data == dice) amount++;
+        }
+        return amount;
+    }
     public int GetItemAmount(ItemData item)
     {
         int count = 0;
@@ -30,13 +44,6 @@ public abstract class PlayerBase : ScriptableObject
         return count;
     }
 
-
-    public int GetAvailableDiceAmount(DiceData dice)
-	{
-		int owned = GetDiceAmount(dice);
-		int active = DiceManager.Instance.activeDiceList.Count(i => i.data == dice);
-		return owned - active;
-	}
 
 	public int GetAvailableItemAmount(ItemData item)
 	{
@@ -54,7 +61,6 @@ public abstract class PlayerBase : ScriptableObject
 		}
 		return false;
 	}
-
 	public bool RemoveDice(DiceData dice)
 	{
 		if (DiceManager.Instance.RemoveDice(dice, this))
@@ -69,30 +75,5 @@ public abstract class PlayerBase : ScriptableObject
 			}
 		}
 		return false;
-	}
-	public void BuildItemHand()
-	{
-		itemHand = new List<ItemInstance>();
-		foreach (var item in ownedItemsList)
-		{
-			itemHand.Add(new ItemInstance(item));
-		}
-	}
-
-	public int ItemsUsedThisRound()
-	{
-		return itemHand.Count(i => i.used);
-	}
-
-	public bool CanUseItem()
-	{
-		return ItemsUsedThisRound() < maxItemsPerRound;
-	}
-	public bool TryUseItem(ItemInstance item)
-	{
-		if (item.used) return false;
-		if (!CanUseItem()) return false;
-		item.used = true;
-		return true;
 	}
 }

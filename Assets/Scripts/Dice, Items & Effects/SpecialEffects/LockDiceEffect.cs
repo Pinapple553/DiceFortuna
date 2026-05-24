@@ -10,12 +10,8 @@ public class LockDiceEffect : ItemEffect
 {
     public override IEnumerator Apply(PlayerBase target, List<DiceInstance> dice)
     {
-        int index = GameManager.Instance.pendingItemTargetIndex;
-        if (index < 0 || index >= dice.Count) yield break;
-
-        dice[index].isLocked = true;
-        UIManager.Instance.UpdateUI();
-        yield return null;
+        Debug.Log("Locked dice");
+        return null;
     }
 
     public override string GetDescription() => "Lock one die — it keeps its value next roll.";

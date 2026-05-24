@@ -4,6 +4,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEditor.Progress;
 
 public class UIManager : MonoBehaviour
 {
@@ -18,6 +19,7 @@ public class UIManager : MonoBehaviour
 	[SerializeField] private HorizontalLayoutGroup itemSelector;
     [SerializeField] private DiceButton diceButtonPrefab;
     [SerializeField] private ItemButton itemButtonPrefab;
+	[SerializeField] private TMP_Text itemSelectButtonText;
     [HideInInspector] private bool selectorShowDice = true;
 
 	[Header("RoundInfo")]
@@ -47,8 +49,8 @@ public class UIManager : MonoBehaviour
 	
 	[HideInInspector] public static UIManager Instance;
 
-	//debug
-	private int currentLives = 3;
+    //corutines
+    private Coroutine hideMessageCoroutine;
 
 	private void Awake()
 	{
@@ -63,26 +65,26 @@ public class UIManager : MonoBehaviour
 		if (roundEndPanel != null) roundEndPanel.SetActive(false);
 		UpdateUI();
 	}
-
 	public void UpdateUI()
 	{
 		resetResult();
-		UpdateMoney();
+        UpdateRoundInfo();
 		UpdateDiceSelector();
 		UpdateDiceDisplay();
-	}
-
-	public void UpdateMoney()
+		UpdateItemBarButton();
+    }
+	public void UpdateRoundInfo()
 	{
-		//if (playerPointText != null) playerPointText.text = $"YOU: {GameManager.Instance.player.fortunaPoints}";
-		//if (aiPointText != null) aiPointText.text = $"OPONENT: {GameManager.Instance.ai.fortunaPoints}";
-	}
+		if (playerRoundInfo != null) playerRoundInfo.PointText.text = GameManager.Instance.player.roundFortunaPoints.ToString();
+        if (NPCRoundInfo != null) NPCRoundInfo.PointText.text = GameManager.Instance.player.roundFortunaPoints.ToString();
+    }
 
-	public void SetGameButtonText(string text)
-	{
-		//if (gameButtonText != null) gameButtonText.text = text;
-	}
-	public void resetResult()
+    private void UpdateItemBarButton()
+    {
+		if (!GameManager.Instance.diceSelected) itemSelectButtonText.text = "Lock in";
+		else itemSelectButtonText.text = "Use";
+    }
+    public void resetResult()
 	{
 		if (rollPointsText != null) rollPointsText.text = "";
 	}
@@ -126,9 +128,10 @@ public class UIManager : MonoBehaviour
             {
                 if (uniqueDice.Contains(dice)) continue;
                 uniqueDice.Add(dice);
-                var icon = Instantiate(diceButtonPrefab, itemSelector.transform);
+				var icon = Instantiate(diceButtonPrefab, itemSelector.transform);
                 icon.dice = dice;
-                icon.amountOwned = GameManager.Instance.player.GetAvailableDiceAmount(dice);
+                icon.amountOwned = GameManager.Instance.player.GetDiceAmount(dice);
+				icon.amountSelected = GameManager.Instance.player.GetSelectedDiceAmout(dice);
                 icon.UpdateButtonUI();
             }
         }
@@ -146,21 +149,18 @@ public class UIManager : MonoBehaviour
             }
         }
     }
-
-	public void SelectorMode(string mode)
+	public void SelectorMode(string mode) //switch between dice or item selector
 	{
-		if (mode == "dice")
-		{
-			selectorShowDice = true;
-		}
-		else
-		{
-			selectorShowDice = false;
-		}
+		if (mode == "dice") selectorShowDice = true;
+		else selectorShowDice = false;
 		UpdateDiceSelector();
 	}
+	public void UppdateItemBar()
+	{
+		if (!GameManager.Instance.diceSelected) itemSelectButtonText.text = "Select";
+        else itemSelectButtonText.text = "Use";
 
-
+	}
 
     /*public void ShowDiceInfo(DiceData dice)
 	{
@@ -193,7 +193,6 @@ public class UIManager : MonoBehaviour
 			diceDisplayButtons[i].transform.localScale = Vector3.one;
 		}
 	}
-
 	public IEnumerator ShowCombo(List<int> inDices, DiceCombo combo)
 	{
         rollPointsText.text = combo.GetName();
@@ -231,23 +230,10 @@ public class UIManager : MonoBehaviour
 
 	public void ShowItemPhase(bool show)
 	{
-		if (itemPhasePanel != null) itemPhasePanel.SetActive(show);
+		//Round info phase:Item ?
 	}
-
-	public void ShowMessage(string text)
-	{
-		if (messagePanel == null || messageText == null) return;
-		messageText.text = text;
-		messagePanel.SetActive(true);
-		StartCoroutine(HideAfter(messagePanel, 3f));
-	}
-
-	private IEnumerator HideAfter(GameObject panel, float delay)
-	{
-		yield return new WaitForSeconds(delay);
-		if (panel != null) panel.SetActive(false);
-	}
-
+	
+	//popup and panel functions
 	public void ShowRoundEndPanel()
 	{
 		if (roundEndPanel != null) roundEndPanel.SetActive(true);
@@ -257,20 +243,29 @@ public class UIManager : MonoBehaviour
 		if (roundEndPanel != null) roundEndPanel.SetActive(false);
 		roundFinished = true;
 	}
-	public void LoseLife()
-	{
-		if (currentLives <= 0) return;
-		currentLives--;
-		if (currentLives <= 0) ShowMessage("Out of straws! Game over.");
-	}
+    public void ShowMessage(string text) //show message popup with text, disapears after 2 seconds 
+    {
+        if (hideMessageCoroutine != null) { StopCoroutine(hideMessageCoroutine); hideMessageCoroutine = null; }
+        if (messagePanel == null || messageText == null) return;
+        messageText.text = text;
+        messagePanel.SetActive(true);
+        if (hideMessageCoroutine == null) hideMessageCoroutine = StartCoroutine(HideAfter(messagePanel, 2f));
+    }
+    private IEnumerator HideAfter(GameObject panel, float delay) //sets object to disapear after set amount of time
+    {
+        yield return new WaitForSeconds(delay);
+        if (panel != null) panel.SetActive(false);
+        if (panel = messagePanel) hideMessageCoroutine = null;
 
-	public IEnumerator StartCoinAnimation()
+    }
+    //coin animation functions
+    public IEnumerator StartCoinAnimation() //begins coin flip interaction
 	{
         coinFlipAnimator.SetTrigger("Enter");
         yield return new WaitForSeconds(2f);
-        coinFlipUI.SetActive(true);
+        coinFlipUI.SetActive(true); //shows heads or tails buttons
     }
-	public IEnumerator PlayCoinAnimation(bool heads)
+	public IEnumerator PlayCoinAnimation(bool heads) //plas different animation depending if its heads or tails
 	{
         coinFlipUI.SetActive(false);
         if (heads)
@@ -286,8 +281,7 @@ public class UIManager : MonoBehaviour
             yield break;
         }
 	}
-
-	public IEnumerator ExitCoinAnimation()
+	public IEnumerator ExitCoinAnimation() //coin flip hand exits screen
 	{
 		coinFlipAnimator.SetTrigger("Exit");
 		yield return new WaitForSeconds(1f);
