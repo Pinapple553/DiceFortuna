@@ -7,10 +7,10 @@ public class WorldManager : MonoBehaviour
 {
 	public LevelData[] levels;
     public DiceData[] allDiceInGame;
-    public ItemData[] allItemsInGame;
+    public ItemInstance[] allItemsInGame;
 
     public int loadedSaveSlot;
-	public int currentLevelIndex = 1;
+	public int currentLevelIndex = 0;
 	public Player player;
 	
 
@@ -89,7 +89,7 @@ public class WorldManager : MonoBehaviour
                 if (id >= 0) saveFileData.ownedDiceIds.Add(id);
             }
             saveFileData.ownedItemIds = new List<int>();
-            foreach (ItemData item in player.ownedItemsList)
+            foreach (ItemInstance item in player.ownedItemsList)
             {
                 int id = System.Array.IndexOf(allItemsInGame, item);
                 if (id >= 0) saveFileData.ownedItemIds.Add(id);
@@ -146,7 +146,7 @@ public class WorldManager : MonoBehaviour
             }
         }
 
-        player.ownedItemsList = new List<ItemData>();
+        player.ownedItemsList = new List<ItemInstance>();
         if (save.ownedItemIds != null)
         {
             foreach (int id in save.ownedItemIds)
@@ -171,7 +171,7 @@ public class WorldManager : MonoBehaviour
         }
 
         save.ownedItemIds = new List<int>();
-        foreach (ItemData item in player.ownedItemsList)
+        foreach (ItemInstance item in player.ownedItemsList)
         {
             int id = System.Array.IndexOf(allItemsInGame, item);
             if (id >= 0) save.ownedItemIds.Add(id);

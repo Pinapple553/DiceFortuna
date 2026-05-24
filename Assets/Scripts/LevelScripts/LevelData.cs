@@ -11,6 +11,7 @@ public class LevelData : ScriptableObject
 	public Sprite unlockedRewardIcon;
 
 	public AIPlayer opponent;
-	public int maxItems;
+	public int maxRoundItems;
+	public int maxMatchItems;
 	public int rounds;
 }

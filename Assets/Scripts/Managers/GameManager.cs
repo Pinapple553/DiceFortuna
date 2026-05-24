@@ -4,229 +4,370 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-	public AIPlayer ai;
-	public Player player;
+    public AIPlayer ai;
+    public Player player;
 
-    public bool diceSelected = false;
+    public static GameManager Instance;
+
     public bool roundRunning = false;
     public bool diceRolling = false;
 
-	[HideInInspector] public bool playerChoseHeads = true;
-	[HideInInspector] public bool playerGoesFirst = true;
-	[HideInInspector] public bool isPlayerItemTurn = false;
-	[HideInInspector] public bool playerPassedItems = false;
-	[HideInInspector] public bool aiPassedItems = false;
+    //item phase
+    [HideInInspector] public bool isPlayerItemTurn = false;
+    [HideInInspector] public bool playerPassedItems = false;
+    [HideInInspector] public bool aiPassedItems = false;
+    [HideInInspector] public ItemInstance pendingItem = null;
+    [HideInInspector] public List<int> selectedDiceIndices = new List<int>();
+    [HideInInspector] public bool diceForItemSelection = false;
 
-	private int rounds = 2;
+    //coinflip
+    [HideInInspector] public bool playerChoseHeads = true;
+    [HideInInspector] public bool playerGoesFirst = true;
 
-    public static GameManager Instance;
+    public int rounds = 2;
+    public int maxRoundItems = 3;
+    public int maxMatchItems = 6;
+
     private void Awake()
-	{
-		if (Instance != null && Instance != this) Destroy(this.gameObject);
-		else Instance = this;
-	}
-	private void Start()
-	{
-        Loadlevel();
-		UIManager.Instance.CloseRoundInfo(false);
-	}
-	private void Loadlevel()
-	{
-		LevelData level = WorldManager.Instance.levels[WorldManager.Instance.currentLevelIndex];
-		if (level == null) return;
-		rounds = level.rounds;
-	}
-	public void StartButtonClick()
-	{
-		if (!roundRunning) StartRound();
-		UIManager.Instance.CloseRoundInfo(true);
-	}
-	public void ItemBarButtonClick()
-	{
-		if (!diceSelected) LockInDice();
-		else UseSelectedItem();
-		UIManager.Instance.UpdateUI();
-	}
-    private void LockInDice()
-	{
-		AISelectDice();
-		if (!DiceManager.Instance.SelectDice())
-		{
-			UIManager.Instance.ShowMessage("Select atleast one dice to start the round!");
-			return;
-		}
-		UIManager.Instance.SelectorMode("item");
-		UIManager.Instance.UppdateItemBar();
-		StartCoroutine(CoinFlipRoutine());
-	}
-	public void PlayerChoseCoinSide(bool heads)
-	{
-		playerChoseHeads = heads;
-		UIManager.Instance.coinFlipResolved = true;
-	}
-	public void PassItemsButton()
-	{
-		if (isPlayerItemTurn) playerPassedItems = true;
-	}
-	public void StartRound()
-	{
-		roundRunning = true;
-		DiceManager.Instance.ResetRound();
-		UIManager.Instance.UpdateUI();
-	}
-	private void AISelectDice()
-	{
-		ai.selectedDiceList.Clear();
-		var pool = new List<DiceData>(ai.ownedDiceList);
-		int count = Mathf.Min(ai.maxDice, pool.Count); //in case ai owns fewer dice than max allowed
-		for (int i = 0; i < count; i++)
-		{
-			int index = Random.Range(0, pool.Count);
-			ai.selectedDiceList.Add(new DiceInstance(pool[index]));
-			pool.RemoveAt(index);
-		}
-	}
-	private IEnumerator CoinFlipRoutine()
-	{
-		UIManager.Instance.coinFlipResolved = false;
-        yield return StartCoroutine(UIManager.Instance.StartCoinAnimation());
+    {
+        if (Instance != null && Instance != this) Destroy(this.gameObject);
+        else Instance = this;
+    }
 
-        //wait for player to choose heads or tails
+    private void Start()
+    {
+        LoadLevel();
+        ResetItems();
+        UIManager.Instance.CloseRoundInfo(false);
+    }
+
+    private void LoadLevel()
+    {
+        LevelData level = WorldManager.Instance.levels[WorldManager.Instance.currentLevelIndex];
+        if (level == null) return;
+        rounds = level.rounds;
+        maxRoundItems = level.maxRoundItems;
+        maxMatchItems = level.maxMatchItems;
+    }
+    private void ResetItems() //resets all item uses
+    {
+        foreach (ItemInstance i in player.ownedItemsList)
+        {
+            i.ResetUses();
+        }
+    }
+    public void StartButtonClick()
+    {
+        if (!roundRunning) StartMatch();
+        UIManager.Instance.CloseRoundInfo(true);
+    }
+    public void SubmitButtonClick()
+    {
+        if (!DiceManager.Instance.diceSelected)
+        {
+            LockInDice();
+            return;
+        }
+        if (!isPlayerItemTurn) return;
+
+        if (pendingItem != null && diceForItemSelection)
+        {
+            ConfirmItemUse();
+            return;
+        }
+
+        if (pendingItem != null && !diceForItemSelection)
+        { 
+            ConfirmItemUse();
+            return;
+        }
+        ClearItemSelection();
+        playerPassedItems = true;
+        UIManager.Instance.UpdateUI();
+    }
+    public void PlayerClickItem(ItemInstance item)
+    {
+        if (!isPlayerItemTurn) return;
+        if (!item.CanUse()) return;
+
+        if (pendingItem == item)
+        {
+            ClearItemSelection();
+            UIManager.Instance.UpdateUI();
+            return;
+        }
+
+        ClearItemSelection();
+        pendingItem = item;
+
+        if (item.data.playerSelectDice)
+        {
+            diceForItemSelection = true;
+        }
+        else
+        {
+            diceForItemSelection = false;
+            StartCoroutine(ExecuteItemUse(item, AllDiceIndices()));
+        }
+
+        UIManager.Instance.UpdateUI();
+    }
+
+    public void PlayerToggleDiceForItem(int diceIndex)
+    {
+        if (!diceForItemSelection || pendingItem == null) return;
+
+        int maxTargets = pendingItem.Tier.diceTargets;
+
+        if (selectedDiceIndices.Contains(diceIndex))
+        {
+            selectedDiceIndices.Remove(diceIndex);
+        }
+        else
+        {
+            if (selectedDiceIndices.Count >= maxTargets)
+            {
+                selectedDiceIndices.RemoveAt(0);
+            }
+            selectedDiceIndices.Add(diceIndex);
+        }
+
+        UIManager.Instance.UpdateDiceHighlights();
+        UIManager.Instance.UpdateUI();
+    }
+    private void ConfirmItemUse()
+    {
+        if (pendingItem == null) return;
+        List<int> targets = diceForItemSelection ? new List<int>(selectedDiceIndices): AllDiceIndices();
+        ItemInstance item = pendingItem;
+        ClearItemSelection();
+        StartCoroutine(ExecuteItemUse(item, targets));
+    }
+    private IEnumerator ExecuteItemUse(ItemInstance item, List<int> targetIndices)
+    {
+        if (!isPlayerItemTurn) yield break;
+        if (!item.TryUse()) yield break;
+
+        player.roundItemsUsed++;
+        player.matchItemsUsed++;
+
+        yield return item.data.effect.Apply(player, DiceManager.Instance.activeDiceList, item.Tier, targetIndices);
+
+        //recount after the effect.
+        player.roundFortunaPoints = 0;
+        yield return UIManager.Instance.CountAllDice();
+        yield return DiceManager.Instance.CountAllBonuses();
+        UIManager.Instance.UpdateUI();
+
+        //if player is out of uses, auto-pass.
+        if (!player.CanUseItem()) playerPassedItems = true;
+    }
+
+    public void ClearItemSelection()
+    {
+        pendingItem = null;
+        selectedDiceIndices.Clear();
+        diceForItemSelection = false;
+    }
+
+    private List<int> AllDiceIndices()
+    {
+        var list = new List<int>();
+        for (int i = 0; i < DiceManager.Instance.activeDiceList.Count; i++)
+            list.Add(i);
+        return list;
+    }
+    public void StartMatch()
+    {
+        roundRunning = true;
+        DiceManager.Instance.ResetMatch();
+        UIManager.Instance.UpdateUI();
+    }
+    private void LockInDice()
+    {
+        AISelectDice();
+        if (!DiceManager.Instance.SelectDice())
+        {
+            UIManager.Instance.ShowMessage("Select at least one die to start the round!");
+            return;
+        }
+        UIManager.Instance.SelectorMode("item");
+        StartCoroutine(CoinFlipRoutine());
+    }
+
+    private void AISelectDice()
+    {
+        ai.selectedDiceList.Clear();
+        var pool = new List<DiceData>(ai.ownedDiceList);
+        int count = Mathf.Min(ai.maxDice, pool.Count);
+        for (int i = 0; i < count; i++)
+        {
+            int idx = Random.Range(0, pool.Count);
+            ai.selectedDiceList.Add(new DiceInstance(pool[idx]));
+            pool.RemoveAt(idx);
+        }
+    }
+
+    public void PlayerChoseCoinSide(bool heads)
+    {
+        playerChoseHeads = heads;
+        UIManager.Instance.coinFlipResolved = true;
+    }
+
+    private IEnumerator CoinFlipRoutine()
+    {
+        UIManager.Instance.coinFlipResolved = false;
+        yield return StartCoroutine(UIManager.Instance.StartCoinAnimation());
         yield return new WaitUntil(() => UIManager.Instance.coinFlipResolved);
-		
-		bool coinIsHeads = Random.value >= 0.5f;
+
+        bool coinIsHeads = Random.value >= 0.5f;
         playerGoesFirst = (coinIsHeads == playerChoseHeads);
         yield return StartCoroutine(UIManager.Instance.PlayCoinAnimation(coinIsHeads));
-
-        //add: player confirms okay after seeing result
         yield return StartCoroutine(UIManager.Instance.ExitCoinAnimation());
 
-		StartCoroutine(MatchRoutine());
-	}
-	private IEnumerator MatchRoutine()
-	{
-		for (int roll = 0; roll < rounds; roll++)
-		{
-			PlayerBase first = playerGoesFirst ? player : ai;
-			PlayerBase second = playerGoesFirst ? ai : player;
-			bool firstIsPlayer = playerGoesFirst;
-
-			yield return StartCoroutine(DoRoll(first, firstIsPlayer, isPlayerRoll: firstIsPlayer));
-			yield return StartCoroutine(ItemPhase(firstIsPlayer));
-
-			yield return StartCoroutine(DoRoll(second, !firstIsPlayer, isPlayerRoll: !firstIsPlayer));
-			yield return StartCoroutine(ItemPhase(!firstIsPlayer));
-		}
-
-		yield return StartCoroutine(ResolveWinner());
-	}
-	private IEnumerator DoRoll(PlayerBase roller, bool rollerIsPlayer, bool isPlayerRoll)
-	{
-		diceRolling = true;
-		UIManager.Instance.resetResult();
-		
-		foreach (var d in DiceManager.Instance.activeDiceList)
-		{
-			DiceAnimation.Instance.Roll(d);
-		}
-		yield return new WaitUntil(() => !AnyRolling(DiceManager.Instance.activeDiceList));
-
-		if (isPlayerRoll) //player
-		{
-			yield return UIManager.Instance.CountAllDice();
-			yield return DiceManager.Instance.CountAllBonuses();
-		}
-		else //ai
-		{
-			yield return UIManager.Instance.CountAllDice();
-			yield return DiceManager.Instance.CountAllBonuses();
-		}
-
-		UIManager.Instance.ShowRollResults();
-		diceRolling = false;
-		yield return new WaitForSeconds(0.5f);
-	}
-	private IEnumerator ItemPhase(bool playerWentFirst)
-	{
-		playerPassedItems = false;
-		aiPassedItems = false;
-
-		//go until both pass or no more uses
-		for (int i = 0; i < 100; i++)
-		{
-			//player
-			if (!playerPassedItems && player.CanUseItem())
-			{
-				isPlayerItemTurn = true;
-				UIManager.Instance.ShowItemPhase(true);
-				yield return new WaitUntil(() => playerPassedItems || !player.CanUseItem());
-				isPlayerItemTurn = false;
-			}
-			else playerPassedItems = true;
-
-			//ai
-			if (!aiPassedItems && ai.CanUseItem()) yield return StartCoroutine(AIUseItem());
-			else aiPassedItems = true;
-
-			if (playerPassedItems && aiPassedItems) break;
-		}
-		UIManager.Instance.ShowItemPhase(false);
-	}
-    private void UseSelectedItem()
-	{
-
-	}
-    private IEnumerator AIUseItem()
-	{
-		return null;
-	}
-	public IEnumerator PlayerUseItem(ItemInstance item)
-	{
-        return null;
+        StartCoroutine(MatchRoutine());
     }
-	private IEnumerator ResolveWinner()
-	{
-		int playerScore = DiceManager.Instance.currentResult;
-		int aiScore = DiceManager.Instance.aiCurrentResult;
-		bool tie = (playerScore == aiScore);
-		bool playerWins = (playerScore > aiScore);
 
-		string resultStatus="unknown";
-		if (tie)
-		{
-			UIManager.Instance.ShowMessage("TIE! Token stays on the table.");
-			resultStatus="Tied";
+    private IEnumerator MatchRoutine()
+    {
+        for (int roll = 0; roll < rounds; roll++)
+        {
+            PlayerBase first = playerGoesFirst ? (PlayerBase)player : ai;
+            PlayerBase second = playerGoesFirst ? (PlayerBase)ai : player;
+            bool firstIsPlayer = playerGoesFirst;
 
-		}
-		else if (playerWins)
-		{
-			UIManager.Instance.ShowMessage($"YOU WIN!  {playerScore} vs {aiScore}");
-			resultStatus="Won";
-		}
-		else
-		{
-			UIManager.Instance.ShowMessage($"YOU LOSE  {playerScore} vs {aiScore}");
-			//-1 token(life)
-			resultStatus = "Lost";
-		}
+            yield return StartCoroutine(DoRoll(first, isPlayerRoll: firstIsPlayer));
+            yield return StartCoroutine(ItemPhase());
 
-		UIManager.Instance.UpdateRoundInfo();
-		roundRunning = false;
+            yield return StartCoroutine(DoRoll(second, isPlayerRoll: !firstIsPlayer));
+            yield return StartCoroutine(ItemPhase());
+        }
 
-		yield return new WaitForSeconds(2f);
-		UIManager.Instance.roundFinished = false;
-		UIManager.Instance.ShowRoundEndPanel();
+        yield return StartCoroutine(ResolveWinner());
+    }
 
-		yield return new WaitUntil(() => UIManager.Instance.roundFinished);
-		WorldManager.Instance.Save(WorldManager.Instance.currentLevelIndex, DiceManager.Instance.currentResult, resultStatus);
-		SceneManager.Instance.LoadScene("LevelPicker");
-	}
-	private bool AnyRolling(List<DiceInstance> list)
-	{
-		foreach (var d in list)
-		{ 
-			if (d.isRolling) return true;
-		}
-		return false;
-	}
+    private IEnumerator DoRoll(PlayerBase roller, bool isPlayerRoll)
+    {
+        diceRolling = true;
+        UIManager.Instance.resetResult();
+
+        foreach (var d in DiceManager.Instance.activeDiceList)
+            DiceAnimation.Instance.Roll(d);
+
+        yield return new WaitUntil(() => !AnyRolling(DiceManager.Instance.activeDiceList));
+
+        yield return UIManager.Instance.CountAllDice();
+        yield return DiceManager.Instance.CountAllBonuses();
+
+        UIManager.Instance.ShowRollResults();
+        diceRolling = false;
+        yield return new WaitForSeconds(0.5f);
+    }
+
+    private IEnumerator ItemPhase()
+    {
+        playerPassedItems = false;
+        aiPassedItems = false;
+        player.roundItemsUsed = 0;
+
+        for (int i = 0; i < 100; i++)
+        {
+            //player
+            if (!playerPassedItems && player.CanUseItem())
+            {
+                isPlayerItemTurn = true;
+                ClearItemSelection();
+                UIManager.Instance.ShowItemPhase(true);
+                UIManager.Instance.UpdateUI();
+
+                //wait until the player passes or runs out of uses.
+                yield return new WaitUntil(() => playerPassedItems || !player.CanUseItem());
+                isPlayerItemTurn = false;
+                ClearItemSelection();
+            }
+            else
+            {
+                playerPassedItems = true;
+            }
+
+            //ai
+            if (!aiPassedItems && ai.CanUseItem()) yield return StartCoroutine(AIUseItem());
+            else aiPassedItems = true;
+            if (playerPassedItems && aiPassedItems) break;
+        }
+
+        UIManager.Instance.ShowItemPhase(false);
+        UIManager.Instance.UpdateUI();
+    }
+
+    private IEnumerator AIUseItem()
+    {
+        yield return new WaitForSeconds(0.8f);
+
+        if (Random.value < 0f) //100% to use item now but can change
+        {
+            var available = ai.ownedItemsList.FindAll(i => i.CanUse());
+            if (available.Count > 0)
+            {
+                var chosen = available[Random.Range(0, available.Count)];
+                chosen.TryUse();
+                ai.roundItemsUsed++;
+                ai.matchItemsUsed++;
+
+                // Pick random target dice.
+                int maxT = chosen.Tier.diceTargets;
+                var targets = new List<int>();
+                for (int i = 0; i < DiceManager.Instance.activeDiceList.Count && targets.Count < maxT; i++) targets.Add(i);
+
+                yield return chosen.data.effect.Apply(ai, DiceManager.Instance.activeDiceList, chosen.Tier, targets);
+                UIManager.Instance.UpdateUI();
+                yield break;
+            }
+        }
+
+        aiPassedItems = true;
+    }
+
+    private IEnumerator ResolveWinner()
+    {
+        int playerScore = player.matchFortunaPoints;
+        int aiScore = ai.matchFortunaPoints;
+        bool tie = playerScore == aiScore;
+        bool playerWins = playerScore > aiScore;
+
+        string resultStatus;
+        if (tie)
+        {
+            UIManager.Instance.ShowMessage("TIE! Token stays on the table.");
+            resultStatus = "Tied";
+        }
+        else if (playerWins)
+        {
+            UIManager.Instance.ShowMessage($"YOU WIN!  {playerScore} vs {aiScore}");
+            resultStatus = "Won";
+        }
+        else
+        {
+            UIManager.Instance.ShowMessage($"YOU LOSE  {playerScore} vs {aiScore}");
+            resultStatus = "Lost";
+        }
+
+        UIManager.Instance.UpdateRoundInfo();
+        roundRunning = false;
+
+        yield return new WaitForSeconds(2f);
+        UIManager.Instance.roundFinished = false;
+        UIManager.Instance.ShowRoundEndPanel();
+
+        yield return new WaitUntil(() => UIManager.Instance.roundFinished);
+        WorldManager.Instance.Save(WorldManager.Instance.currentLevelIndex, player.matchFortunaPoints, resultStatus);
+        SceneManager.Instance.LoadScene("LevelPicker");
+    }
+
+    private bool AnyRolling(List<DiceInstance> list)
+    {
+        foreach (var d in list)
+            if (d.isRolling) return true;
+        return false;
+    }
 }

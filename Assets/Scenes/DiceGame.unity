@@ -958,10 +958,13 @@ MonoBehaviour:
   instanceId: 0
   dice: {fileID: 0}
   amountOwned: 0
+  amountSelected: 0
   icon: {fileID: 183195125}
   amountOwnedText: {fileID: 0}
   amountSelectedButton: {fileID: 0}
   amountSelectedText: {fileID: 0}
+  highlightOverlay: {fileID: 0}
+  activeDiceIndex: -1
 --- !u!114 &183195124
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2540,7 +2543,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.0005493164, y: 0}
+  m_AnchoredPosition: {x: -0.000061035156, y: 0}
   m_SizeDelta: {x: -6.9, y: -0.004}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &483057523
@@ -4381,10 +4384,13 @@ MonoBehaviour:
   instanceId: 0
   dice: {fileID: 0}
   amountOwned: 0
+  amountSelected: 0
   icon: {fileID: 825817980}
   amountOwnedText: {fileID: 0}
   amountSelectedButton: {fileID: 0}
   amountSelectedText: {fileID: 0}
+  highlightOverlay: {fileID: 0}
+  activeDiceIndex: -1
 --- !u!114 &825817979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4599,12 +4605,11 @@ MonoBehaviour:
   itemSelector: {fileID: 483057525}
   diceButtonPrefab: {fileID: 2854943726660960488, guid: dcc9e14742ffd7043b0078f03b7f217b, type: 3}
   itemButtonPrefab: {fileID: 5859046234814513630, guid: 6789ec31437725b40906fa235cdd4ed4, type: 3}
-  itemSelectButtonText: {fileID: 1011094900}
+  submitButtonText: {fileID: 1011094900}
   currentRoundText: {fileID: 814826658}
   playerRoundInfo: {fileID: 1326805705}
   NPCRoundInfo: {fileID: 256392036}
   matchEffects: {fileID: 575184720}
-  matchEffectButtonPrefab: {fileID: 1535807279}
   playerMatchInfo: {fileID: 1729143570}
   NPCMatchInfo: {fileID: 1567878265}
   roundInfoPanel: {fileID: 760767789}
@@ -4614,6 +4619,9 @@ MonoBehaviour:
   roundEndPanel: {fileID: 1739404546}
   coinFlipUI: {fileID: 396869650}
   coinFlipAnimator: {fileID: 1114746253}
+  diceInfoIcon: {fileID: 0}
+  diceInfoName: {fileID: 0}
+  diceInfoDescription: {fileID: 0}
   coinFlipResolved: 0
   roundFinished: 0
 --- !u!4 &870513407
@@ -6148,10 +6156,13 @@ MonoBehaviour:
   instanceId: 0
   dice: {fileID: 0}
   amountOwned: 0
+  amountSelected: 0
   icon: {fileID: 1012327370}
   amountOwnedText: {fileID: 0}
   amountSelectedButton: {fileID: 0}
   amountSelectedText: {fileID: 0}
+  highlightOverlay: {fileID: 0}
+  activeDiceIndex: -1
 --- !u!114 &1012327369
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7441,7 +7452,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1029492570}
   m_Direction: 0
   m_Value: 0
-  m_Size: 0.99949926
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -7788,14 +7799,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   ai: {fileID: 11400000, guid: 016bc7d3459ef3743a1a0ca99be7da36, type: 2}
   player: {fileID: 11400000, guid: 1051c8b7de9499740be5f30a7a6ab2f5, type: 2}
-  diceSelected: 0
   roundRunning: 0
   diceRolling: 0
-  playerChoseHeads: 1
-  playerGoesFirst: 1
   isPlayerItemTurn: 0
   playerPassedItems: 0
   aiPassedItems: 0
+  pendingItem:
+    data: {fileID: 0}
+    currentTier: 0
+    usesRemainingThisMatch: 0
+  selectedDiceIndices: 
+  diceForItemSelection: 0
+  playerChoseHeads: 1
+  playerGoesFirst: 1
+  rounds: 2
+  maxRoundItems: 0
+  maxMatchItems: 0
 --- !u!4 &1182385893
 Transform:
   m_ObjectHideFlags: 0
@@ -7941,10 +7960,13 @@ MonoBehaviour:
   instanceId: 0
   dice: {fileID: 0}
   amountOwned: 0
+  amountSelected: 0
   icon: {fileID: 1194446371}
   amountOwnedText: {fileID: 0}
   amountSelectedButton: {fileID: 0}
   amountSelectedText: {fileID: 0}
+  highlightOverlay: {fileID: 0}
+  activeDiceIndex: -1
 --- !u!114 &1194446370
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8371,7 +8393,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1182385892}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: LockInDiceAndFlipCoin
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8612,7 +8634,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1182385892}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: ItemBarButtonClick
+        m_MethodName: SubmitButtonClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9436,10 +9458,13 @@ MonoBehaviour:
   instanceId: 0
   dice: {fileID: 0}
   amountOwned: 0
+  amountSelected: 0
   icon: {fileID: 1422101969}
   amountOwnedText: {fileID: 0}
   amountSelectedButton: {fileID: 0}
   amountSelectedText: {fileID: 0}
+  highlightOverlay: {fileID: 0}
+  activeDiceIndex: -1
 --- !u!114 &1422101968
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10428,10 +10453,13 @@ MonoBehaviour:
   instanceId: 0
   dice: {fileID: 0}
   amountOwned: 0
+  amountSelected: 0
   icon: {fileID: 1582468073}
   amountOwnedText: {fileID: 0}
   amountSelectedButton: {fileID: 0}
   amountSelectedText: {fileID: 0}
+  highlightOverlay: {fileID: 0}
+  activeDiceIndex: -1
 --- !u!114 &1582468072
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10964,10 +10992,13 @@ MonoBehaviour:
   instanceId: 0
   dice: {fileID: 0}
   amountOwned: 0
+  amountSelected: 0
   icon: {fileID: 1703091943}
   amountOwnedText: {fileID: 0}
   amountSelectedButton: {fileID: 0}
   amountSelectedText: {fileID: 0}
+  highlightOverlay: {fileID: 0}
+  activeDiceIndex: -1
 --- !u!114 &1703091942
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11554,10 +11585,13 @@ MonoBehaviour:
   instanceId: 0
   dice: {fileID: 0}
   amountOwned: 0
+  amountSelected: 0
   icon: {fileID: 1752080273}
   amountOwnedText: {fileID: 0}
   amountSelectedButton: {fileID: 0}
   amountSelectedText: {fileID: 0}
+  highlightOverlay: {fileID: 0}
+  activeDiceIndex: -1
 --- !u!114 &1752080272
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12753,7 +12787,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 10.811035, y: -12.313019}
+  m_AnchoredPosition: {x: 10.811035, y: -12.312988}
   m_SizeDelta: {x: -61.501, y: -39.983}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1941211611
@@ -13116,8 +13150,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 226982382}
   m_HandleRect: {fileID: 226982381}
   m_Direction: 2
-  m_Value: 0.99999857
-  m_Size: 0.92950326
+  m_Value: 1.0000029
+  m_Size: 0.9295035
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -14043,38 +14077,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: DiceSelectButton
       objectReference: {fileID: 0}
-    - target: {fileID: 5358372082196675882, guid: dcc9e14742ffd7043b0078f03b7f217b, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5358372082196675882, guid: dcc9e14742ffd7043b0078f03b7f217b, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5358372082196675882, guid: dcc9e14742ffd7043b0078f03b7f217b, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 7620561352196547923}
-    - target: {fileID: 5358372082196675882, guid: dcc9e14742ffd7043b0078f03b7f217b, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5358372082196675882, guid: dcc9e14742ffd7043b0078f03b7f217b, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: DeselectDice
-      objectReference: {fileID: 0}
-    - target: {fileID: 5358372082196675882, guid: dcc9e14742ffd7043b0078f03b7f217b, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: DiceButton, Assembly-CSharp
-      objectReference: {fileID: 0}
-    - target: {fileID: 5358372082196675882, guid: dcc9e14742ffd7043b0078f03b7f217b, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
-      objectReference: {fileID: 0}
-    - target: {fileID: 6742803984320774495, guid: dcc9e14742ffd7043b0078f03b7f217b, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SelectDice
-      objectReference: {fileID: 0}
     - target: {fileID: 8742693507855033277, guid: dcc9e14742ffd7043b0078f03b7f217b, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -14165,17 +14167,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8742693507855033277, guid: dcc9e14742ffd7043b0078f03b7f217b, type: 3}
   m_PrefabInstance: {fileID: 4011165443163470656}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7620561352196547923 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2854943726660960488, guid: dcc9e14742ffd7043b0078f03b7f217b, type: 3}
-  m_PrefabInstance: {fileID: 4011165443163470656}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a024959bd6ff0ec45a5ade19b7fceabe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DiceButton
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

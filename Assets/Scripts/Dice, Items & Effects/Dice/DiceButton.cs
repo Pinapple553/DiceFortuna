@@ -8,40 +8,60 @@ public class DiceButton : MonoBehaviour
     public int instanceId;
 
     [Header("Dice Info")]
-	public DiceData dice;
-	public int amountOwned;
-	public int amountSelected;
+    public DiceData dice;
+    public int amountOwned;
+    public int amountSelected;
 
-	[Header("UI")]
-	[SerializeField] private Image icon;
-	[SerializeField] private TMP_Text amountOwnedText;
-	[SerializeField] private Button amountSelectedButton;
-	[SerializeField] private TMP_Text amountSelectedText;
-	public void SelectDice(){
-		if (amountSelected >= amountOwned) return;
-        if (!DiceManager.Instance.AddDice(dice, GameManager.Instance.player)) return;
-		amountSelected++;
+    [Header("UI")]
+    [SerializeField] private Image icon;
+    [SerializeField] private TMP_Text amountOwnedText;
+    [SerializeField] private Button amountSelectedButton;
+    [SerializeField] private TMP_Text amountSelectedText;
+    [SerializeField] private Image highlightOverlay;
+
+    [HideInInspector] public int activeDiceIndex = -1;
+
+    public void AddDice()
+    {
+        if (amountOwned - amountSelected > 0)
+        {
+            if (!DiceManager.Instance.AddDice(dice, GameManager.Instance.player)) return;
+            amountSelected++;
+        }
         UpdateButtonUI();
-	}
-	public void DeselectDice(){
-        if (amountSelected <= 0) return;
+    }
+    public void RemoveDice()
+    {
         if (!DiceManager.Instance.RemoveDice(dice, GameManager.Instance.player)) return;
         amountSelected--;
         UpdateButtonUI();
     }
 
-	public void UpdateButtonUI() {
-		amountOwnedText.text = amountOwned.ToString();
-		amountSelectedButton.gameObject.SetActive(amountSelected>0);
-		amountSelectedText.text = amountSelected.ToString();
-		icon.sprite = dice.sides[0].sprite;
-	}
-	public void SetIcon(Sprite sprite)
-	{
-		icon.sprite = sprite;
-	}
+    public void OnDiceDisplayClick()
+    {
+        if (!GameManager.Instance.diceForItemSelection) return;
+        if (activeDiceIndex < 0) return;
+        GameManager.Instance.PlayerToggleDiceForItem(activeDiceIndex);
+    }
 
-	public void OnPointerEnter(){
-		//UIManager.Instance.ShowDiceInfo(dice);
-	}
+    public void UpdateButtonUI(){
+        if (amountOwnedText != null) amountOwnedText.text = amountOwned.ToString();
+        if (amountSelectedButton != null) amountSelectedButton.gameObject.SetActive(amountSelected > 0);
+        if (amountSelectedText != null) amountSelectedText.text = amountSelected.ToString();
+        if (dice != null && icon !=null) icon.sprite = dice.sides[0].sprite;
+    }
+    public void SetIcon(Sprite sprite)
+    {
+        if (icon != null) icon.sprite = sprite;
+    }
+    public void SetHighlight(bool on)
+    {
+        if (highlightOverlay != null) highlightOverlay.enabled = on;
+        else if (icon != null)  icon.color = on ? new Color(0.6f, 1f, 0.6f) : Color.white;
+    }
+
+    public void OnPointerEnter()
+    {
+        //if (dice != null) UIManager.Instance.ShowDiceInfo(dice);
+    }
 }

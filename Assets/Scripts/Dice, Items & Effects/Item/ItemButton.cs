@@ -1,26 +1,33 @@
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ItemButton : MonoBehaviour
 {
-    public int instanceId;
-
     [Header("Item Info")]
-    public ItemData data;
+    public ItemInstance item;
 
     [Header("UI")]
     [SerializeField] private Image icon;
     [SerializeField] private TMP_Text usesText;
-
-    private bool inItemPhase;
-    private ItemInstance itemInstance;
+    [SerializeField] private TMP_Text levelText;
+    [SerializeField] private Image selectionHighlight;
     public void OnClick()
     {
-        if (!inItemPhase || itemInstance == null) return;
-        if (itemInstance.used) return;
-
-        StartCoroutine(GameManager.Instance.PlayerUseItem(itemInstance));
+        GameManager.Instance.PlayerClickItem(item);
+    }
+    public void UpdateButtonUI()
+    {
+        icon.sprite = item.data.icon;
+        usesText.text = item.usesRemainingThisMatch.ToString();
+        levelText.text = "LV." + item.currentTier;
+        
+        //disabled
+        bool canUse = item.CanUse() && GameManager.Instance.isPlayerItemTurn;
+        icon.color = canUse ? Color.white : new Color(1f, 1f, 1f, 0.4f);
+        
+        //selected
+        bool isSelected = GameManager.Instance.pendingItem == item;
+        if (selectionHighlight != null) selectionHighlight.enabled = isSelected;
     }
 }

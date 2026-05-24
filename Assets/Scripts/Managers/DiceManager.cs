@@ -11,8 +11,6 @@ public class DiceManager : MonoBehaviour
 
 	public List<DiceInstance> activeDiceList = new List<DiceInstance>();
 
-	public int currentResult = 0; 
-	public int aiCurrentResult = 0; 
 	public bool diceSelected = false;
 
 	private void Awake()
@@ -25,11 +23,9 @@ public class DiceManager : MonoBehaviour
 	private void OnEnable() { controller.Dice.Enable(); }
 	private void OnDisable() { controller.Dice.Disable(); }
 
-	public void ResetRound()
+	public void ResetMatch()
 	{
 		activeDiceList.Clear();
-		currentResult = 0;
-		aiCurrentResult = 0;
 		diceSelected = false;
 	}
 
@@ -125,7 +121,7 @@ public class DiceManager : MonoBehaviour
 				}
 			}
 		}
-		currentResult += totalBonus;
+        GameManager.Instance.player.roundFortunaPoints += totalBonus;
 	}
 
 	private List<int> MapToOriginal(List<int> localIndices, List<int> remaining, List<int> original)//map back to original indices for UI display

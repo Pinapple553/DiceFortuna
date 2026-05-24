@@ -5,20 +5,20 @@ using UnityEngine;
 public abstract class PlayerBase : ScriptableObject
 {
 	public List<DiceData> ownedDiceList;
-	public List<ItemData> ownedItemsList;    
+	public List<ItemInstance> ownedItemsList;   
 	public List<DiceInstance> selectedDiceList = new List<DiceInstance>();
 
 	public int totalFortunaPoints = 0;
 	public int roundFortunaPoints = 0;
 	public int matchFortunaPoints = 0;
 	public int maxDice = 4;
-	public int maxRoundItems = 3;
-	public int maxMatchItems = 5;
-	public int itemsUsed = 0;
+	public int roundItemsUsed = 0;
+	public int matchItemsUsed = 0;
 
 	public bool CanUseItem() 
 	{
-		return itemsUsed < maxRoundItems && itemsUsed < maxMatchItems;
+		return true;
+		return roundItemsUsed < GameManager.Instance.maxRoundItems && matchItemsUsed < GameManager.Instance.maxMatchItems && ownedItemsList.Count() > 0;
 	}
 	public int GetDiceAmount(DiceData dice)
 	{
@@ -40,11 +40,9 @@ public abstract class PlayerBase : ScriptableObject
     {
         int count = 0;
         foreach (var i in ownedItemsList)
-            if (i == item) count++;
+            if (i.data == item) count++;
         return count;
     }
-
-
 	public int GetAvailableItemAmount(ItemData item)
 	{
         int owned = GetItemAmount(item);
