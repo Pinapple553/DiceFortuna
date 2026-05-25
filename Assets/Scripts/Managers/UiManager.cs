@@ -9,8 +9,6 @@ public class UIManager : MonoBehaviour
 {
     [Header("Center")]
     [SerializeField] private TMP_Text rollPointsText;
-    [SerializeField] private Button rollButton;
-    [SerializeField] private TMP_Text rollButtonText;
     [SerializeField] private DiceButton[] diceDisplayButtons;
     [SerializeField] private Sprite emptyDiceSlot;
 
@@ -20,15 +18,13 @@ public class UIManager : MonoBehaviour
     [SerializeField] private ItemButton itemButtonPrefab;
     [SerializeField] private TMP_Text submitButtonText;
 
-    [HideInInspector] private bool selectorShowDice = true;
+    private bool selectorShowDice = true;
 
     [Header("RoundInfo")]
-    [SerializeField] private TMP_Text currentRoundText;
     [SerializeField] private PlayerInfoCard playerRoundInfo;
     [SerializeField] private PlayerInfoCard NPCRoundInfo;
 
     [Header("MatchInfo")]
-    [SerializeField] private VerticalLayoutGroup matchEffects;
     [SerializeField] private PlayerInfoCard playerMatchInfo;
     [SerializeField] private PlayerInfoCard NPCMatchInfo;
 
@@ -53,6 +49,7 @@ public class UIManager : MonoBehaviour
 
     public static UIManager Instance;
     private Coroutine hideMessageCoroutine;
+
     private void Awake()
     {
         if (Instance != null && Instance != this) Destroy(this.gameObject);
@@ -65,29 +62,43 @@ public class UIManager : MonoBehaviour
         if (coinFlipUI != null) coinFlipUI.SetActive(false);
         if (itemPhasePanel != null) itemPhasePanel.SetActive(false);
         if (roundEndPanel != null) roundEndPanel.SetActive(false);
-        ResetPlayers();
         UpdateUI();
     }
+
     public void UpdateUI()
     {
         resetResult();
         UpdateAllInfo();
         UpdateDiceSelector();
-        UpdateDiceDisplay();
-        UpdateSubmitButton();
+        RebuildDiceDisplay();
+        UpdateSubmitText();
     }
-    private void ResetPlayers()
+
+    public void RefreshItemPhaseUI()
     {
-        WorldManager.Instance.player.ResetForNewMatch();
-        WorldManager.Instance.levels[WorldManager.Instance.currentLevelIndex].opponent.ResetForNewMatch();
+        UpdateAllInfo();
+        RefreshDiceDisplayIcons();
+        if (GameManager.Instance.diceForItemSelection)
+            UpdateDiceHighlights();
+        else
+            ClearDiceHighlights();
+        RefreshItemButtons();
+        UpdateSubmitText();
     }
-    private void UpdateSubmitButton()
+
+    public void UpdateSubmitText()
     {
         if (submitButtonText == null) return;
 
         if (!DiceManager.Instance.diceSelected)
         {
             submitButtonText.text = "Lock In";
+            return;
+        }
+
+        if (GameManager.Instance.waitingForPlayerRoll)
+        {
+            submitButtonText.text = "Roll!";
             return;
         }
 
@@ -115,15 +126,13 @@ public class UIManager : MonoBehaviour
             submitButtonText.text = "Pass";
         }
     }
+
     public void UpdateDiceHighlights()
     {
         var selected = GameManager.Instance.selectedDiceIndices;
         for (int i = 0; i < diceDisplayButtons.Length; i++)
-        {
-            bool highlighted = selected.Contains(i);
-            diceDisplayButtons[i].SetHighlight(highlighted);
-        }
-        UpdateSubmitButton();
+            diceDisplayButtons[i].SetHighlight(selected.Contains(i));
+        UpdateSubmitText();
     }
 
     public void ClearDiceHighlights()
@@ -131,9 +140,14 @@ public class UIManager : MonoBehaviour
         for (int i = 0; i < diceDisplayButtons.Length; i++)
             diceDisplayButtons[i].SetHighlight(false);
     }
-    private void UpdateDiceDisplay()
+    private void RebuildDiceDisplay()
     {
         ClearDiceHighlights();
+        RefreshDiceDisplayIcons();
+    }
+
+    private void RefreshDiceDisplayIcons()
+    {
         for (int i = 0; i < diceDisplayButtons.Length; i++)
         {
             if (i >= DiceManager.Instance.activeDiceList.Count)
@@ -151,8 +165,17 @@ public class UIManager : MonoBehaviour
                 diceDisplayButtons[i].activeDiceIndex = i;
             }
         }
-        if (GameManager.Instance.diceForItemSelection) UpdateDiceHighlights();
     }
+
+    private void RefreshItemButtons()
+    {
+        foreach (Transform child in itemSelector.transform)
+        {
+            var btn = child.GetComponent<ItemButton>();
+            if (btn != null) btn.UpdateButtonUI();
+        }
+    }
+
     private void UpdateDiceSelector()
     {
         foreach (Transform child in itemSelector.transform)
@@ -171,7 +194,6 @@ public class UIManager : MonoBehaviour
                 btn.amountSelected = GameManager.Instance.player.GetSelectedDiceAmout(dice);
                 btn.UpdateButtonUI();
             }
-
         }
         else
         {
@@ -183,52 +205,95 @@ public class UIManager : MonoBehaviour
             }
         }
     }
-    public void SelectorMode(string mode) //switches between dice and item tabs on selector
+
+    public void SelectorMode(string mode)
     {
         selectorShowDice = (mode == "dice");
         UpdateDiceSelector();
     }
+
     public void UpdateAllInfo()
     {
         if (playerRoundInfo != null) playerRoundInfo.PointText.text = GameManager.Instance.player.roundFortunaPoints.ToString();
         if (playerMatchInfo != null) playerMatchInfo.PointText.text = GameManager.Instance.player.matchFortunaPoints.ToString();
-        playerRoundInfo.ItemText.text = GameManager.Instance.player.roundItemsUsed + "/" + GameManager.Instance.maxRoundItems;
-        playerMatchInfo.ItemText.text = GameManager.Instance.player.matchItemsUsed + "/" + GameManager.Instance.maxMatchItems;
+        if (playerRoundInfo != null) playerRoundInfo.ItemText.text = GameManager.Instance.player.roundItemsUsed + "/" + GameManager.Instance.maxRoundItems;
+        if (playerMatchInfo != null) playerMatchInfo.ItemText.text = GameManager.Instance.player.matchItemsUsed + "/" + GameManager.Instance.maxMatchItems;
 
         if (NPCRoundInfo != null) NPCRoundInfo.PointText.text = GameManager.Instance.ai.roundFortunaPoints.ToString();
         if (NPCMatchInfo != null) NPCMatchInfo.PointText.text = GameManager.Instance.ai.matchFortunaPoints.ToString();
-        NPCRoundInfo.ItemText.text = GameManager.Instance.ai.roundItemsUsed + "/" + GameManager.Instance.maxRoundItems;
-        NPCMatchInfo.ItemText.text = GameManager.Instance.ai.matchItemsUsed + "/" + GameManager.Instance.maxMatchItems;
+        if (NPCRoundInfo != null) NPCRoundInfo.ItemText.text = GameManager.Instance.ai.roundItemsUsed + "/" + GameManager.Instance.maxRoundItems;
+        if (NPCMatchInfo != null) NPCMatchInfo.ItemText.text = GameManager.Instance.ai.matchItemsUsed + "/" + GameManager.Instance.maxMatchItems;
     }
+    public void SetTurnHighlight(bool? playerTurn)
+    {
+        bool p = playerTurn == true;
+        bool a = playerTurn == false;
+        if (playerRoundInfo != null) playerRoundInfo.SetActive(p);
+        if (NPCRoundInfo != null) NPCRoundInfo.SetActive(a);
+        if (playerMatchInfo != null) playerMatchInfo.SetActive(p);
+        if (NPCMatchInfo != null) NPCMatchInfo.SetActive(a);
+    }
+
+    public IEnumerator AnimateMatchScore(PlayerBase p, PlayerBase ai)
+    {
+        int pStart = p.matchFortunaPoints;
+        int aStart = ai.matchFortunaPoints;
+        int pEnd = pStart + p.roundFortunaPoints;
+        int aEnd = aStart + ai.roundFortunaPoints;
+        int steps = Mathf.Max(p.roundFortunaPoints, ai.roundFortunaPoints);
+
+        for (int i = 1; i <= steps; i++)
+        {
+            int pVal = pStart + Mathf.Min(i, p.roundFortunaPoints);
+            int aVal = aStart + Mathf.Min(i, ai.roundFortunaPoints);
+            if (playerMatchInfo != null) playerMatchInfo.PointText.text = pVal.ToString();
+            if (NPCMatchInfo != null) NPCMatchInfo.PointText.text = aVal.ToString();
+            yield return new WaitForSeconds(0.04f);
+        }
+
+        if (playerMatchInfo != null) playerMatchInfo.PointText.text = pEnd.ToString();
+        if (NPCMatchInfo != null) NPCMatchInfo.PointText.text = aEnd.ToString();
+        yield return new WaitForSeconds(0.3f);
+    }
+
     public void resetResult()
     {
         if (rollPointsText != null) rollPointsText.text = "";
     }
+
     public void ShowRollResults()
     {
-        if (rollPointsText != null) rollPointsText.text = GameManager.Instance.player.roundFortunaPoints.ToString();
+        if (rollPointsText != null)
+            rollPointsText.text = GameManager.Instance.player.roundFortunaPoints.ToString();
     }
-    //panels
+
     public void CloseRoundInfo(bool close)
     {
         if (roundInfoPanel != null) roundInfoPanel.SetActive(!close);
     }
+
     public void ShowItemPhase(bool show)
     {
         if (itemPhasePanel != null) itemPhasePanel.SetActive(show);
-        if (show) UpdateDiceSelector();
-        UpdateSubmitButton();
+        if (show)
+        {
+            selectorShowDice = false;
+            UpdateDiceSelector();
+        }
+        UpdateSubmitText();
     }
+
     public void ShowRoundEndPanel()
     {
         if (roundEndPanel != null) roundEndPanel.SetActive(true);
     }
+
     public void OnFinishClicked()
     {
         if (roundEndPanel != null) roundEndPanel.SetActive(false);
         roundFinished = true;
     }
-    
+
     public void ShowMessage(string text)
     {
         if (hideMessageCoroutine != null) { StopCoroutine(hideMessageCoroutine); hideMessageCoroutine = null; }
@@ -244,12 +309,14 @@ public class UIManager : MonoBehaviour
         if (panel != null) panel.SetActive(false);
         hideMessageCoroutine = null;
     }
+
     public void ShowDiceInfo(DiceData dice)
     {
         if (diceInfoIcon != null) diceInfoIcon.sprite = dice.sides[0].sprite;
         if (diceInfoName != null) diceInfoName.text = dice.diceName;
         if (diceInfoDescription != null) diceInfoDescription.text = dice.description;
     }
+
     public IEnumerator CountAllDice(PlayerBase targetPlayer)
     {
         int result = 0;
@@ -266,7 +333,7 @@ public class UIManager : MonoBehaviour
             {
                 result++;
                 targetPlayer.roundFortunaPoints = result;
-                rollPointsText.text = result.ToString();
+                if (rollPointsText != null) rollPointsText.text = result.ToString();
                 yield return new WaitForSeconds(0.05f);
             }
 
@@ -274,9 +341,10 @@ public class UIManager : MonoBehaviour
             diceDisplayButtons[i].transform.localScale = Vector3.one;
         }
     }
+
     public IEnumerator ShowCombo(List<int> inDices, DiceCombo combo)
     {
-        rollPointsText.text = combo.GetName();
+        if (rollPointsText != null) rollPointsText.text = combo.GetName();
         int bonus = combo.GetBonus();
 
         foreach (int i in inDices)
@@ -289,7 +357,7 @@ public class UIManager : MonoBehaviour
         for (int i = 0; i < bonus; i++)
         {
             startValue++;
-            rollPointsText.text = startValue.ToString();
+            if (rollPointsText != null) rollPointsText.text = startValue.ToString();
             yield return new WaitForSeconds(0.05f);
         }
 
@@ -305,7 +373,7 @@ public class UIManager : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         target.localScale = Vector3.one;
     }
-    //coinflip
+
     public IEnumerator StartCoinAnimation()
     {
         coinFlipAnimator.SetTrigger("Enter");

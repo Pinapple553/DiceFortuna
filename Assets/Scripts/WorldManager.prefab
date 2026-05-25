@@ -49,6 +49,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b1e5cd4c2627bf7429de037f30641eb1, type: 2}
   - {fileID: 11400000, guid: 18595a6c5e6cec645a26e10cb79c8c2f, type: 2}
   allDiceInGame:
+  - {fileID: 11400000, guid: 01c12a29d709d9f4c89ce943ec61bef4, type: 2}
   - {fileID: 11400000, guid: d25ae7173a28aed449cf10f8024042a7, type: 2}
   - {fileID: 11400000, guid: 4e0926f38f448e04da0b9b4809ef8529, type: 2}
   - {fileID: 11400000, guid: 43cd5600a305df54f8de64932ba3d956, type: 2}

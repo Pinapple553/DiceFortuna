@@ -1096,7 +1096,6 @@ MonoBehaviour:
   amountOwnedText: {fileID: 0}
   amountSelectedButton: {fileID: 0}
   amountSelectedText: {fileID: 0}
-  highlightOverlay: {fileID: 0}
   activeDiceIndex: -1
 --- !u!114 &183195124
 MonoBehaviour:
@@ -1144,7 +1143,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 183195123}
         m_TargetAssemblyTypeName: DiceButton, Assembly-CSharp
-        m_MethodName: RemoveDice
+        m_MethodName: OnDiceDisplayClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1604,6 +1603,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInfoCard
   PointText: {fileID: 493157909}
   ItemText: {fileID: 873197693}
+  panelBackground: {fileID: 256392034}
+  activeColor: {r: 1, g: 0.9, b: 0.5, a: 1}
+  inactiveColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &284288477
 GameObject:
   m_ObjectHideFlags: 0
@@ -4652,7 +4654,6 @@ MonoBehaviour:
   amountOwnedText: {fileID: 0}
   amountSelectedButton: {fileID: 0}
   amountSelectedText: {fileID: 0}
-  highlightOverlay: {fileID: 0}
   activeDiceIndex: -1
 --- !u!114 &825817979
 MonoBehaviour:
@@ -4698,9 +4699,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 825817978}
+      - m_Target: {fileID: 183195123}
         m_TargetAssemblyTypeName: DiceButton, Assembly-CSharp
-        m_MethodName: RemoveDice
+        m_MethodName: OnDiceDisplayClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4853,8 +4854,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameUiManager
   rollPointsText: {fileID: 406422142}
-  rollButton: {fileID: 1226115732}
-  rollButtonText: {fileID: 1128641923}
   diceDisplayButtons:
   - {fileID: 1194446369}
   - {fileID: 825817978}
@@ -4864,15 +4863,13 @@ MonoBehaviour:
   - {fileID: 1752080271}
   - {fileID: 1422101967}
   - {fileID: 1703091941}
-  emptyDiceSlot: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  emptyDiceSlot: {fileID: -8527568592950175283, guid: e82a8c78e4f5a3d4087f351d39897019, type: 3}
   itemSelector: {fileID: 483057525}
   diceButtonPrefab: {fileID: 2854943726660960488, guid: dcc9e14742ffd7043b0078f03b7f217b, type: 3}
   itemButtonPrefab: {fileID: 5859046234814513630, guid: 6789ec31437725b40906fa235cdd4ed4, type: 3}
   submitButtonText: {fileID: 1011094900}
-  currentRoundText: {fileID: 814826658}
   playerRoundInfo: {fileID: 1326805705}
   NPCRoundInfo: {fileID: 256392036}
-  matchEffects: {fileID: 575184720}
   playerMatchInfo: {fileID: 1729143570}
   NPCMatchInfo: {fileID: 1567878265}
   roundInfoPanel: {fileID: 760767789}
@@ -6419,7 +6416,6 @@ MonoBehaviour:
   amountOwnedText: {fileID: 0}
   amountSelectedButton: {fileID: 0}
   amountSelectedText: {fileID: 0}
-  highlightOverlay: {fileID: 0}
   activeDiceIndex: -1
 --- !u!114 &1012327369
 MonoBehaviour:
@@ -6465,9 +6461,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1012327368}
+      - m_Target: {fileID: 183195123}
         m_TargetAssemblyTypeName: DiceButton, Assembly-CSharp
-        m_MethodName: RemoveDice
+        m_MethodName: OnDiceDisplayClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8203,6 +8199,7 @@ MonoBehaviour:
   diceForItemSelection: 0
   playerChoseHeads: 1
   playerGoesFirst: 1
+  waitingForPlayerRoll: 0
   rounds: 2
   maxRoundItems: 0
   maxMatchItems: 0
@@ -8356,7 +8353,6 @@ MonoBehaviour:
   amountOwnedText: {fileID: 0}
   amountSelectedButton: {fileID: 0}
   amountSelectedText: {fileID: 0}
-  highlightOverlay: {fileID: 0}
   activeDiceIndex: -1
 --- !u!114 &1194446370
 MonoBehaviour:
@@ -8402,9 +8398,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1194446369}
+      - m_Target: {fileID: 183195123}
         m_TargetAssemblyTypeName: DiceButton, Assembly-CSharp
-        m_MethodName: RemoveDice
+        m_MethodName: OnDiceDisplayClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9230,6 +9226,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInfoCard
   PointText: {fileID: 1647681292}
   ItemText: {fileID: 1131216730}
+  panelBackground: {fileID: 1326805703}
+  activeColor: {r: 1, g: 0.9, b: 0.5, a: 1}
+  inactiveColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1339933123
 GameObject:
   m_ObjectHideFlags: 0
@@ -9779,7 +9778,6 @@ MonoBehaviour:
   amountOwnedText: {fileID: 0}
   amountSelectedButton: {fileID: 0}
   amountSelectedText: {fileID: 0}
-  highlightOverlay: {fileID: 0}
   activeDiceIndex: -1
 --- !u!114 &1422101968
 MonoBehaviour:
@@ -9825,9 +9823,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1422101967}
+      - m_Target: {fileID: 183195123}
         m_TargetAssemblyTypeName: DiceButton, Assembly-CSharp
-        m_MethodName: RemoveDice
+        m_MethodName: OnDiceDisplayClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -10850,6 +10848,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInfoCard
   PointText: {fileID: 1125459174}
   ItemText: {fileID: 1853769489}
+  panelBackground: {fileID: 0}
+  activeColor: {r: 1, g: 0.9, b: 0.5, a: 1}
+  inactiveColor: {r: 1, g: 1, b: 1, a: 0.3}
 --- !u!1 &1582468069
 GameObject:
   m_ObjectHideFlags: 0
@@ -10910,7 +10911,6 @@ MonoBehaviour:
   amountOwnedText: {fileID: 0}
   amountSelectedButton: {fileID: 0}
   amountSelectedText: {fileID: 0}
-  highlightOverlay: {fileID: 0}
   activeDiceIndex: -1
 --- !u!114 &1582468072
 MonoBehaviour:
@@ -10956,9 +10956,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1582468071}
+      - m_Target: {fileID: 183195123}
         m_TargetAssemblyTypeName: DiceButton, Assembly-CSharp
-        m_MethodName: RemoveDice
+        m_MethodName: OnDiceDisplayClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -11585,7 +11585,6 @@ MonoBehaviour:
   amountOwnedText: {fileID: 0}
   amountSelectedButton: {fileID: 0}
   amountSelectedText: {fileID: 0}
-  highlightOverlay: {fileID: 0}
   activeDiceIndex: -1
 --- !u!114 &1703091942
 MonoBehaviour:
@@ -11631,9 +11630,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1703091941}
+      - m_Target: {fileID: 183195123}
         m_TargetAssemblyTypeName: DiceButton, Assembly-CSharp
-        m_MethodName: RemoveDice
+        m_MethodName: OnDiceDisplayClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -11907,6 +11906,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInfoCard
   PointText: {fileID: 1767924669}
   ItemText: {fileID: 1174570414}
+  panelBackground: {fileID: 0}
+  activeColor: {r: 1, g: 0.9, b: 0.5, a: 1}
+  inactiveColor: {r: 1, g: 1, b: 1, a: 0.3}
 --- !u!1 &1739404546
 GameObject:
   m_ObjectHideFlags: 0
@@ -12178,7 +12180,6 @@ MonoBehaviour:
   amountOwnedText: {fileID: 0}
   amountSelectedButton: {fileID: 0}
   amountSelectedText: {fileID: 0}
-  highlightOverlay: {fileID: 0}
   activeDiceIndex: -1
 --- !u!114 &1752080272
 MonoBehaviour:
@@ -12224,9 +12225,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1752080271}
+      - m_Target: {fileID: 183195123}
         m_TargetAssemblyTypeName: DiceButton, Assembly-CSharp
-        m_MethodName: RemoveDice
+        m_MethodName: OnDiceDisplayClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

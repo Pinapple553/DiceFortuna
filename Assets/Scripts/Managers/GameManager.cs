@@ -22,11 +22,15 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public bool playerChoseHeads = true;
     [HideInInspector] public bool playerGoesFirst = true;
 
+    [HideInInspector] public bool waitingForPlayerRoll = false;
+    private bool playerRolled = false;
+
     public int rounds = 2;
     public int maxRoundItems = 3;
     public int maxMatchItems = 6;
 
     private int currentLevelIndex;
+    private bool itemExecuting = false;
 
     private void Awake()
     {
@@ -40,7 +44,6 @@ public class GameManager : MonoBehaviour
         LoadLevel();
         ResetItems();
         UIManager.Instance.CloseRoundInfo(false);
-        //
         WorldManager.Instance.IncrementLevelTries(currentLevelIndex);
     }
 
@@ -65,52 +68,75 @@ public class GameManager : MonoBehaviour
         UIManager.Instance.CloseRoundInfo(true);
     }
 
+    //handles: lock-in dice, roll, use item, pass
     public void SubmitButtonClick()
     {
-        if (!DiceManager.Instance.diceSelected) { LockInDice(); return; }
+        //select and lock in dice
+        if (!DiceManager.Instance.diceSelected)
+        {
+            LockInDice();
+            return;
+        }
+
+        //waiting for player to roll
+        if (waitingForPlayerRoll)
+        {
+            playerRolled = true;
+            return;
+        }
+
+        //item phase
         if (!isPlayerItemTurn) return;
-        if (pendingItem != null && diceForItemSelection) { ConfirmItemUse(); return; }
-        if (pendingItem != null && !diceForItemSelection) { ConfirmItemUse(); return; }
+        if (itemExecuting) return;
+
+        if (pendingItem != null)
+        {
+            if (diceForItemSelection && selectedDiceIndices.Count < pendingItem.Tier.diceTargets) return;
+            ConfirmItemUse();
+            return;
+        }
+
+        //pass
         ClearItemSelection();
         playerPassedItems = true;
-        UIManager.Instance.UpdateUI();
+        UIManager.Instance.RefreshItemPhaseUI();
     }
 
     public void PlayerClickItem(ItemInstance item)
     {
         if (!isPlayerItemTurn) return;
         if (!item.CanUse()) return;
+        if (itemExecuting) return;
 
-        if (pendingItem == item) { ClearItemSelection(); UIManager.Instance.UpdateUI(); return; }
+        if (pendingItem == item)
+        {
+            ClearItemSelection();
+            UIManager.Instance.RefreshItemPhaseUI();
+            return;
+        }
 
         ClearItemSelection();
         pendingItem = item;
-
-        if (item.data.playerSelectDice)
-        {
-            diceForItemSelection = true;
-        }
-        else
-        {
-            diceForItemSelection = false;
-            StartCoroutine(ExecuteItemUse(item, AllDiceIndices()));
-        }
-
-        UIManager.Instance.UpdateUI();
+        diceForItemSelection = item.data.playerSelectDice;
+        UIManager.Instance.RefreshItemPhaseUI();
     }
 
     public void PlayerToggleDiceForItem(int diceIndex)
     {
         if (!diceForItemSelection || pendingItem == null) return;
+        if (itemExecuting) return;
+
         int maxTargets = pendingItem.Tier.diceTargets;
-        if (selectedDiceIndices.Contains(diceIndex)) selectedDiceIndices.Remove(diceIndex);
+        if (selectedDiceIndices.Contains(diceIndex))
+            selectedDiceIndices.Remove(diceIndex);
         else
         {
             if (selectedDiceIndices.Count >= maxTargets) selectedDiceIndices.RemoveAt(0);
             selectedDiceIndices.Add(diceIndex);
         }
+
         UIManager.Instance.UpdateDiceHighlights();
-        UIManager.Instance.UpdateUI();
+        UIManager.Instance.UpdateSubmitText();
     }
 
     private void ConfirmItemUse()
@@ -126,6 +152,7 @@ public class GameManager : MonoBehaviour
     {
         if (!isPlayerItemTurn) yield break;
         if (!item.TryUse()) yield break;
+        itemExecuting = true;
 
         player.roundItemsUsed++;
         player.matchItemsUsed++;
@@ -135,7 +162,9 @@ public class GameManager : MonoBehaviour
         player.roundFortunaPoints = 0;
         yield return UIManager.Instance.CountAllDice(player);
         yield return DiceManager.Instance.CountAllBonuses(player);
-        UIManager.Instance.UpdateUI();
+
+        itemExecuting = false;
+        UIManager.Instance.RefreshItemPhaseUI();
 
         if (!player.CanUseItem()) playerPassedItems = true;
     }
@@ -166,7 +195,7 @@ public class GameManager : MonoBehaviour
         AISelectDice();
         if (!DiceManager.Instance.SelectDice())
         {
-            UIManager.Instance.ShowMessage("Select at least one die to start the round!");
+            UIManager.Instance.ShowMessage("Select at least one die!");
             return;
         }
         UIManager.Instance.SelectorMode("item");
@@ -214,17 +243,22 @@ public class GameManager : MonoBehaviour
             PlayerBase second = playerGoesFirst ? (PlayerBase)ai : player;
             bool firstIsPlayer = playerGoesFirst;
 
+            first.roundFortunaPoints = 0;
+            second.roundFortunaPoints = 0;
+
             yield return StartCoroutine(DoRoll(first, isPlayerRoll: firstIsPlayer));
             yield return StartCoroutine(ItemPhase());
 
             yield return StartCoroutine(DoRoll(second, isPlayerRoll: !firstIsPlayer));
             yield return StartCoroutine(ItemPhase());
 
+            yield return StartCoroutine(UIManager.Instance.AnimateMatchScore(player, ai));
+
             player.matchFortunaPoints += player.roundFortunaPoints;
-            player.roundFortunaPoints = 0;
             ai.matchFortunaPoints += ai.roundFortunaPoints;
+            player.roundFortunaPoints = 0;
             ai.roundFortunaPoints = 0;
-            UIManager.Instance.UpdateUI();
+            UIManager.Instance.UpdateAllInfo();
         }
 
         yield return StartCoroutine(ResolveWinner());
@@ -234,6 +268,22 @@ public class GameManager : MonoBehaviour
     {
         diceRolling = true;
         UIManager.Instance.resetResult();
+        UIManager.Instance.SetTurnHighlight(isPlayerRoll);
+
+        if (isPlayerRoll)
+        {
+            //wait for player to press Roll button
+            waitingForPlayerRoll = true;
+            playerRolled = false;
+            UIManager.Instance.UpdateSubmitText();
+            yield return new WaitUntil(() => playerRolled);
+            waitingForPlayerRoll = false;
+        }
+        else
+        {
+            UIManager.Instance.ShowMessage("Opponent rolling...");
+            yield return new WaitForSeconds(1f);
+        }
 
         foreach (var d in DiceManager.Instance.activeDiceList)
             DiceAnimation.Instance.Roll(d);
@@ -244,6 +294,7 @@ public class GameManager : MonoBehaviour
         yield return DiceManager.Instance.CountAllBonuses(roller);
 
         UIManager.Instance.ShowRollResults();
+        UIManager.Instance.UpdateAllInfo();
         diceRolling = false;
         yield return new WaitForSeconds(0.5f);
     }
@@ -253,6 +304,7 @@ public class GameManager : MonoBehaviour
         playerPassedItems = false;
         aiPassedItems = false;
         player.roundItemsUsed = 0;
+        itemExecuting = false;
 
         for (int i = 0; i < 100; i++)
         {
@@ -261,7 +313,7 @@ public class GameManager : MonoBehaviour
                 isPlayerItemTurn = true;
                 ClearItemSelection();
                 UIManager.Instance.ShowItemPhase(true);
-                UIManager.Instance.UpdateUI();
+                UIManager.Instance.RefreshItemPhaseUI();
                 yield return new WaitUntil(() => playerPassedItems || !player.CanUseItem());
                 isPlayerItemTurn = false;
                 ClearItemSelection();
@@ -275,7 +327,8 @@ public class GameManager : MonoBehaviour
         }
 
         UIManager.Instance.ShowItemPhase(false);
-        UIManager.Instance.UpdateUI();
+        UIManager.Instance.SetTurnHighlight(false);
+        UIManager.Instance.UpdateAllInfo();
     }
 
     private IEnumerator AIUseItem()
@@ -293,15 +346,11 @@ public class GameManager : MonoBehaviour
                 ai.matchItemsUsed++;
                 int maxT = chosen.Tier.diceTargets;
                 var targets = new List<int>();
-                
                 for (int i = 0; i < DiceManager.Instance.activeDiceList.Count && targets.Count < maxT; i++) targets.Add(i);
-                
                 yield return chosen.data.effect.Apply(ai, DiceManager.Instance.activeDiceList, chosen.Tier, targets);
-                UIManager.Instance.UpdateUI();
                 yield break;
             }
         }
-
         aiPassedItems = true;
     }
 
@@ -313,21 +362,9 @@ public class GameManager : MonoBehaviour
         bool playerWins = playerScore > aiScore;
 
         string resultStatus;
-        if (tie)
-        {
-            UIManager.Instance.ShowMessage("TIE! Token stays on the table.");
-            resultStatus = "Tied";
-        }
-        else if (playerWins)
-        {
-            UIManager.Instance.ShowMessage($"YOU WIN!  {playerScore} vs {aiScore}");
-            resultStatus = "Won";
-        }
-        else
-        {
-            UIManager.Instance.ShowMessage($"YOU LOSE  {playerScore} vs {aiScore}");
-            resultStatus = "Lost";
-        }
+        if (tie) { UIManager.Instance.ShowMessage("TIE!"); resultStatus = "Tied"; }
+        else if (playerWins) { UIManager.Instance.ShowMessage($"YOU WIN! {playerScore} vs {aiScore}"); resultStatus = "Won"; }
+        else { UIManager.Instance.ShowMessage($"YOU LOSE {playerScore} vs {aiScore}"); resultStatus = "Lost"; }
 
         UIManager.Instance.UpdateAllInfo();
         roundRunning = false;
@@ -337,11 +374,11 @@ public class GameManager : MonoBehaviour
         UIManager.Instance.ShowRoundEndPanel();
         yield return new WaitUntil(() => UIManager.Instance.roundFinished);
 
-        if (resultStatus == "Won" || resultStatus == "Lost") WorldManager.Instance.Save(currentLevelIndex, player.matchFortunaPoints, resultStatus);
+        if (resultStatus == "Won" || resultStatus == "Lost")
+            WorldManager.Instance.Save(currentLevelIndex, player.matchFortunaPoints, resultStatus);
 
         bool isLastLevel = currentLevelIndex >= WorldManager.Instance.levels.Length - 1;
-
-        if (resultStatus == "Won" && isLastLevel)  SceneManager.Instance.LoadScene("GameOver");
+        if (resultStatus == "Won" && isLastLevel) SceneManager.Instance.LoadScene("GameOver");
         else SceneManager.Instance.LoadScene("LevelPicker");
     }
 

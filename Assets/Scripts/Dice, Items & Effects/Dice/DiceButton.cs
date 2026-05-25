@@ -1,5 +1,4 @@
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,9 +16,10 @@ public class DiceButton : MonoBehaviour
     [SerializeField] private TMP_Text amountOwnedText;
     [SerializeField] private Button amountSelectedButton;
     [SerializeField] private TMP_Text amountSelectedText;
-    [SerializeField] private Image highlightOverlay;
 
     [HideInInspector] public int activeDiceIndex = -1;
+
+    private static readonly Color highlightColor = new Color(0.5f, 0.8f, 1f, 1f);
 
     public void AddDice()
     {
@@ -30,6 +30,7 @@ public class DiceButton : MonoBehaviour
         }
         UpdateButtonUI();
     }
+
     public void RemoveDice()
     {
         if (!DiceManager.Instance.RemoveDice(dice, GameManager.Instance.player)) return;
@@ -39,30 +40,29 @@ public class DiceButton : MonoBehaviour
 
     public void OnDiceDisplayClick()
     {
-        if (amountOwnedText != null) return; 
+        if (amountOwnedText != null) return; // this is a selector button, not a display button
         if (!GameManager.Instance.diceForItemSelection) return;
         if (activeDiceIndex < 0) return;
         GameManager.Instance.PlayerToggleDiceForItem(activeDiceIndex);
     }
 
-    public void UpdateButtonUI(){
+    public void UpdateButtonUI()
+    {
         if (amountOwnedText != null) amountOwnedText.text = amountOwned.ToString();
         if (amountSelectedButton != null) amountSelectedButton.gameObject.SetActive(amountSelected > 0);
         if (amountSelectedText != null) amountSelectedText.text = amountSelected.ToString();
-        if (dice != null && icon !=null) icon.sprite = dice.sides[0].sprite;
+        if (dice != null && icon != null) icon.sprite = dice.sides[0].sprite;
     }
+
     public void SetIcon(Sprite sprite)
     {
         if (icon != null) icon.sprite = sprite;
     }
+
     public void SetHighlight(bool on)
     {
-        if (highlightOverlay != null) highlightOverlay.enabled = on;
-        else if (icon != null)  icon.color = on ? new Color(0.6f, 1f, 0.6f) : Color.white;
+        if (icon != null) icon.color = on ? highlightColor : Color.white;
     }
 
-    public void OnPointerEnter()
-    {
-        //if (dice != null) UIManager.Instance.ShowDiceInfo(dice);
-    }
+    public void OnPointerEnter() { }
 }

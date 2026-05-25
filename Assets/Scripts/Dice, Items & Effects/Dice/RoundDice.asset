@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31381ccd072dc434abdefe59526928c0, type: 3}
+  m_Name: RoundDice
+  m_EditorClassIdentifier: Assembly-CSharp::DiceData
+  diceName: Round Dice
+  sides:
+  - name: 2
+    value: 2
+    sprite: {fileID: 2714453574471835212, guid: f78aa7478545ed045ba56934cde50a17, type: 3}
+    effect: {fileID: 0}
+    effectChance: 0
+  - name: 4
+    value: 4
+    sprite: {fileID: 3326971659086699885, guid: ad82bba2a4cf41b4c902a2f8e7d33095, type: 3}
+    effect: {fileID: 0}
+    effectChance: 0
+  - name: 6
+    value: 6
+    sprite: {fileID: 8459777460899806319, guid: ac1d59b9d67fa6e4896682c0c67f3707, type: 3}
+    effect: {fileID: 0}
+    effectChance: 0
+  description: 
+  shopPrice: 10
