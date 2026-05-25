@@ -25,9 +25,7 @@ public abstract class PlayerBase : ScriptableObject
     }
     public bool CanUseItem()
     {
-        return roundItemsUsed < GameManager.Instance.maxRoundItems
-            && matchItemsUsed < GameManager.Instance.maxMatchItems
-            && ownedItemsList.Any(i => i.CanUse());
+        return roundItemsUsed < GameManager.Instance.maxRoundItems && matchItemsUsed < GameManager.Instance.maxMatchItems && ownedItemsList.Exists(i => i.CanUse());
     }
     public int GetDiceAmount(DiceData dice)
     {

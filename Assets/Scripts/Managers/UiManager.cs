@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,9 +30,13 @@ public class UIManager : MonoBehaviour
     [Header("Panels")]
     [SerializeField] private GameObject roundInfoPanel;
     [SerializeField] private GameObject itemPhasePanel;
-    [SerializeField] private GameObject messagePanel;
-    [SerializeField] private TMP_Text messageText;
     [SerializeField] private GameObject roundEndPanel;
+
+    [Header("Message Log")]
+    [SerializeField] private ScrollRect messageScrollRect;
+    [SerializeField] private Transform messageLogContent;
+    [SerializeField] private gameMessage messageLogEntryPrefab;
+    [SerializeField] private int maxLogEntries = 50;
 
     [Header("CoinFlip")]
     [SerializeField] private GameObject coinFlipUI;
@@ -48,7 +51,6 @@ public class UIManager : MonoBehaviour
     [HideInInspector] public bool roundFinished = false;
 
     public static UIManager Instance;
-    private Coroutine hideMessageCoroutine;
 
     private void Awake()
     {
@@ -58,7 +60,6 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        if (messagePanel != null) messagePanel.SetActive(false);
         if (coinFlipUI != null) coinFlipUI.SetActive(false);
         if (itemPhasePanel != null) itemPhasePanel.SetActive(false);
         if (roundEndPanel != null) roundEndPanel.SetActive(false);
@@ -73,80 +74,18 @@ public class UIManager : MonoBehaviour
         RebuildDiceDisplay();
         UpdateSubmitText();
     }
-
     public void RefreshItemPhaseUI()
     {
         UpdateAllInfo();
-        RefreshDiceDisplayIcons();
-        if (GameManager.Instance.diceForItemSelection)
-            UpdateDiceHighlights();
-        else
-            ClearDiceHighlights();
+        RefreshDiceIcons();
+
+        if (GameManager.Instance.diceForItemSelection) UpdateDiceHighlights();
+        else ClearDiceHighlights();
+       
         RefreshItemButtons();
         UpdateSubmitText();
     }
-
-    public void UpdateSubmitText()
-    {
-        if (submitButtonText == null) return;
-
-        if (!DiceManager.Instance.diceSelected)
-        {
-            submitButtonText.text = "Lock In";
-            return;
-        }
-
-        if (GameManager.Instance.waitingForPlayerRoll)
-        {
-            submitButtonText.text = "Roll!";
-            return;
-        }
-
-        if (!GameManager.Instance.isPlayerItemTurn)
-        {
-            submitButtonText.text = "...";
-            return;
-        }
-
-        if (GameManager.Instance.pendingItem != null)
-        {
-            if (GameManager.Instance.diceForItemSelection)
-            {
-                int needed = GameManager.Instance.pendingItem.Tier.diceTargets;
-                int chosen = GameManager.Instance.selectedDiceIndices.Count;
-                submitButtonText.text = chosen >= needed ? "Use Item" : $"Dice ({chosen}/{needed})";
-            }
-            else
-            {
-                submitButtonText.text = "Use Item";
-            }
-        }
-        else
-        {
-            submitButtonText.text = "Pass";
-        }
-    }
-
-    public void UpdateDiceHighlights()
-    {
-        var selected = GameManager.Instance.selectedDiceIndices;
-        for (int i = 0; i < diceDisplayButtons.Length; i++)
-            diceDisplayButtons[i].SetHighlight(selected.Contains(i));
-        UpdateSubmitText();
-    }
-
-    public void ClearDiceHighlights()
-    {
-        for (int i = 0; i < diceDisplayButtons.Length; i++)
-            diceDisplayButtons[i].SetHighlight(false);
-    }
-    private void RebuildDiceDisplay()
-    {
-        ClearDiceHighlights();
-        RefreshDiceDisplayIcons();
-    }
-
-    private void RefreshDiceDisplayIcons()
+    public void RefreshDiceIcons()
     {
         for (int i = 0; i < diceDisplayButtons.Length; i++)
         {
@@ -167,6 +106,65 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    //submit button
+    public void UpdateSubmitText()
+    {
+        if (submitButtonText == null) return;
+
+        if (!DiceManager.Instance.diceSelected)
+        {
+            submitButtonText.text = "Lock In";
+            return;
+        }
+        if (GameManager.Instance.waitingForPlayerRoll)
+        {
+            submitButtonText.text = "Roll!";
+            return;
+        }
+        if (!GameManager.Instance.isPlayerItemTurn)
+        {
+            submitButtonText.text = "...";
+            return;
+        }
+        if (GameManager.Instance.pendingItem != null)
+        {
+            if (GameManager.Instance.diceForItemSelection)
+            {
+                int max = GameManager.Instance.pendingItem.Tier.diceTargets;
+                int chosen = GameManager.Instance.selectedDiceIndices.Count;
+                submitButtonText.text = chosen > 0 ? $"Use Item ({chosen}/{max})" : $"Pick Dice (0/{max})";
+            }
+            else
+            {
+                submitButtonText.text = "Use Item";
+            }
+        }
+        else
+        {
+            submitButtonText.text = "Pass";
+        }
+    }
+    //highlights
+    public void UpdateDiceHighlights()
+    {
+        var selected = GameManager.Instance.selectedDiceIndices;
+        for (int i = 0; i < diceDisplayButtons.Length; i++)
+            diceDisplayButtons[i].SetHighlight(selected.Contains(i));
+        UpdateSubmitText();
+    }
+
+    public void ClearDiceHighlights()
+    {
+        for (int i = 0; i < diceDisplayButtons.Length; i++)
+            diceDisplayButtons[i].SetHighlight(false);
+    }
+    private void RebuildDiceDisplay()
+    {
+        ClearDiceHighlights();
+        RefreshDiceIcons();
+    }
+
+    //item selector
     private void RefreshItemButtons()
     {
         foreach (Transform child in itemSelector.transform)
@@ -211,19 +209,30 @@ public class UIManager : MonoBehaviour
         selectorShowDice = (mode == "dice");
         UpdateDiceSelector();
     }
-
     public void UpdateAllInfo()
     {
-        if (playerRoundInfo != null) playerRoundInfo.PointText.text = GameManager.Instance.player.roundFortunaPoints.ToString();
-        if (playerMatchInfo != null) playerMatchInfo.PointText.text = GameManager.Instance.player.matchFortunaPoints.ToString();
-        if (playerRoundInfo != null) playerRoundInfo.ItemText.text = GameManager.Instance.player.roundItemsUsed + "/" + GameManager.Instance.maxRoundItems;
-        if (playerMatchInfo != null) playerMatchInfo.ItemText.text = GameManager.Instance.player.matchItemsUsed + "/" + GameManager.Instance.maxMatchItems;
-
-        if (NPCRoundInfo != null) NPCRoundInfo.PointText.text = GameManager.Instance.ai.roundFortunaPoints.ToString();
-        if (NPCMatchInfo != null) NPCMatchInfo.PointText.text = GameManager.Instance.ai.matchFortunaPoints.ToString();
-        if (NPCRoundInfo != null) NPCRoundInfo.ItemText.text = GameManager.Instance.ai.roundItemsUsed + "/" + GameManager.Instance.maxRoundItems;
-        if (NPCMatchInfo != null) NPCMatchInfo.ItemText.text = GameManager.Instance.ai.matchItemsUsed + "/" + GameManager.Instance.maxMatchItems;
+        if (playerRoundInfo != null)
+        {
+            playerRoundInfo.PointText.text = GameManager.Instance.player.roundFortunaPoints.ToString();
+            playerRoundInfo.ItemText.text = $"{GameManager.Instance.player.roundItemsUsed}/{GameManager.Instance.maxRoundItems}";
+        }
+        if (playerMatchInfo != null)
+        {
+            playerMatchInfo.PointText.text = GameManager.Instance.player.matchFortunaPoints.ToString();
+            playerMatchInfo.ItemText.text = $"{GameManager.Instance.player.matchItemsUsed}/{GameManager.Instance.maxMatchItems}";
+        }
+        if (NPCRoundInfo != null)
+        {
+            NPCRoundInfo.PointText.text = GameManager.Instance.ai.roundFortunaPoints.ToString();
+            NPCRoundInfo.ItemText.text = $"{GameManager.Instance.ai.roundItemsUsed}/{GameManager.Instance.maxRoundItems}";
+        }
+        if (NPCMatchInfo != null)
+        {
+            NPCMatchInfo.PointText.text = GameManager.Instance.ai.matchFortunaPoints.ToString();
+            NPCMatchInfo.ItemText.text = $"{GameManager.Instance.ai.matchItemsUsed}/{GameManager.Instance.maxMatchItems}";
+        }
     }
+
     public void SetTurnHighlight(bool? playerTurn)
     {
         bool p = playerTurn == true;
@@ -234,26 +243,21 @@ public class UIManager : MonoBehaviour
         if (NPCMatchInfo != null) NPCMatchInfo.SetActive(a);
     }
 
-    public IEnumerator AnimateMatchScore(PlayerBase p, PlayerBase ai)
+    public void LogMessage(string text)
     {
-        int pStart = p.matchFortunaPoints;
-        int aStart = ai.matchFortunaPoints;
-        int pEnd = pStart + p.roundFortunaPoints;
-        int aEnd = aStart + ai.roundFortunaPoints;
-        int steps = Mathf.Max(p.roundFortunaPoints, ai.roundFortunaPoints);
+        if (messageLogContent == null || messageLogEntryPrefab == null) return;
 
-        for (int i = 1; i <= steps; i++)
-        {
-            int pVal = pStart + Mathf.Min(i, p.roundFortunaPoints);
-            int aVal = aStart + Mathf.Min(i, ai.roundFortunaPoints);
-            if (playerMatchInfo != null) playerMatchInfo.PointText.text = pVal.ToString();
-            if (NPCMatchInfo != null) NPCMatchInfo.PointText.text = aVal.ToString();
-            yield return new WaitForSeconds(0.04f);
-        }
+        while (messageLogContent.childCount >= maxLogEntries) Destroy(messageLogContent.GetChild(0).gameObject);
 
-        if (playerMatchInfo != null) playerMatchInfo.PointText.text = pEnd.ToString();
-        if (NPCMatchInfo != null) NPCMatchInfo.PointText.text = aEnd.ToString();
-        yield return new WaitForSeconds(0.3f);
+        var entry = Instantiate(messageLogEntryPrefab, messageLogContent);
+        entry.mText.text = text;
+
+        StartCoroutine(ScrollToBottom());
+    }
+    private IEnumerator ScrollToBottom()
+    {
+        yield return null;
+        if (messageScrollRect != null) messageScrollRect.verticalNormalizedPosition = 0f;
     }
 
     public void resetResult()
@@ -267,54 +271,24 @@ public class UIManager : MonoBehaviour
             rollPointsText.text = GameManager.Instance.player.roundFortunaPoints.ToString();
     }
 
-    public void CloseRoundInfo(bool close)
+    public IEnumerator AnimateMatchScore(PlayerBase p, PlayerBase ai)
     {
-        if (roundInfoPanel != null) roundInfoPanel.SetActive(!close);
-    }
+        int pStart = p.matchFortunaPoints;
+        int aStart = ai.matchFortunaPoints;
+        int steps = Mathf.Max(p.roundFortunaPoints, ai.roundFortunaPoints);
 
-    public void ShowItemPhase(bool show)
-    {
-        if (itemPhasePanel != null) itemPhasePanel.SetActive(show);
-        if (show)
+        for (int i = 1; i <= steps; i++)
         {
-            selectorShowDice = false;
-            UpdateDiceSelector();
+            int pVal = pStart + Mathf.Min(i, p.roundFortunaPoints);
+            int aVal = aStart + Mathf.Min(i, ai.roundFortunaPoints);
+            if (playerMatchInfo != null) playerMatchInfo.PointText.text = pVal.ToString();
+            if (NPCMatchInfo != null) NPCMatchInfo.PointText.text = aVal.ToString();
+            yield return new WaitForSeconds(0.04f);
         }
-        UpdateSubmitText();
-    }
 
-    public void ShowRoundEndPanel()
-    {
-        if (roundEndPanel != null) roundEndPanel.SetActive(true);
-    }
-
-    public void OnFinishClicked()
-    {
-        if (roundEndPanel != null) roundEndPanel.SetActive(false);
-        roundFinished = true;
-    }
-
-    public void ShowMessage(string text)
-    {
-        if (hideMessageCoroutine != null) { StopCoroutine(hideMessageCoroutine); hideMessageCoroutine = null; }
-        if (messagePanel == null || messageText == null) return;
-        messageText.text = text;
-        messagePanel.SetActive(true);
-        hideMessageCoroutine = StartCoroutine(HideAfter(messagePanel, 2f));
-    }
-
-    private IEnumerator HideAfter(GameObject panel, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (panel != null) panel.SetActive(false);
-        hideMessageCoroutine = null;
-    }
-
-    public void ShowDiceInfo(DiceData dice)
-    {
-        if (diceInfoIcon != null) diceInfoIcon.sprite = dice.sides[0].sprite;
-        if (diceInfoName != null) diceInfoName.text = dice.diceName;
-        if (diceInfoDescription != null) diceInfoDescription.text = dice.description;
+        if (playerMatchInfo != null) playerMatchInfo.PointText.text = (pStart + p.roundFortunaPoints).ToString();
+        if (NPCMatchInfo != null) NPCMatchInfo.PointText.text = (aStart + ai.roundFortunaPoints).ToString();
+        yield return new WaitForSeconds(0.3f);
     }
 
     public IEnumerator CountAllDice(PlayerBase targetPlayer)
@@ -374,6 +348,42 @@ public class UIManager : MonoBehaviour
         target.localScale = Vector3.one;
     }
 
+    //panels
+    public void CloseRoundInfo(bool close)
+    {
+        if (roundInfoPanel != null) roundInfoPanel.SetActive(!close);
+    }
+
+    public void ShowItemPhase(bool show)
+    {
+        if (itemPhasePanel != null) itemPhasePanel.SetActive(show);
+        if (show)
+        {
+            selectorShowDice = false;
+            UpdateDiceSelector();
+        }
+        UpdateSubmitText();
+    }
+
+    public void ShowRoundEndPanel()
+    {
+        if (roundEndPanel != null) roundEndPanel.SetActive(true);
+    }
+
+    public void OnFinishClicked()
+    {
+        if (roundEndPanel != null) roundEndPanel.SetActive(false);
+        roundFinished = true;
+    }
+
+    public void ShowDiceInfo(DiceData dice)
+    {
+        if (diceInfoIcon != null) diceInfoIcon.sprite = dice.sides[0].sprite;
+        if (diceInfoName != null) diceInfoName.text = dice.diceName;
+        if (diceInfoDescription != null) diceInfoDescription.text = dice.description;
+    }
+
+    //coin flip
     public IEnumerator StartCoinAnimation()
     {
         coinFlipAnimator.SetTrigger("Enter");
