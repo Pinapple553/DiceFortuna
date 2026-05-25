@@ -17,7 +17,6 @@ public abstract class PlayerBase : ScriptableObject
 
 	public bool CanUseItem() 
 	{
-		return true;
 		return roundItemsUsed < GameManager.Instance.maxRoundItems && matchItemsUsed < GameManager.Instance.maxMatchItems && ownedItemsList.Count() > 0;
 	}
 	public int GetDiceAmount(DiceData dice)
@@ -74,4 +73,13 @@ public abstract class PlayerBase : ScriptableObject
 		}
 		return false;
 	}
+
+	public void ResetForNewMatch()
+	{
+        roundFortunaPoints = 0;
+        matchFortunaPoints = 0;
+        roundItemsUsed = 0;
+        matchItemsUsed = 0;
+        selectedDiceList.Clear();
+    }
 }

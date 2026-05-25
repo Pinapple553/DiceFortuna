@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/DiceGame.unity
     guid: 3530f60412ec0ee4e9bfeef99799e88b
+  - enabled: 1
+    path: Assets/Scenes/GameOver.unity
+    guid: 042a63e1b4616364a9926569fb052826
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

@@ -39,6 +39,7 @@ public class DiceButton : MonoBehaviour
 
     public void OnDiceDisplayClick()
     {
+        if (amountOwnedText != null) return; 
         if (!GameManager.Instance.diceForItemSelection) return;
         if (activeDiceIndex < 0) return;
         GameManager.Instance.PlayerToggleDiceForItem(activeDiceIndex);

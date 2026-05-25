@@ -6,7 +6,6 @@ public class LevelManager : MonoBehaviour
 {
 	[SerializeField] GameObject levelContainer;
 	[SerializeField] LevelButton levelButtonPrefab;
-	[SerializeField] GameObject ShopButtonPrefab;
 
 	[SerializeField] List<LevelData> LevelList;
 	private void Start()
@@ -27,12 +26,15 @@ public class LevelManager : MonoBehaviour
 			button.SetLevelData(LevelList[i]);
 			button.SetLevelIndex(i);
 			button.UpdateLevelButton();
-
-			if (i < LevelList.Count-1){
-   				GameObject shopButton = Instantiate(ShopButtonPrefab, levelContainer.transform);
-			}
 		}
 
+	}
+
+	public void SaveExitButtonClick()
+	{
+		WorldManager.Instance.SavePlayerData();
+		WorldManager.Instance.SaveShop();
+		SceneManager.Instance.LoadScene("SaveLoad");
 	}
 
 }

@@ -17,6 +17,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4e0926f38f448e04da0b9b4809ef8529, type: 2}
   - {fileID: 11400000, guid: 4e0926f38f448e04da0b9b4809ef8529, type: 2}
   - {fileID: 11400000, guid: 4e0926f38f448e04da0b9b4809ef8529, type: 2}
-  ownedItemsList: 
-  fortunaPoints: 0
+  ownedItemsList: []
+  totalFortunaPoints: 0
+  roundFortunaPoints: 0
+  matchFortunaPoints: 0
+  maxDice: 4
+  roundItemsUsed: 0
+  matchItemsUsed: 0
   aiName: Marve

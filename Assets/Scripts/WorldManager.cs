@@ -1,134 +1,193 @@
-using NUnit.Framework;
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class WorldManager : MonoBehaviour
 {
-	public LevelData[] levels;
+    public LevelData[] levels;
     public DiceData[] allDiceInGame;
-    public ItemInstance[] allItemsInGame;
+    public ItemData[] allItemsInGame;
 
     public int loadedSaveSlot;
-	public int currentLevelIndex = 0;
-	public Player player;
-	
+    public int currentLevelIndex = 0;
+    public Player player;
 
-	public static WorldManager Instance;
-	private void Awake()
-	{
-		if (Instance == null)
-		{
-			Instance = this;
-			DontDestroyOnLoad(gameObject);
-		}
-		else Destroy(gameObject);
-	}
+    public static WorldManager Instance;
+    private void Awake()
+    {
+        if (Instance == null) { Instance = this; DontDestroyOnLoad(gameObject); }
+        else Destroy(gameObject);
+    }
 
     public bool IsLevelCompleted(LevelData levelData)
     {
         SaveFileData data = GetSaveData(loadedSaveSlot);
         return data != null && data.currentLevelIndex > levelData.levelIndex;
     }
-    private string SavePath(int slot) { return $"{Application.persistentDataPath}/Saves/SaveSlot{slot}.json"; }
+
+    private string SavePath(int slot) => $"{Application.persistentDataPath}/Saves/SaveSlot{slot}.json";
+
     private void WriteSave(int slot, SaveFileData data)
     {
         string dir = $"{Application.persistentDataPath}/Saves";
         if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
         File.WriteAllText(SavePath(slot), JsonUtility.ToJson(data, true));
     }
+
     public void NewSave(int saveSlot)
-	{
-		SaveFileData saveFileData = new SaveFileData();
-		saveFileData.dateSaved = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-		saveFileData.fortunaPoints = 0;
+    {
+        SaveFileData saveFileData = new SaveFileData();
+        saveFileData.dateSaved = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        saveFileData.fortunaPoints = 0;
+        saveFileData.lives = 3;
 
-		LevelInstance[] levelInstances = new LevelInstance[levels.Length];
-		for (int i = 0; i < levels.Length; i++)
-		{
-			LevelInstance levelInstance = new LevelInstance();
-			levelInstance.levelIndex = i;
-            if (i == 0) levelInstance.status = "Current";
-            else levelInstance.status = "Locked";
-            levelInstance.fortunaPointsEarned = 0;
-			levelInstances[i] = levelInstance;
-		}
-		saveFileData.levels = levelInstances;
-
-        if (!Directory.Exists($"{Application.persistentDataPath}/Saves"))
+        LevelInstance[] levelInstances = new LevelInstance[levels.Length];
+        for (int i = 0; i < levels.Length; i++)
         {
-            Directory.CreateDirectory($"{Application.persistentDataPath}/Saves");
+            LevelInstance li = new LevelInstance();
+            li.levelIndex = i;
+            li.status = i == 0 ? "Current" : "Locked";
+            li.fortunaPointsEarned = 0;
+            li.triesTaken = 0;
+            levelInstances[i] = li;
         }
-        string json = JsonUtility.ToJson(saveFileData, true);
-		File.WriteAllText($"{Application.persistentDataPath}/Saves/SaveSlot{saveSlot}.json", json);
-	}
-	public void Save(int levelIndex, int roundFortunaPoints, string levelStatus){
-		SaveFileData saveFileData = GetSaveData(loadedSaveSlot);
-		if (saveFileData != null)
-		{
-			saveFileData.dateSaved = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            if (levelStatus == "Won")
-            {
-                player.totalFortunaPoints += roundFortunaPoints;
-            }
-            saveFileData.fortunaPoints = player.totalFortunaPoints;
+        saveFileData.levels = levelInstances;
+        saveFileData.ownedDiceIds = new List<int>() { 0 };
+        saveFileData.ownedItemIds = new List<int> { 0 };
+        saveFileData.ownedItemTiers = new List<int> { 0 };
+        saveFileData.shopSeed = Random.Range(0, 999999);
+        saveFileData.shopDiceIds = GenerateShopDice(saveFileData.shopSeed);
 
+        WriteSave(saveSlot, saveFileData);
+    }
+
+    public List<int> GenerateShopDice(int seed)
+    {
+        Random.State prevState = Random.state;
+        Random.InitState(seed);
+        
+        List<int> pool = new List<int>();
+        for (int i = 0; i < allDiceInGame.Length; i++) pool.Add(i);
+        
+        List<int> result = new List<int>();
+        int count = Mathf.Min(10, pool.Count);
+        for (int i = 0; i < count; i++)
+        {
+            int pick = Random.Range(0, pool.Count);
+            result.Add(pool[pick]);
+            pool.RemoveAt(pick);
+        }
+        Random.state = prevState;
+        return result;
+    }
+
+    public void RefreshShopDice()
+    {
+        SaveFileData save = GetSaveData(loadedSaveSlot);
+        if (save == null) return;
+        save.shopSeed = Random.Range(0, 999999);
+        save.shopDiceIds = GenerateShopDice(save.shopSeed);
+        WriteSave(loadedSaveSlot, save);
+    }
+
+    public void Save(int levelIndex, int roundFortunaPoints, string levelStatus)
+    {
+        SaveFileData saveFileData = GetSaveData(loadedSaveSlot);
+        if (saveFileData == null) return;
+
+        saveFileData.dateSaved = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+        if (levelStatus == "Won")
+        {
+            player.totalFortunaPoints += roundFortunaPoints;
             if (levelIndex + 1 < levels.Length)
             {
                 saveFileData.currentLevelIndex = levelIndex + 1;
                 currentLevelIndex = saveFileData.currentLevelIndex;
+                if (saveFileData.levels[levelIndex + 1].status == "Locked")
+                    saveFileData.levels[levelIndex + 1].status = "Current";
             }
-
-            saveFileData.levels[levelIndex].status = levelStatus;
-			saveFileData.levels[levelIndex].fortunaPointsEarned = roundFortunaPoints;
-
-            saveFileData.ownedDiceIds = new List<int>();
-            foreach (DiceData d in player.ownedDiceList)
-            {
-                int id = System.Array.IndexOf(allDiceInGame, d);
-                if (id >= 0) saveFileData.ownedDiceIds.Add(id);
-            }
-            saveFileData.ownedItemIds = new List<int>();
-            foreach (ItemInstance item in player.ownedItemsList)
-            {
-                int id = System.Array.IndexOf(allItemsInGame, item);
-                if (id >= 0) saveFileData.ownedItemIds.Add(id);
-            }
-
-            WriteSave(loadedSaveSlot, saveFileData);
+            saveFileData.levels[levelIndex].status = "Won";
+            saveFileData.levels[levelIndex].fortunaPointsEarned = roundFortunaPoints;
+            RefreshShopDice();
         }
-	}
-	public void DeleteSave(int saveSlot)
-	{
-		string filePath = $"{Application.persistentDataPath}/Saves/SaveSlot{saveSlot}.json";
-		if (File.Exists(filePath))
-		{
-			File.Delete(filePath);
-		}
-	}
-	public void LoadSave(int saveSlot)
-	{
-		SaveFileData saveFileData = GetSaveData(saveSlot);
-		if (saveFileData != null)
-		{
-			loadedSaveSlot = saveSlot;
-			currentLevelIndex = saveFileData.currentLevelIndex;
-			SceneManager.Instance.LoadScene("LevelPicker");
-		}
-	}
-	public SaveFileData GetSaveData(int saveSlot)
-	{
-		string filePath = $"{Application.persistentDataPath}/Saves/SaveSlot{saveSlot}.json";
-		if (File.Exists(filePath))
-		{
-			string json = File.ReadAllText(filePath);
-			if (!string.IsNullOrEmpty(json))
-			{
-				return JsonUtility.FromJson<SaveFileData>(json);
-			}
-		}
-		return null;
-	}
+        else if (levelStatus == "Lost")
+        {
+            player.totalFortunaPoints += roundFortunaPoints / 2;
+            saveFileData.lives = Mathf.Max(0, saveFileData.lives - 1);
+            if (levelIndex + 1 < levels.Length)
+            {
+                saveFileData.currentLevelIndex = levelIndex + 1;
+                currentLevelIndex = saveFileData.currentLevelIndex;
+                if (saveFileData.levels[levelIndex + 1].status == "Locked")
+                    saveFileData.levels[levelIndex + 1].status = "Current";
+            }
+            saveFileData.levels[levelIndex].status = "Lost";
+            saveFileData.levels[levelIndex].fortunaPointsEarned = roundFortunaPoints / 2;
+        }
+
+        saveFileData.fortunaPoints = player.totalFortunaPoints;
+
+        saveFileData.ownedDiceIds = new List<int>();
+        foreach (DiceData d in player.ownedDiceList)
+        {
+            int id = System.Array.IndexOf(allDiceInGame, d);
+            if (id >= 0) saveFileData.ownedDiceIds.Add(id);
+        }
+
+        saveFileData.ownedItemIds = new List<int>();
+        saveFileData.ownedItemTiers = new List<int>();
+        foreach (ItemInstance item in player.ownedItemsList)
+        {
+            int id = System.Array.IndexOf(allItemsInGame, item.data);
+            if (id >= 0)
+            {
+                saveFileData.ownedItemIds.Add(id);
+                saveFileData.ownedItemTiers.Add(item.currentTier);
+            }
+        }
+
+        WriteSave(loadedSaveSlot, saveFileData);
+    }
+
+    public void IncrementLevelTries(int levelIndex)
+    {
+        SaveFileData save = GetSaveData(loadedSaveSlot);
+        if (save == null) return;
+        save.levels[levelIndex].triesTaken++;
+        WriteSave(loadedSaveSlot, save);
+    }
+
+    public void DeleteSave(int saveSlot)
+    {
+        string filePath = SavePath(saveSlot);
+        if (File.Exists(filePath)) File.Delete(filePath);
+    }
+
+    public void LoadSave(int saveSlot)
+    {
+        SaveFileData saveFileData = GetSaveData(saveSlot);
+        if (saveFileData != null)
+        {
+            loadedSaveSlot = saveSlot;
+            currentLevelIndex = saveFileData.currentLevelIndex;
+            LoadPlayerData();
+            SceneManager.Instance.LoadScene("LevelPicker");
+        }
+    }
+
+    public SaveFileData GetSaveData(int saveSlot)
+    {
+        string filePath = SavePath(saveSlot);
+        if (File.Exists(filePath))
+        {
+            string json = File.ReadAllText(filePath);
+            if (!string.IsNullOrEmpty(json))
+                return JsonUtility.FromJson<SaveFileData>(json);
+        }
+        return null;
+    }
+
     public void LoadPlayerData()
     {
         SaveFileData save = GetSaveData(loadedSaveSlot);
@@ -140,22 +199,23 @@ public class WorldManager : MonoBehaviour
         if (save.ownedDiceIds != null)
         {
             foreach (int id in save.ownedDiceIds)
-            {
                 if (id >= 0 && id < allDiceInGame.Length)
                     player.ownedDiceList.Add(allDiceInGame[id]);
-            }
         }
 
         player.ownedItemsList = new List<ItemInstance>();
         if (save.ownedItemIds != null)
         {
-            foreach (int id in save.ownedItemIds)
+            for (int i = 0; i < save.ownedItemIds.Count; i++)
             {
+                int id = save.ownedItemIds[i];
+                int tier = (save.ownedItemTiers != null && i < save.ownedItemTiers.Count) ? save.ownedItemTiers[i] : 0;
                 if (id >= 0 && id < allItemsInGame.Length)
-                    player.ownedItemsList.Add(allItemsInGame[id]);
+                    player.ownedItemsList.Add(new ItemInstance(allItemsInGame[id], tier));
             }
         }
     }
+
     public void SavePlayerData()
     {
         SaveFileData save = GetSaveData(loadedSaveSlot);
@@ -171,12 +231,44 @@ public class WorldManager : MonoBehaviour
         }
 
         save.ownedItemIds = new List<int>();
+        save.ownedItemTiers = new List<int>();
         foreach (ItemInstance item in player.ownedItemsList)
         {
-            int id = System.Array.IndexOf(allItemsInGame, item);
-            if (id >= 0) save.ownedItemIds.Add(id);
+            int id = System.Array.IndexOf(allItemsInGame, item.data);
+            if (id >= 0)
+            {
+                save.ownedItemIds.Add(id);
+                save.ownedItemTiers.Add(item.currentTier);
+            }
         }
 
+        WriteSave(loadedSaveSlot, save);
+    }
+
+    public void SaveShop()
+    {
+        SaveFileData save = GetSaveData(loadedSaveSlot);
+        if (save == null) return;
+        save.fortunaPoints = player.totalFortunaPoints;
+
+        save.ownedDiceIds = new List<int>();
+        foreach (DiceData d in player.ownedDiceList)
+        {
+            int id = System.Array.IndexOf(allDiceInGame, d);
+            if (id >= 0) save.ownedDiceIds.Add(id);
+        }
+
+        save.ownedItemIds = new List<int>();
+        save.ownedItemTiers = new List<int>();
+        foreach (ItemInstance item in player.ownedItemsList)
+        {
+            int id = System.Array.IndexOf(allItemsInGame, item.data);
+            if (id >= 0)
+            {
+                save.ownedItemIds.Add(id);
+                save.ownedItemTiers.Add(item.currentTier);
+            }
+        }
         WriteSave(loadedSaveSlot, save);
     }
 }

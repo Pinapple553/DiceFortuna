@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: WindBag
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Windbag
-  icon: {fileID: 21300000, guid: 7e1015feb5735e64980f2704a85d75c9, type: 3}
+  icon: {fileID: 1546359767, guid: a87a5a4322980344f9d293302294894f, type: 3}
   description: A wind bag that lets you reroll selected dice
+  playerSelectDice: 1
   effect: {fileID: 11400000, guid: f013c61a8e44a5842984fcf9915f6e70, type: 2}
   tiers:
   - tierDescription: base

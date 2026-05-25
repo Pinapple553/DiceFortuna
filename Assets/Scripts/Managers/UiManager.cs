@@ -65,15 +65,21 @@ public class UIManager : MonoBehaviour
         if (coinFlipUI != null) coinFlipUI.SetActive(false);
         if (itemPhasePanel != null) itemPhasePanel.SetActive(false);
         if (roundEndPanel != null) roundEndPanel.SetActive(false);
+        ResetPlayers();
         UpdateUI();
     }
     public void UpdateUI()
     {
         resetResult();
-        UpdateRoundInfo();
+        UpdateAllInfo();
         UpdateDiceSelector();
         UpdateDiceDisplay();
         UpdateSubmitButton();
+    }
+    private void ResetPlayers()
+    {
+        WorldManager.Instance.player.ResetForNewMatch();
+        WorldManager.Instance.levels[WorldManager.Instance.currentLevelIndex].opponent.ResetForNewMatch();
     }
     private void UpdateSubmitButton()
     {
@@ -87,7 +93,7 @@ public class UIManager : MonoBehaviour
 
         if (!GameManager.Instance.isPlayerItemTurn)
         {
-            submitButtonText.text = "—";
+            submitButtonText.text = "...";
             return;
         }
 
@@ -97,7 +103,7 @@ public class UIManager : MonoBehaviour
             {
                 int needed = GameManager.Instance.pendingItem.Tier.diceTargets;
                 int chosen = GameManager.Instance.selectedDiceIndices.Count;
-                submitButtonText.text = chosen >= needed ? "Use Item" : $"Pick Dice ({chosen}/{needed})";
+                submitButtonText.text = chosen >= needed ? "Use Item" : $"Dice ({chosen}/{needed})";
             }
             else
             {
@@ -165,6 +171,7 @@ public class UIManager : MonoBehaviour
                 btn.amountSelected = GameManager.Instance.player.GetSelectedDiceAmout(dice);
                 btn.UpdateButtonUI();
             }
+
         }
         else
         {
@@ -176,58 +183,52 @@ public class UIManager : MonoBehaviour
             }
         }
     }
-
-    public void SelectorMode(string mode)
+    public void SelectorMode(string mode) //switches between dice and item tabs on selector
     {
         selectorShowDice = (mode == "dice");
         UpdateDiceSelector();
     }
-    public void UpdateRoundInfo()
+    public void UpdateAllInfo()
     {
-        if (playerRoundInfo != null)
-            playerRoundInfo.PointText.text = GameManager.Instance.player.roundFortunaPoints.ToString();
-        if (NPCRoundInfo != null)
-            NPCRoundInfo.PointText.text = GameManager.Instance.ai.roundFortunaPoints.ToString();
-    }
+        if (playerRoundInfo != null) playerRoundInfo.PointText.text = GameManager.Instance.player.roundFortunaPoints.ToString();
+        if (playerMatchInfo != null) playerMatchInfo.PointText.text = GameManager.Instance.player.matchFortunaPoints.ToString();
+        playerRoundInfo.ItemText.text = GameManager.Instance.player.roundItemsUsed + "/" + GameManager.Instance.maxRoundItems;
+        playerMatchInfo.ItemText.text = GameManager.Instance.player.matchItemsUsed + "/" + GameManager.Instance.maxMatchItems;
 
-    public void UpdateMatchInfo()
-    {
-        if (playerMatchInfo != null)
-            playerMatchInfo.PointText.text = GameManager.Instance.player.matchFortunaPoints.ToString();
-        if (NPCMatchInfo != null)
-            NPCMatchInfo.PointText.text = GameManager.Instance.ai.matchFortunaPoints.ToString();
+        if (NPCRoundInfo != null) NPCRoundInfo.PointText.text = GameManager.Instance.ai.roundFortunaPoints.ToString();
+        if (NPCMatchInfo != null) NPCMatchInfo.PointText.text = GameManager.Instance.ai.matchFortunaPoints.ToString();
+        NPCRoundInfo.ItemText.text = GameManager.Instance.ai.roundItemsUsed + "/" + GameManager.Instance.maxRoundItems;
+        NPCMatchInfo.ItemText.text = GameManager.Instance.ai.matchItemsUsed + "/" + GameManager.Instance.maxMatchItems;
     }
     public void resetResult()
     {
         if (rollPointsText != null) rollPointsText.text = "";
     }
-
     public void ShowRollResults()
     {
         if (rollPointsText != null) rollPointsText.text = GameManager.Instance.player.roundFortunaPoints.ToString();
     }
+    //panels
     public void CloseRoundInfo(bool close)
     {
         if (roundInfoPanel != null) roundInfoPanel.SetActive(!close);
     }
-
     public void ShowItemPhase(bool show)
     {
         if (itemPhasePanel != null) itemPhasePanel.SetActive(show);
         if (show) UpdateDiceSelector();
         UpdateSubmitButton();
     }
-
     public void ShowRoundEndPanel()
     {
         if (roundEndPanel != null) roundEndPanel.SetActive(true);
     }
-
     public void OnFinishClicked()
     {
         if (roundEndPanel != null) roundEndPanel.SetActive(false);
         roundFinished = true;
     }
+    
     public void ShowMessage(string text)
     {
         if (hideMessageCoroutine != null) { StopCoroutine(hideMessageCoroutine); hideMessageCoroutine = null; }
@@ -249,7 +250,7 @@ public class UIManager : MonoBehaviour
         if (diceInfoName != null) diceInfoName.text = dice.diceName;
         if (diceInfoDescription != null) diceInfoDescription.text = dice.description;
     }
-    public IEnumerator CountAllDice()
+    public IEnumerator CountAllDice(PlayerBase targetPlayer)
     {
         int result = 0;
         for (int i = 0; i < diceDisplayButtons.Length; i++)
@@ -264,7 +265,7 @@ public class UIManager : MonoBehaviour
             for (int j = 0; j < value; j++)
             {
                 result++;
-                GameManager.Instance.player.roundFortunaPoints = result;
+                targetPlayer.roundFortunaPoints = result;
                 rollPointsText.text = result.ToString();
                 yield return new WaitForSeconds(0.05f);
             }

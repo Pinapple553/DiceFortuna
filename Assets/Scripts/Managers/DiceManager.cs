@@ -95,7 +95,7 @@ public class DiceManager : MonoBehaviour
 		return values;
 	}
 
-	public IEnumerator CountAllBonuses()
+	public IEnumerator CountAllBonuses(PlayerBase targetPlayer)
 	{
 		List<int> values = GetAllValues();
 		int totalBonus = 0;
@@ -121,7 +121,7 @@ public class DiceManager : MonoBehaviour
 				}
 			}
 		}
-        GameManager.Instance.player.roundFortunaPoints += totalBonus;
+        targetPlayer.roundFortunaPoints += totalBonus;
 	}
 
 	private List<int> MapToOriginal(List<int> localIndices, List<int> remaining, List<int> original)//map back to original indices for UI display

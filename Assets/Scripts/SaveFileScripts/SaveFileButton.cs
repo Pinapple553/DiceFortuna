@@ -1,66 +1,64 @@
-using NUnit.Framework;
-using System.Collections.Generic;
 using System.IO;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class SaveFileButton : MonoBehaviour
 {
-	[SerializeField] private Button deleteButton;
-	[SerializeField] private TMP_Text pointText;
-	[SerializeField] private TMP_Text dateText;
-	[SerializeField] private Image saveFileImage;
-	[SerializeField] private TMP_Text saveFileButtonText;
-	[SerializeField] private Sprite defaultSprite;
+    [SerializeField] private Button deleteButton;
+    [SerializeField] private TMP_Text pointText;
+    [SerializeField] private TMP_Text dateText;
+    [SerializeField] private TMP_Text livesText;
+    [SerializeField] private Image saveFileImage;
+    [SerializeField] private TMP_Text saveFileButtonText;
+    [SerializeField] private Sprite defaultSprite;
 
-	public SaveFileData saveFileData;
-	public int saveSlot;
-	private void Start()
-	{
-		UpdateSaveFileButton();
-	}
-	public void UpdateSaveFileButton()
-	{
-		if (saveFileData == null)
-		{
-			deleteButton.gameObject.SetActive(false);
-			pointText.text = "Empty";
-			dateText.text = "";
-			saveFileImage.sprite = defaultSprite;
-			saveFileButtonText.text = "New";
-		}
-		else
-		{
-			deleteButton.gameObject.SetActive(true);
-			pointText.text = saveFileData.fortunaPoints.ToString();
-			dateText.text = saveFileData.dateSaved.ToString();
-			//saveFileImage.sprite = WorldManager.Instance.levels[saveFileData.levelIndex].levelImage;
-			saveFileButtonText.text = "Load";
-		}
-	}
+    public SaveFileData saveFileData;
+    public int saveSlot;
 
-	public void OnSaveFileButtonClick()
-	{
-		if (saveFileData == null)
-		{
-			SaveFileManager.Instance.NewSave(saveSlot);
-		}
-		else
-		{
-			string json = File.ReadAllText($"{Application.persistentDataPath}/Saves/SaveSlot{saveSlot}.json");
-			if (!string.IsNullOrEmpty(json))
-			{
-				saveFileData = JsonUtility.FromJson<SaveFileData>(json);
-				WorldManager.Instance.LoadSave(saveSlot);
-				UpdateSaveFileButton();
-			}
-		}
-	}
+    private void Start() => UpdateSaveFileButton();
 
-	public void DeleteButtonClick()
-	{
- 		SaveFileManager.Instance.DeleteSave(saveSlot);
-	}
+    public void UpdateSaveFileButton()
+    {
+        if (saveFileData == null)
+        {
+            if (deleteButton != null) deleteButton.gameObject.SetActive(false);
+            if (pointText != null) pointText.text = "Empty";
+            if (dateText != null) dateText.text = "";
+            if (livesText != null) livesText.text = "";
+            if (saveFileImage != null) saveFileImage.sprite = defaultSprite;
+            if (saveFileButtonText != null) saveFileButtonText.text = "New";
+        }
+        else
+        {
+            if (deleteButton != null) deleteButton.gameObject.SetActive(true);
+            if (pointText != null) pointText.text = saveFileData.fortunaPoints.ToString();
+            if (dateText != null) dateText.text = saveFileData.dateSaved;
+            if (livesText != null) livesText.text = $"Lives: {saveFileData.lives}";
+            if (saveFileImage != null) saveFileImage.sprite = WorldManager.Instance.levels[saveFileData.currentLevelIndex].levelImage;
+            if (saveFileButtonText != null) saveFileButtonText.text = "Load";
+        }
+    }
+
+    public void OnSaveFileButtonClick()
+    {
+        if (saveFileData == null)
+        {
+            SaveFileManager.Instance.NewSave(saveSlot);
+        }
+        else
+        {
+            saveFileData = WorldManager.Instance.GetSaveData(saveSlot);
+            if (saveFileData != null)
+            {
+                WorldManager.Instance.LoadSave(saveSlot);
+                UpdateSaveFileButton();
+            }
+        }
+    }
+
+    public void DeleteButtonClick()
+    {
+        SaveFileManager.Instance.DeleteSave(saveSlot);
+    }
 }

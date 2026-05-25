@@ -14,7 +14,7 @@ public class ItemData : ScriptableObject
 public class ItemTier //0 = base teir
 {
     public string tierDescription;
-    public int upgradeCost;
+    public int cost;
     public int uses;
     public int diceTargets;
 }

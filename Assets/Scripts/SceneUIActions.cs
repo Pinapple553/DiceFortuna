@@ -1,4 +1,5 @@
 using System;
+using UnityEditor;
 using UnityEngine;
 
 public class SceneUIActions : MonoBehaviour
@@ -7,6 +8,7 @@ public class SceneUIActions : MonoBehaviour
     {
         SceneManager.Instance.LoadScene(sceneName);
     }
+
     public void CloseScene()
     {
         SceneManager.Instance.CloseScene();
@@ -14,26 +16,38 @@ public class SceneUIActions : MonoBehaviour
 
     public void StartGame()
     {
-        bool savesExist = WorldManager.Instance.GetSaveData(0) != null || WorldManager.Instance.GetSaveData(1) != null || WorldManager.Instance.GetSaveData(2) != null || WorldManager.Instance.GetSaveData(3) != null;
-        if (savesExist)
+        int mostRecentSlot = -1;
+        DateTime mostRecentDate = DateTime.MinValue;
+
+        for (int i = 1; i <= 4; i++)
         {
-            int mostRecentSaveIndex = -1;
-            for (int i = 0; i < 4; i++)
+            SaveFileData saveData = WorldManager.Instance.GetSaveData(i);
+            if (saveData != null)
             {
-                SaveFileData saveData = WorldManager.Instance.GetSaveData(i);
-                if (saveData != null)
+                DateTime date = DateTime.Parse(saveData.dateSaved);
+                if (date > mostRecentDate)
                 {
-                    if (mostRecentSaveIndex == -1 || DateTime.Parse(saveData.dateSaved) > DateTime.Parse(WorldManager.Instance.GetSaveData(mostRecentSaveIndex).dateSaved))
-                    {
-                        mostRecentSaveIndex = i;
-                    }
+                    mostRecentDate = date;
+                    mostRecentSlot = i;
                 }
             }
-            WorldManager.Instance.LoadSave(mostRecentSaveIndex);
         }
+
+        if (mostRecentSlot != -1)
+            WorldManager.Instance.LoadSave(mostRecentSlot);
         else
         {
-            WorldManager.Instance.NewSave(0);
+            WorldManager.Instance.NewSave(1);
+            WorldManager.Instance.LoadSave(1);
         }
+    }
+
+    public void QuitGame()
+    {
+        #if UNITY_EDITOR
+                EditorApplication.ExitPlaymode();
+        #else
+                    Application.Quit();
+        #endif
     }
 }

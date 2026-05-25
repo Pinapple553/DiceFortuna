@@ -4,51 +4,71 @@ using UnityEngine.UI;
 
 public class LevelButton : MonoBehaviour
 {
-	[SerializeField] private TMP_Text levelTitle;
-	[SerializeField] private TMP_Text levelStatus;
-	[SerializeField] private Image rewardIcon;
-	[SerializeField] private LevelData levelData;
+    [SerializeField] private TMP_Text levelTitle;
+    [SerializeField] private TMP_Text levelStatus;
+    [SerializeField] private TMP_Text triesText;
+    [SerializeField] private Image rewardIcon;
+    [SerializeField] private LevelData levelData;
+    [SerializeField] private Button button;
 
-	public void UpdateLevelButton()
-	{
-		levelTitle.text = levelData.levelName;
-		if (WorldManager.Instance.IsLevelCompleted(levelData))
-		{
-			levelTitle.color = Color.green;
-			levelStatus.text = "Completed";
+    public void UpdateLevelButton()
+    {
+        if (levelData == null) return;
+        SaveFileData save = WorldManager.Instance.GetSaveData(WorldManager.Instance.loadedSaveSlot);
+        if (save == null) return;
 
-		}
-		else if (WorldManager.Instance.GetSaveData(WorldManager.Instance.loadedSaveSlot).currentLevelIndex == levelData.levelIndex)
-		{
-			levelTitle.color = Color.black;
-			levelStatus.text = "Current Level";
-		}
-		else
-		{
-			levelTitle.color = Color.lightGray;
-			levelStatus.text = "Locked";
-		}
-		rewardIcon.sprite = (WorldManager.Instance.IsLevelCompleted(levelData) ? levelData.unlockedRewardIcon : levelData.lockedRewardIcon);
-	}
+        levelTitle.text = levelData.levelName;
 
-	public void SetLevelData(LevelData data)
-	{
-		levelData = data;
-		UpdateLevelButton();
-	}
+        bool completed = WorldManager.Instance.IsLevelCompleted(levelData);
+        bool isCurrent = save.currentLevelIndex == levelData.levelIndex;
 
-	public void SetLevelIndex(int index)
-	{
-		levelData.levelIndex = index;
-	}
+        if (triesText != null)
+        {
+            int tries = save.levels[levelData.levelIndex].triesTaken;
+            triesText.text = tries > 0 ? $"Tries: {tries}" : "";
+        }
 
-	public void OnLevelButtonClick()
-	{
-		if (WorldManager.Instance.GetSaveData(WorldManager.Instance.loadedSaveSlot).currentLevelIndex == levelData.levelIndex)
-		{
-			WorldManager.Instance.currentLevelIndex = levelData.levelIndex;
-			SceneManager.Instance.LoadScene("DiceGame");
-		}
-	}
+        if (completed)
+        {
+            levelTitle.color = Color.green;
+            levelStatus.text = "Completed";
+            if (button != null) button.interactable = false;
+        }
+        else if (isCurrent)
+        {
+            levelTitle.color = Color.black;
+            levelStatus.text = "Current Level";
+            if (button != null) button.interactable = true;
+        }
+        else
+        {
+            levelTitle.color = Color.gray;
+            levelStatus.text = "Locked";
+            if (button != null) button.interactable = false;
+        }
 
+        if (rewardIcon != null)
+            rewardIcon.sprite = completed ? levelData.unlockedRewardIcon : levelData.lockedRewardIcon;
+    }
+
+    public void SetLevelData(LevelData data)
+    {
+        levelData = data;
+        UpdateLevelButton();
+    }
+
+    public void SetLevelIndex(int index)
+    {
+        levelData.levelIndex = index;
+    }
+
+    public void OnLevelButtonClick()
+    {
+        SaveFileData save = WorldManager.Instance.GetSaveData(WorldManager.Instance.loadedSaveSlot);
+        if (save == null) return;
+        if (save.currentLevelIndex != levelData.levelIndex) return;
+
+        WorldManager.Instance.currentLevelIndex = levelData.levelIndex;
+        SceneManager.Instance.LoadScene("DiceGame");
+    }
 }
