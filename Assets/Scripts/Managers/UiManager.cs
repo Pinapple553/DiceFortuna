@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEditor.Progress;
 
 public class UIManager : MonoBehaviour
 {
@@ -32,6 +33,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject roundInfoPanel;
     [SerializeField] private GameObject itemPhasePanel;
     [SerializeField] private GameObject roundEndPanel;
+    [SerializeField] private GameObject helpPanel;
 
     [Header("Message Log")]
     [SerializeField] private ScrollRect messageScrollRect;
@@ -64,6 +66,7 @@ public class UIManager : MonoBehaviour
         if (coinFlipUI != null) coinFlipUI.SetActive(false);
         if (itemPhasePanel != null) itemPhasePanel.SetActive(false);
         if (roundEndPanel != null) roundEndPanel.SetActive(false);
+        ResetInfo();
         UpdateUI();
     }
 
@@ -371,10 +374,26 @@ public class UIManager : MonoBehaviour
     {
         if (roundEndPanel != null) roundEndPanel.SetActive(true);
     }
+    public void ShowHelp(bool show)
+    {
+        helpPanel.SetActive(show);
+    }
     public void OnFinishClicked()
     {
         if (roundEndPanel != null) roundEndPanel.SetActive(false);
         roundFinished = true;
+    }
+    private void ResetInfo()
+    {
+        if (diceInfoIcon != null) diceInfoIcon.sprite = emptyDiceSlot;//empty
+        if (diceInfoName != null) diceInfoName.text = "Item info";
+        if (diceInfoDescription != null) diceInfoDescription.text = "Press the (i) icon on a dice or item to see info about it!";
+    }
+    public void ShowItemInfo(ItemData item)
+    {
+        if (diceInfoIcon != null) diceInfoIcon.sprite = item.icon; 
+        if (diceInfoName != null) diceInfoName.text = item.name;
+        if (diceInfoDescription != null) diceInfoDescription.text = item.description;
     }
     public void ShowDiceInfo(DiceData dice)
     {

@@ -467,6 +467,10 @@ public class GameManager : MonoBehaviour
                 UIManager.Instance.LogMessage($"Opponent used {chosen.data.itemName}");
                 yield break;
             }
+            else
+            {
+                UIManager.Instance.LogMessage($"Opponent passed");
+            }
         }
         aiPassedItems = true;
     }

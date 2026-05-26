@@ -65,4 +65,9 @@ public class DiceButton : MonoBehaviour
     }
 
     public void OnPointerEnter() { }
+
+    public void ShowDiceInfo()
+    {
+        UIManager.Instance.ShowDiceInfo(dice);
+    }
 }

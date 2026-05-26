@@ -363,6 +363,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DiceShopButton
   dice: {fileID: 0}
   price: 0
+  shopSlotIndex: 0
   bought: 0
   icon: {fileID: 8547109417535639925}
   amountOwnedText: {fileID: 6556486245455149485}
@@ -487,7 +488,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1520279042160206864}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 8262866089947935573}
+        m_TargetAssemblyTypeName: DiceShopButton, Assembly-CSharp
+        m_MethodName: ShowInfo
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &5644610149893508460
 GameObject:
   m_ObjectHideFlags: 0

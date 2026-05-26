@@ -6,6 +6,7 @@ public class SaveFileData
 {
     public int fortunaPoints;
     public string dateSaved;
+    public bool isCompleted;
     public LevelInstance[] levels;
     public int currentLevelIndex;
     public List<int> ownedDiceIds;

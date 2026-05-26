@@ -30,4 +30,9 @@ public class ItemButton : MonoBehaviour
         bool isSelected = GameManager.Instance.pendingItem == item;
         if (selectionHighlight != null) selectionHighlight.enabled = isSelected;
     }
+
+    public void ShowItemInfo()
+    {
+        UIManager.Instance.ShowItemInfo(item.data);
+    }
 }

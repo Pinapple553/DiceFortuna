@@ -108,12 +108,15 @@ public class WorldManager : MonoBehaviour
             {
                 saveFileData.currentLevelIndex = levelIndex + 1;
                 currentLevelIndex = saveFileData.currentLevelIndex;
-                if (saveFileData.levels[levelIndex + 1].status == "Locked")
-                    saveFileData.levels[levelIndex + 1].status = "Current";
+                if (saveFileData.levels[levelIndex + 1].status == "Locked") saveFileData.levels[levelIndex + 1].status = "Current";
             }
             saveFileData.levels[levelIndex].status = "Won";
             saveFileData.levels[levelIndex].fortunaPointsEarned = roundFortunaPoints;
             RefreshShopDice();
+            bool isLastLevel = levelIndex >= levels.Length - 1;
+            if (isLastLevel) saveFileData.isCompleted = true;
+
+
         }
         else if (levelStatus == "Lost")
         {

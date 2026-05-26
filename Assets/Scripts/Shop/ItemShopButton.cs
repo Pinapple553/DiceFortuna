@@ -57,7 +57,7 @@ public class ItemShopButton : MonoBehaviour
         }
         else
         {
-            if (tierText != null) tierText.text = $"Lv.{ownedInstance.currentTier + 1} MAX";
+            if (tierText != null) tierText.text = $"Lv.{ownedInstance.currentTier + 1}";
             if (buyButton != null) buyButton.interactable = false;
             if (buyButtonText != null) buyButtonText.text = "Max";
         }
@@ -87,5 +87,10 @@ public class ItemShopButton : MonoBehaviour
         ShopManager shop = GetComponentInParent<ShopManager>();
         if (shop != null) shop.OnBuyComplete();
         UpdateUI();
+    }
+
+    public void ShowInfo()
+    {
+        ShopManager.Instance.ShowItemInfo(itemData);
     }
 }

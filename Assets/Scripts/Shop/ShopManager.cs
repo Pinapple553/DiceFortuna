@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ShopManager : MonoBehaviour
 {
@@ -11,6 +12,10 @@ public class ShopManager : MonoBehaviour
     [SerializeField] private DiceShopButton diceShopButtonPrefab;
     [SerializeField] private ItemShopButton itemShopButtonPrefab;
 
+    [SerializeField] private GameObject infoPanel;
+    [SerializeField] private TMP_Text infoName;
+    [SerializeField] private TMP_Text infoDescription;
+    [SerializeField] private Image infoImage;
 
     public static ShopManager Instance;
     private void Awake()
@@ -66,5 +71,23 @@ public class ShopManager : MonoBehaviour
     public void showShop(bool show)
     {
         if (shopPanel != null) shopPanel.SetActive(show);
+    }
+    public void showInfo(bool show)
+    {
+        if (infoPanel != null) infoPanel.SetActive(show);
+    }
+    public void ShowItemInfo(ItemData item)
+    {
+        if (infoImage != null) infoImage.sprite = item.icon;
+        if (infoName != null) infoName.text = item.name;
+        if (infoDescription != null) infoDescription.text = item.description;
+        showInfo(true);
+    }
+    public void ShowDiceInfo(DiceData dice)
+    {
+        if (infoImage != null) infoImage.sprite = dice.sides[0].sprite;
+        if (infoName != null) infoName.text = dice.diceName;
+        if (infoDescription != null) infoDescription.text = dice.description;
+        showInfo(true);
     }
 }

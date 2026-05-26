@@ -30,38 +30,33 @@ public class SaveFileManager : MonoBehaviour
 
 	private void UpdateSaveFileButtons()
 	{
-		foreach (Transform child in saveFileContainer.transform)
-		{
-			Destroy(child.gameObject);
-		}
-		for (int i = 1; i <= numberOfSaves; i++)
-		{
-			SaveFileButton button = Instantiate(saveFileButtonPrefab, saveFileContainer.transform);
-			string json = null;
-			if (File.Exists($"{Application.persistentDataPath}/Saves/SaveSlot{i}.json")){
-				 json = File.ReadAllText($"{Application.persistentDataPath}/Saves/SaveSlot{i}.json");
-			}
-			button.saveSlot = i;
-			if (!string.IsNullOrEmpty(json))
-			{
-				button.saveFileData = JsonUtility.FromJson<SaveFileData>(json);
-			}
-			else
-			{
-				button.saveFileData = null;
-			}
-			button.UpdateSaveFileButton();
-		}
-	}
-	public void NewSave(int saveSlot)
-	{
-		WorldManager.Instance.NewSave(saveSlot);
-		UpdateSaveFileButtons();
-	}
+        foreach (Transform child in saveFileContainer.transform) Destroy(child.gameObject);
 
-	public void DeleteSave(int saveSlot)
-	{
-		WorldManager.Instance.DeleteSave(saveSlot);
-		UpdateSaveFileButtons();
-	}
+        for (int i = 1; i <= numberOfSaves; i++)
+        {
+            SaveFileButton button = Instantiate(saveFileButtonPrefab, saveFileContainer.transform);
+            string path = $"{Application.persistentDataPath}/Saves/SaveSlot{i}.json";
+            string json = File.Exists(path) ? File.ReadAllText(path) : null;
+
+            button.saveSlot = i;
+            button.saveFileData = !string.IsNullOrEmpty(json) ? JsonUtility.FromJson<SaveFileData>(json) : null;
+
+            button.isLocked = button.saveFileData != null && button.saveFileData.isCompleted;
+            button.UpdateSaveFileButton();
+        }
+    }
+    public void NewSave(int saveSlot)
+    {
+        SaveFileData existing = WorldManager.Instance.GetSaveData(saveSlot);
+        if (existing != null && existing.isCompleted) return;
+
+        WorldManager.Instance.NewSave(saveSlot);
+        UpdateSaveFileButtons();
+    }
+
+    public void DeleteSave(int saveSlot)
+    {
+        WorldManager.Instance.DeleteSave(saveSlot);
+        UpdateSaveFileButtons();
+    }
 }

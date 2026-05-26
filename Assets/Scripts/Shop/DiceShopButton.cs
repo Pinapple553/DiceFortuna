@@ -1,3 +1,4 @@
+using NUnit.Framework.Interfaces;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -40,5 +41,9 @@ public class DiceShopButton : MonoBehaviour
         if (buyButton != null) buyButton.interactable = !bought;
         if (buyButtonText != null) buyButtonText.text = bought ? "Bought" : $"Buy: {price}";
         if (icon != null && dice != null) icon.sprite = dice.sides[0].sprite;
+    }
+    public void ShowInfo()
+    {
+        ShopManager.Instance.ShowDiceInfo(dice);
     }
 }

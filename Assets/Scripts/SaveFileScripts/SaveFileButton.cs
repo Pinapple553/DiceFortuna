@@ -1,4 +1,3 @@
-using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,9 +11,11 @@ public class SaveFileButton : MonoBehaviour
     [SerializeField] private Image saveFileImage;
     [SerializeField] private TMP_Text saveFileButtonText;
     [SerializeField] private Sprite defaultSprite;
+    [SerializeField] private GameObject lockIcon;
 
     public SaveFileData saveFileData;
     public int saveSlot;
+    public bool isLocked;
 
     private void Start() => UpdateSaveFileButton();
 
@@ -28,6 +29,17 @@ public class SaveFileButton : MonoBehaviour
             if (livesText != null) livesText.text = "";
             if (saveFileImage != null) saveFileImage.sprite = defaultSprite;
             if (saveFileButtonText != null) saveFileButtonText.text = "New";
+            if (lockIcon != null) lockIcon.SetActive(false);
+        }
+        else if (isLocked)
+        {
+            if (deleteButton != null) deleteButton.gameObject.SetActive(false);
+            if (pointText != null) pointText.text = saveFileData.fortunaPoints.ToString();
+            if (dateText != null) dateText.text = saveFileData.dateSaved;
+            if (livesText != null) livesText.text = $"Lives: {saveFileData.lives}";
+            if (saveFileImage != null) saveFileImage.sprite = WorldManager.Instance.levels[saveFileData.currentLevelIndex > 0 ? saveFileData.currentLevelIndex - 1 : 0].levelImage;
+            if (saveFileButtonText != null) saveFileButtonText.text = "Completed";
+            if (lockIcon != null) lockIcon.SetActive(true);
         }
         else
         {
@@ -37,11 +49,13 @@ public class SaveFileButton : MonoBehaviour
             if (livesText != null) livesText.text = $"Lives: {saveFileData.lives}";
             if (saveFileImage != null) saveFileImage.sprite = WorldManager.Instance.levels[saveFileData.currentLevelIndex].levelImage;
             if (saveFileButtonText != null) saveFileButtonText.text = "Load";
+            if (lockIcon != null) lockIcon.SetActive(false);
         }
     }
 
     public void OnSaveFileButtonClick()
     {
+        if (isLocked) return;
         if (saveFileData == null)
         {
             SaveFileManager.Instance.NewSave(saveSlot);

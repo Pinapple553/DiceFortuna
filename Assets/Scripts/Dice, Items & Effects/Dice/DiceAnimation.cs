@@ -16,7 +16,8 @@ public class DiceAnimation : MonoBehaviour
 
 	public void Roll(DiceInstance dice)
 	{
-		if (dice.isLocked)
+        AudioManager.Instance?.PlayDiceRoll();
+        if (dice.isLocked)
 		{
 			dice.isLocked = false; 
 			return;
