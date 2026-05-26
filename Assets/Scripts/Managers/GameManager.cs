@@ -179,7 +179,6 @@ public class GameManager : MonoBehaviour
         recountTarget.roundFortunaPoints = 0;
         yield return SkippableCount(recountTarget);
 
-        // Fully done — only NOW allow the item phase loop to see we're finished
         itemExecuting = false;
         UIManager.Instance.RefreshItemPhaseUI();
 
@@ -514,7 +513,7 @@ public class GameManager : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
         UIManager.Instance.roundFinished = false;
-        UIManager.Instance.ShowRoundEndPanel();
+        UIManager.Instance.ShowRoundEndPanel(resultStatus, playerScore, aiScore);
         yield return new WaitUntil(() => UIManager.Instance.roundFinished);
 
         if (resultStatus == "Won" || resultStatus == "Lost") WorldManager.Instance.Save(currentLevelIndex, player.matchFortunaPoints, resultStatus);

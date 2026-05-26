@@ -34,8 +34,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text matchStartLevelName;
     [SerializeField] private TMP_Text matchStartLevelDesc;
     [SerializeField] private GameObject roundEndPanel;
-    [SerializeField] private TMP_Text matchEndLevelName;
-    [SerializeField] private TMP_Text matchEndLevelDesc;
+    [SerializeField] private TMP_Text matchEndTitle;
+    [SerializeField] private TMP_Text matchEndStats;
+    [SerializeField] private GameObject matchEndRetryButton;
+    [SerializeField] private GameObject matchEndAcceptButton;
     [SerializeField] private GameObject helpPanel;
 
     [Header("Message Log")]
@@ -366,10 +368,45 @@ public class UIManager : MonoBehaviour
     public void CloseRoundInfo(bool close)
     {
         if (roundInfoPanel != null) roundInfoPanel.SetActive(!close);
+
+        if (!close)
+        {
+            LevelData level = WorldManager.Instance.levels[WorldManager.Instance.currentLevelIndex];
+            if (level != null)
+            {
+                if (matchStartLevelName != null) matchStartLevelName.text = level.levelName;
+                if (matchStartLevelDesc != null) matchStartLevelDesc.text = level.levelDescription;
+            }
+        }
     }
-    public void ShowRoundEndPanel()
+    public void ShowRoundEndPanel(string resultStatus, int playerScore, int aiScore)
     {
-        if (roundEndPanel != null) roundEndPanel.SetActive(true);
+        if (roundEndPanel == null) return;
+
+        bool won = resultStatus == "Won";
+        bool lost = resultStatus == "Lost";
+
+        if (matchEndTitle != null)  matchEndTitle.text = won ? "Victory!" : (lost ? "Defeat!" : "Draw!");
+
+        if (matchEndStats != null)
+        {
+            LevelData level = WorldManager.Instance.levels[WorldManager.Instance.currentLevelIndex];
+            string levelName = level != null ? level.levelName : "Level";
+            int diff = playerScore - aiScore;
+            string diffStr = diff > 0 ? $"+{diff}" : diff.ToString();
+
+            if (won)
+                matchEndStats.text = $"{levelName}\n\nYour score:  {playerScore}\nOpponent:    {aiScore}";
+            else if (lost)
+                matchEndStats.text = $"{levelName}\n\nYour score:  {playerScore}\nOpponent:    {aiScore}";
+            else
+                matchEndStats.text = $"{levelName}\n\nYour score:  {playerScore}\nOpponent:    {aiScore}\nIt's a tie! But you still loose :(";
+        }
+
+        if (matchEndRetryButton != null) matchEndRetryButton.SetActive(!won);
+        if (matchEndAcceptButton != null) matchEndAcceptButton.SetActive(!won);
+
+        roundEndPanel.SetActive(true);
     }
     public void ShowHelp(bool show)
     {
