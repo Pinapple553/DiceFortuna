@@ -55,6 +55,7 @@ public class GameManager : MonoBehaviour
         maxMatchItems = level.maxMatchItems;
         WorldManager.Instance.player.ResetForNewMatch();
         WorldManager.Instance.levels[WorldManager.Instance.currentLevelIndex].opponent.ResetForNewMatch();
+        UIManager.Instance.UpdateRoundNumber(1, rounds);
         UIManager.Instance.UpdateUI();
     }
     public void StartButtonClick()
@@ -281,6 +282,7 @@ public class GameManager : MonoBehaviour
     {
         for (int roll = 0; roll < rounds; roll++)
         {
+            UIManager.Instance.UpdateRoundNumber(roll+1, rounds);
             UIManager.Instance.LogMessage($"── Round {roll + 1} ──");
 
             PlayerBase first = playerGoesFirst ? (PlayerBase)player : ai;
@@ -498,6 +500,11 @@ public class GameManager : MonoBehaviour
     {
         roundRunning = false;
         SceneManager.Instance.LoadScene("LevelPicker");
+    }
+    public void RetryLevel()
+    {
+        roundRunning = false;
+        SceneManager.Instance.LoadScene("DiceGame");
     }
     private bool AnyRolling(List<DiceInstance> list)
     {

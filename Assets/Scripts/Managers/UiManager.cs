@@ -20,6 +20,7 @@ public class UIManager : MonoBehaviour
     private bool selectorShowDice = true;
 
     [Header("RoundInfo")]
+    [SerializeField] private TMP_Text roundNumberText;
     [SerializeField] private PlayerInfoCard playerRoundInfo;
     [SerializeField] private PlayerInfoCard NPCRoundInfo;
 
@@ -104,6 +105,11 @@ public class UIManager : MonoBehaviour
                 diceDisplayButtons[i].activeDiceIndex = i;
             }
         }
+    }
+
+    public void UpdateRoundNumber(int current, int total)
+    {
+        roundNumberText.text = current+"/"+total;
     }
 
     //submit button
