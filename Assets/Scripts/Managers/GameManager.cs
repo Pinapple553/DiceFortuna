@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public bool playerChoseHeads = true;
     [HideInInspector] public bool playerGoesFirst = true;
     [HideInInspector] public bool waitingForPlayerRoll = false;
+    [HideInInspector] public bool animationSkippable = false;
 
     public int rounds = 2;
     public int maxRoundItems = 3;
@@ -30,6 +31,7 @@ public class GameManager : MonoBehaviour
     private int currentLevelIndex;
     private bool itemExecuting = false;
     private bool playerRolled = false;
+    private bool skipRequested = false;
 
     private void Awake()
     {
@@ -73,6 +75,13 @@ public class GameManager : MonoBehaviour
     {
         if (!DiceManager.Instance.diceSelected) { LockInDice(); return; }
 
+        // Skip counting/rolling animation
+        if (animationSkippable)
+        {
+            skipRequested = true;
+            return;
+        }
+
         if (waitingForPlayerRoll)
         {
             playerRolled = true;
@@ -84,7 +93,6 @@ public class GameManager : MonoBehaviour
 
         if (pendingItem != null)
         {
-            // Require at least 1 die selected when player-select mode is on
             if (diceForItemSelection && selectedDiceIndices.Count == 0) return;
             ConfirmItemUse();
             return;
@@ -149,22 +157,72 @@ public class GameManager : MonoBehaviour
 
         player.roundItemsUsed++;
         player.matchItemsUsed++;
-
         UIManager.Instance.LogMessage($"Used: {item.data.itemName}");
 
         yield return item.data.effect.Apply(player, DiceManager.Instance.activeDiceList, item.Tier, targetIndices);
-        
-        yield return new WaitForSeconds(1);
-        yield return new WaitUntil(() => !AnyRolling(DiceManager.Instance.activeDiceList));
 
+        // One frame so isRolling is set by any triggered rolls
+        yield return null;
+
+        // Allow skipping the reroll animation
+        animationSkippable = true;
+        UIManager.Instance.UpdateSubmitText();
+
+        yield return new WaitUntil(() =>
+        {
+            if (skipRequested) { DiceAnimation.Instance.SkipAll(); skipRequested = false; return true; }
+            return !AnyRolling(DiceManager.Instance.activeDiceList);
+        });
+
+        animationSkippable = false;
+        skipRequested = false;
+
+        // Recount from current dice faces
         player.roundFortunaPoints = 0;
-        yield return UIManager.Instance.CountAllDice(player);
-        yield return DiceManager.Instance.CountAllBonuses(player);
+        yield return SkippableCount(player);
 
         itemExecuting = false;
         UIManager.Instance.RefreshItemPhaseUI();
 
         if (!player.CanUseItem()) playerPassedItems = true;
+    }
+
+    // CountAllDice + CountAllBonuses but skippable
+    private IEnumerator SkippableCount(PlayerBase targetPlayer)
+    {
+        animationSkippable = true;
+        UIManager.Instance.UpdateSubmitText();
+
+        // Run count coroutines but watch for skip
+        bool countDone = false;
+        StartCoroutine(RunCount(targetPlayer, () => countDone = true));
+
+        yield return new WaitUntil(() =>
+        {
+            if (skipRequested)
+            {
+                skipRequested = false;
+                // Manually calculate final value without animation
+                int total = 0;
+                foreach (var d in DiceManager.Instance.activeDiceList)
+                    total += d.data.sides[d.currentSideIndex].value;
+                targetPlayer.roundFortunaPoints = total;
+                UIManager.Instance.ShowRollResults();
+                return true;
+            }
+            return countDone;
+        });
+
+        animationSkippable = false;
+        UIManager.Instance.UpdateSubmitText();
+    }
+
+    private IEnumerator RunCount(PlayerBase targetPlayer, System.Action onDone)
+    {
+        yield return UIManager.Instance.CountAllDice(targetPlayer);
+        yield return DiceManager.Instance.CountAllBonuses(targetPlayer);
+        UIManager.Instance.ShowRollResults();
+        onDone?.Invoke();
     }
 
     public void ClearItemSelection()
@@ -253,14 +311,16 @@ public class GameManager : MonoBehaviour
             player.roundItemsUsed = 0;
             ai.roundItemsUsed = 0;
 
+            // First roller rolls, then item phase (both players can use items)
             yield return StartCoroutine(DoRoll(first, isPlayerRoll: firstIsPlayer));
             yield return StartCoroutine(ItemPhase());
 
+            // Second roller rolls, then item phase again
             yield return StartCoroutine(DoRoll(second, isPlayerRoll: !firstIsPlayer));
             yield return StartCoroutine(ItemPhase());
 
+            // Animate match score rollup then commit
             yield return StartCoroutine(UIManager.Instance.AnimateMatchScore(player, ai));
-
             player.matchFortunaPoints += player.roundFortunaPoints;
             ai.matchFortunaPoints += ai.roundFortunaPoints;
             player.roundFortunaPoints = 0;
@@ -292,13 +352,27 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(1f);
         }
 
+        // Roll and wait — player can skip animation
         foreach (var d in DiceManager.Instance.activeDiceList)
             DiceAnimation.Instance.Roll(d);
 
-        yield return new WaitUntil(() => !AnyRolling(DiceManager.Instance.activeDiceList));
+        yield return null; // let isRolling get set
 
-        yield return UIManager.Instance.CountAllDice(roller);
-        yield return DiceManager.Instance.CountAllBonuses(roller);
+        animationSkippable = true;
+        UIManager.Instance.UpdateSubmitText();
+
+        yield return new WaitUntil(() =>
+        {
+            if (skipRequested) { DiceAnimation.Instance.SkipAll(); skipRequested = false; return true; }
+            return !AnyRolling(DiceManager.Instance.activeDiceList);
+        });
+
+        animationSkippable = false;
+        skipRequested = false;
+
+        // Count — also skippable
+        roller.roundFortunaPoints = 0;
+        yield return SkippableCount(roller);
 
         int score = roller.roundFortunaPoints;
         if (isPlayerRoll) UIManager.Instance.LogMessage($"You scored {score}");
@@ -307,7 +381,7 @@ public class GameManager : MonoBehaviour
         UIManager.Instance.ShowRollResults();
         UIManager.Instance.UpdateAllInfo();
         diceRolling = false;
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.3f);
     }
 
     private IEnumerator ItemPhase()
@@ -316,10 +390,8 @@ public class GameManager : MonoBehaviour
         aiPassedItems = false;
         itemExecuting = false;
 
-        // Player and AI alternate using items until both pass or run out
         for (int i = 0; i < 100; i++)
         {
-            // Player's turn to use an item
             if (!playerPassedItems)
             {
                 if (player.CanUseItem())
@@ -334,13 +406,9 @@ public class GameManager : MonoBehaviour
                     ClearItemSelection();
                     UIManager.Instance.ShowItemPhase(false);
                 }
-                else
-                {
-                    playerPassedItems = true;
-                }
+                else playerPassedItems = true;
             }
 
-            // AI's turn to use an item
             if (!aiPassedItems)
             {
                 if (ai.CanUseItem()) yield return StartCoroutine(AIUseItem());
@@ -371,7 +439,12 @@ public class GameManager : MonoBehaviour
                 var targets = new List<int>();
                 for (int i = 0; i < DiceManager.Instance.activeDiceList.Count && targets.Count < maxT; i++) targets.Add(i);
                 yield return chosen.data.effect.Apply(ai, DiceManager.Instance.activeDiceList, chosen.Tier, targets);
+                yield return null;
                 yield return new WaitUntil(() => !AnyRolling(DiceManager.Instance.activeDiceList));
+                
+                ai.roundFortunaPoints = 0;
+                yield return UIManager.Instance.CountAllDice(ai);
+                yield return DiceManager.Instance.CountAllBonuses(ai);
                 UIManager.Instance.LogMessage($"Opponent used {chosen.data.itemName}");
                 yield break;
             }

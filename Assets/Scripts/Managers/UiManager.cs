@@ -35,7 +35,7 @@ public class UIManager : MonoBehaviour
     [Header("Message Log")]
     [SerializeField] private ScrollRect messageScrollRect;
     [SerializeField] private Transform messageLogContent;
-    [SerializeField] private gameMessage messageLogEntryPrefab;
+    [SerializeField] private TMP_Text messageLogEntryPrefab;
     [SerializeField] private int maxLogEntries = 50;
 
     [Header("CoinFlip")]
@@ -250,7 +250,7 @@ public class UIManager : MonoBehaviour
         while (messageLogContent.childCount >= maxLogEntries) Destroy(messageLogContent.GetChild(0).gameObject);
 
         var entry = Instantiate(messageLogEntryPrefab, messageLogContent);
-        entry.mText.text = text;
+        entry.text = text;
 
         StartCoroutine(ScrollToBottom());
     }

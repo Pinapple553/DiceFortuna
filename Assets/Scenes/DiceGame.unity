@@ -3340,9 +3340,9 @@ MonoBehaviour:
   m_ChildAlignment: 0
   m_Spacing: 10
   m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 1
-  m_ChildControlWidth: 0
-  m_ChildControlHeight: 0
+  m_ChildForceExpandHeight: 0
+  m_ChildControlWidth: 1
+  m_ChildControlHeight: 1
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
@@ -3713,9 +3713,9 @@ RectTransform:
   m_Father: {fileID: 1058290095}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 7.722, y: -10.034004}
+  m_SizeDelta: {x: -27.722, y: -23.119}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &697821432
 MonoBehaviour:
@@ -4755,7 +4755,7 @@ MonoBehaviour:
   roundEndPanel: {fileID: 1739404546}
   messageScrollRect: {fileID: 1058290096}
   messageLogContent: {fileID: 575184719}
-  messageLogEntryPrefab: {fileID: 0}
+  messageLogEntryPrefab: {fileID: 4061950343094636872, guid: 9b88065a55be4994cb3a4a09a1f2d01f, type: 3}
   maxLogEntries: 50
   coinFlipUI: {fileID: 396869650}
   coinFlipAnimator: {fileID: 1114746253}
@@ -6530,7 +6530,7 @@ MonoBehaviour:
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 1985747245}
   m_HorizontalScrollbarVisibility: 2
-  m_VerticalScrollbarVisibility: 2
+  m_VerticalScrollbarVisibility: 0
   m_HorizontalScrollbarSpacing: -3
   m_VerticalScrollbarSpacing: -3
   m_OnValueChanged:
@@ -6556,8 +6556,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 2137759019, guid: 517b6eb20867c80468e6a107428223fd, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -8080,6 +8080,7 @@ MonoBehaviour:
   playerChoseHeads: 1
   playerGoesFirst: 1
   waitingForPlayerRoll: 0
+  animationSkippable: 0
   rounds: 2
   maxRoundItems: 0
   maxMatchItems: 0

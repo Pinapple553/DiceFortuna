@@ -8,25 +8,27 @@ public class RerollDiceEffect : ItemEffect
     public override IEnumerator Apply(PlayerBase target, List<DiceInstance> dice, ItemTier tier, List<int> targetIndices)
     {
         int count = Mathf.Min(targetIndices.Count, tier.diceTargets);
-        var toReroll = new List<DiceInstance>();
+
         for (int i = 0; i < count; i++)
         {
             int idx = targetIndices[i];
             if (idx < 0 || idx >= dice.Count) continue;
             DiceAnimation.Instance.Roll(dice[idx]);
-            toReroll.Add(dice[idx]);
         }
-        while (true)
+
+        yield return null;
+
+        yield return new WaitUntil(() =>
         {
-            bool anyRolling = false;
-            foreach (var d in toReroll) 
-                if (d.isRolling) 
-                { 
-                    anyRolling = true; break; 
-                }
-            if (!anyRolling) break;
-            yield return null;
-        }
+            for (int i = 0; i < count; i++)
+            {
+                int idx = targetIndices[i];
+                if (idx >= 0 && idx < dice.Count && dice[idx].isRolling) return false;
+            }
+            return true;
+        });
     }
-    public override string GetDescription(ItemTier tier) => $"Reroll {tier.diceTargets} chosen {(tier.diceTargets == 1 ? "die" : "dice")}. ({tier.uses} use/round)";
+
+    public override string GetDescription(ItemTier tier) =>
+        $"Reroll up to {tier.diceTargets} {(tier.diceTargets == 1 ? "die" : "dice")}. ({tier.uses} usees per match)";
 }
