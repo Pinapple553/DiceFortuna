@@ -398,13 +398,11 @@ public class GameManager : MonoBehaviour
                     {
                         isPlayerItemTurn = true;
                         ClearItemSelection();
-                        UIManager.Instance.ShowItemPhase(true);
                         UIManager.Instance.LogMessage("Your item turn — use an item or pass");
                         UIManager.Instance.RefreshItemPhaseUI();
                         yield return new WaitUntil(() => (playerPassedItems || !player.CanUseItem()) && !itemExecuting);
                         isPlayerItemTurn = false;
                         ClearItemSelection();
-                        UIManager.Instance.ShowItemPhase(false);
                     }
                     else playerPassedItems = true;
                 }
@@ -430,13 +428,11 @@ public class GameManager : MonoBehaviour
                     {
                         isPlayerItemTurn = true;
                         ClearItemSelection();
-                        UIManager.Instance.ShowItemPhase(true);
                         UIManager.Instance.LogMessage("Your item turn — use an item or pass");
                         UIManager.Instance.RefreshItemPhaseUI();
                         yield return new WaitUntil(() => (playerPassedItems || !player.CanUseItem()) && !itemExecuting);
                         isPlayerItemTurn = false;
                         ClearItemSelection();
-                        UIManager.Instance.ShowItemPhase(false);
                     }
                     else playerPassedItems = true;
                 }

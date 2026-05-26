@@ -19,8 +19,9 @@ public class LevelButton : MonoBehaviour
 
         levelTitle.text = levelData.levelName;
 
-        bool completed = WorldManager.Instance.IsLevelCompleted(levelData);
-        bool isCurrent = save.currentLevelIndex == levelData.levelIndex;
+        string status = save.levels[levelData.levelIndex].status;
+        bool completed = status == "Won" || status == "Lost";
+        bool isCurrent = status == "Current";
 
         if (triesText != null)
         {
@@ -30,8 +31,8 @@ public class LevelButton : MonoBehaviour
 
         if (completed)
         {
-            levelTitle.color = Color.green;
-            levelStatus.text = "Completed";
+            levelTitle.color = Color.black;
+            levelStatus.text = status == "Won" ? "Victory" : "Defeat";
             if (button != null) button.interactable = false;
         }
         else if (isCurrent)

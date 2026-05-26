@@ -7,7 +7,6 @@ public class LevelManager : MonoBehaviour
 	[SerializeField] GameObject levelContainer;
 	[SerializeField] LevelButton levelButtonPrefab;
 
-	[SerializeField] List<LevelData> LevelList;
 	private void Start()
 	{
 		UpdateLevelButtons();
@@ -20,10 +19,10 @@ public class LevelManager : MonoBehaviour
 		{
 			Destroy(child.gameObject);
 		}
-		for (int i = 0; i < LevelList.Count; i++)
+		for (int i = 0; i < WorldManager.Instance.levels.Length; i++)
 		{
 			LevelButton button = Instantiate(levelButtonPrefab, levelContainer.transform);
-			button.SetLevelData(LevelList[i]);
+			button.SetLevelData(WorldManager.Instance.levels[i]);
 			button.SetLevelIndex(i);
 			button.UpdateLevelButton();
 		}
