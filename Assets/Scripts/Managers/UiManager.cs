@@ -31,8 +31,11 @@ public class UIManager : MonoBehaviour
 
     [Header("Panels")]
     [SerializeField] private GameObject roundInfoPanel;
-    [SerializeField] private GameObject itemPhasePanel;
+    [SerializeField] private TMP_Text matchStartLevelName;
+    [SerializeField] private TMP_Text matchStartLevelDesc;
     [SerializeField] private GameObject roundEndPanel;
+    [SerializeField] private TMP_Text matchEndLevelName;
+    [SerializeField] private TMP_Text matchEndLevelDesc;
     [SerializeField] private GameObject helpPanel;
 
     [Header("Message Log")]
@@ -64,7 +67,6 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         if (coinFlipUI != null) coinFlipUI.SetActive(false);
-        if (itemPhasePanel != null) itemPhasePanel.SetActive(false);
         if (roundEndPanel != null) roundEndPanel.SetActive(false);
         ResetInfo();
         UpdateUI();
@@ -364,16 +366,6 @@ public class UIManager : MonoBehaviour
     public void CloseRoundInfo(bool close)
     {
         if (roundInfoPanel != null) roundInfoPanel.SetActive(!close);
-    }
-    public void ShowItemPhase(bool show)
-    {
-        if (itemPhasePanel != null) itemPhasePanel.SetActive(show);
-        if (show)
-        {
-            selectorShowDice = false;
-            UpdateDiceSelector();
-        }
-        UpdateSubmitText();
     }
     public void ShowRoundEndPanel()
     {

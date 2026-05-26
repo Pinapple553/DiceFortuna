@@ -53,7 +53,7 @@ public class ItemShopButton : MonoBehaviour
             int next = ownedInstance.currentTier + 1;
             if (tierText != null) tierText.text = $"Lv.{ownedInstance.currentTier + 1}";
             if (buyButton != null) buyButton.interactable = true;
-            if (buyButtonText != null) buyButtonText.text = $"Upgrade: {itemData.tiers[next].cost}";
+            if (buyButtonText != null) buyButtonText.text = $"Upgrade {itemData.tiers[next].cost}";
         }
         else
         {
