@@ -17,9 +17,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4e0926f38f448e04da0b9b4809ef8529, type: 2}
   - {fileID: 11400000, guid: 4e0926f38f448e04da0b9b4809ef8529, type: 2}
   - {fileID: 11400000, guid: 4e0926f38f448e04da0b9b4809ef8529, type: 2}
-  ownedItemsList: []
+  ownedItemsList:
+  - data: {fileID: 11400000, guid: 6998ee68f2b1086458f48fc8e167baf0, type: 2}
+    currentTier: 2
+    usesRemainingThisMatch: 0
   totalFortunaPoints: 0
-  roundFortunaPoints: 0
+  roundFortunaPoints: 87
   matchFortunaPoints: 0
   maxDice: 4
   roundItemsUsed: 0

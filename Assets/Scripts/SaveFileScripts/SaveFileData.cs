@@ -13,5 +13,6 @@ public class SaveFileData
     public List<int> ownedItemTiers;
     public int lives = 3;
     public List<int> shopDiceIds;
+    public List<int> shopBoughtSlots;
     public int shopSeed;
 }

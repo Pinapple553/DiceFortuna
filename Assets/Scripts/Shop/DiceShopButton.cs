@@ -6,6 +6,7 @@ public class DiceShopButton : MonoBehaviour
 {
     public DiceData dice;
     public int price;
+    public int shopSlotIndex; 
     public bool bought = false;
 
     [SerializeField] private Image icon;
@@ -22,8 +23,7 @@ public class DiceShopButton : MonoBehaviour
         WorldManager.Instance.player.ownedDiceList.Add(dice);
         bought = true;
 
-        ShopManager shop = GetComponentInParent<ShopManager>();
-        if (shop != null) shop.OnBuyComplete();
+        ShopManager.Instance.OnBuyComplete(shopSlotIndex);
 
         UpdateButtonUI();
     }

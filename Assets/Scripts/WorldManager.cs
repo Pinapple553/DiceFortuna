@@ -52,31 +52,34 @@ public class WorldManager : MonoBehaviour
             levelInstances[i] = li;
         }
         saveFileData.levels = levelInstances;
-        saveFileData.ownedDiceIds = new List<int>() { 0 };
-        saveFileData.ownedItemIds = new List<int> { 0 };
-        saveFileData.ownedItemTiers = new List<int> { 0 };
+        saveFileData.ownedDiceIds = new List<int>();
+        saveFileData.ownedDiceIds.Add(0);
+            
+        saveFileData.ownedItemIds = new List<int>();
+        saveFileData.ownedItemTiers = new List<int>();
+        saveFileData.ownedItemIds.Add(0);
+        saveFileData.ownedItemTiers.Add(0);
+
         saveFileData.shopSeed = Random.Range(0, 999999);
         saveFileData.shopDiceIds = GenerateShopDice(saveFileData.shopSeed);
+        saveFileData.shopBoughtSlots = new List<int>();
 
         WriteSave(saveSlot, saveFileData);
     }
 
     public List<int> GenerateShopDice(int seed)
     {
+        int levelIdx = Mathf.Max(0, currentLevelIndex - 1);
+        int count = (levels != null && levelIdx < levels.Length && levels[levelIdx] != null)
+            ? levels[levelIdx].shopDiceCount : 5;
+
         Random.State prevState = Random.state;
         Random.InitState(seed);
-        
-        List<int> pool = new List<int>();
-        for (int i = 0; i < allDiceInGame.Length; i++) pool.Add(i);
-        
+
         List<int> result = new List<int>();
-        int count = Mathf.Min(10, pool.Count);
         for (int i = 0; i < count; i++)
-        {
-            int pick = Random.Range(0, pool.Count);
-            result.Add(pool[pick]);
-            pool.RemoveAt(pick);
-        }
+            result.Add(Random.Range(0, allDiceInGame.Length));
+
         Random.state = prevState;
         return result;
     }
@@ -87,6 +90,7 @@ public class WorldManager : MonoBehaviour
         if (save == null) return;
         save.shopSeed = Random.Range(0, 999999);
         save.shopDiceIds = GenerateShopDice(save.shopSeed);
+        save.shopBoughtSlots = new List<int>();
         WriteSave(loadedSaveSlot, save);
     }
 
@@ -149,21 +153,19 @@ public class WorldManager : MonoBehaviour
 
         WriteSave(loadedSaveSlot, saveFileData);
     }
-
     public void IncrementLevelTries(int levelIndex)
     {
         SaveFileData save = GetSaveData(loadedSaveSlot);
         if (save == null) return;
+        if (levelIndex < 0 || levelIndex >= save.levels.Length) return;
         save.levels[levelIndex].triesTaken++;
         WriteSave(loadedSaveSlot, save);
     }
-
     public void DeleteSave(int saveSlot)
     {
         string filePath = SavePath(saveSlot);
         if (File.Exists(filePath)) File.Delete(filePath);
     }
-
     public void LoadSave(int saveSlot)
     {
         SaveFileData saveFileData = GetSaveData(saveSlot);
@@ -175,19 +177,16 @@ public class WorldManager : MonoBehaviour
             SceneManager.Instance.LoadScene("LevelPicker");
         }
     }
-
     public SaveFileData GetSaveData(int saveSlot)
     {
         string filePath = SavePath(saveSlot);
         if (File.Exists(filePath))
         {
             string json = File.ReadAllText(filePath);
-            if (!string.IsNullOrEmpty(json))
-                return JsonUtility.FromJson<SaveFileData>(json);
+            if (!string.IsNullOrEmpty(json)) return JsonUtility.FromJson<SaveFileData>(json);
         }
         return null;
     }
-
     public void LoadPlayerData()
     {
         SaveFileData save = GetSaveData(loadedSaveSlot);
@@ -199,7 +198,7 @@ public class WorldManager : MonoBehaviour
         if (save.ownedDiceIds != null)
         {
             foreach (int id in save.ownedDiceIds)
-                if (id >= 0 && id < allDiceInGame.Length)
+                if (id >= 0 && id < allDiceInGame.Length && allDiceInGame[id] != null)
                     player.ownedDiceList.Add(allDiceInGame[id]);
         }
 
@@ -209,13 +208,50 @@ public class WorldManager : MonoBehaviour
             for (int i = 0; i < save.ownedItemIds.Count; i++)
             {
                 int id = save.ownedItemIds[i];
-                int tier = (save.ownedItemTiers != null && i < save.ownedItemTiers.Count) ? save.ownedItemTiers[i] : 0;
-                if (id >= 0 && id < allItemsInGame.Length)
-                    player.ownedItemsList.Add(new ItemInstance(allItemsInGame[id], tier));
+                if (id < 0 || id >= allItemsInGame.Length || allItemsInGame[id] == null) continue;
+                ItemData itemData = allItemsInGame[id];
+                if (itemData.tiers == null || itemData.tiers.Length == 0) continue;
+                int tier = (save.ownedItemTiers != null && i < save.ownedItemTiers.Count)
+                    ? Mathf.Clamp(save.ownedItemTiers[i], 0, itemData.tiers.Length - 1)
+                    : 0;
+                player.ownedItemsList.Add(new ItemInstance(itemData, tier));
             }
         }
     }
+    public void SaveShop(int boughtSlotIndex = -1)
+    {
+        SaveFileData save = GetSaveData(loadedSaveSlot);
+        if (save == null) return;
 
+        if (boughtSlotIndex >= 0)
+        {
+            if (save.shopBoughtSlots == null) save.shopBoughtSlots = new List<int>();
+            if (!save.shopBoughtSlots.Contains(boughtSlotIndex)) save.shopBoughtSlots.Add(boughtSlotIndex);
+        }
+
+        save.fortunaPoints = player.totalFortunaPoints;
+
+        save.ownedDiceIds = new List<int>();
+        foreach (DiceData d in player.ownedDiceList)
+        {
+            int id = System.Array.IndexOf(allDiceInGame, d);
+            if (id >= 0) save.ownedDiceIds.Add(id);
+        }
+
+        save.ownedItemIds = new List<int>();
+        save.ownedItemTiers = new List<int>();
+        foreach (ItemInstance item in player.ownedItemsList)
+        {
+            int id = System.Array.IndexOf(allItemsInGame, item.data);
+            if (id >= 0)
+            {
+                save.ownedItemIds.Add(id);
+                save.ownedItemTiers.Add(item.currentTier);
+            }
+        }
+
+        WriteSave(loadedSaveSlot, save);
+    }
     public void SavePlayerData()
     {
         SaveFileData save = GetSaveData(loadedSaveSlot);
@@ -242,33 +278,6 @@ public class WorldManager : MonoBehaviour
             }
         }
 
-        WriteSave(loadedSaveSlot, save);
-    }
-
-    public void SaveShop()
-    {
-        SaveFileData save = GetSaveData(loadedSaveSlot);
-        if (save == null) return;
-        save.fortunaPoints = player.totalFortunaPoints;
-
-        save.ownedDiceIds = new List<int>();
-        foreach (DiceData d in player.ownedDiceList)
-        {
-            int id = System.Array.IndexOf(allDiceInGame, d);
-            if (id >= 0) save.ownedDiceIds.Add(id);
-        }
-
-        save.ownedItemIds = new List<int>();
-        save.ownedItemTiers = new List<int>();
-        foreach (ItemInstance item in player.ownedItemsList)
-        {
-            int id = System.Array.IndexOf(allItemsInGame, item.data);
-            if (id >= 0)
-            {
-                save.ownedItemIds.Add(id);
-                save.ownedItemTiers.Add(item.currentTier);
-            }
-        }
         WriteSave(loadedSaveSlot, save);
     }
 }

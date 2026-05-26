@@ -22,6 +22,7 @@ public abstract class PlayerBase : ScriptableObject
         roundItemsUsed = 0;
         matchItemsUsed = 0;
         selectedDiceList = new List<DiceInstance>();
+        foreach (ItemInstance i in ownedItemsList) i.ResetUses();
     }
     public bool CanUseItem()
     {

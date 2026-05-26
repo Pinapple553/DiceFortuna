@@ -267,8 +267,7 @@ public class UIManager : MonoBehaviour
 
     public void ShowRollResults()
     {
-        if (rollPointsText != null)
-            rollPointsText.text = GameManager.Instance.player.roundFortunaPoints.ToString();
+        if (rollPointsText != null) rollPointsText.text = GameManager.Instance.currentRoller.roundFortunaPoints.ToString();
     }
 
     public IEnumerator AnimateMatchScore(PlayerBase p, PlayerBase ai)
@@ -327,7 +326,7 @@ public class UIManager : MonoBehaviour
         yield return new WaitForSeconds(0.3f);
         PointPopupGenerator.Instance.CreatePopUp(combo.GetName());
 
-        int startValue = GameManager.Instance.player.roundFortunaPoints;
+        int startValue = GameManager.Instance.currentRoller.roundFortunaPoints;
         for (int i = 0; i < bonus; i++)
         {
             startValue++;
@@ -335,8 +334,7 @@ public class UIManager : MonoBehaviour
             yield return new WaitForSeconds(0.05f);
         }
 
-        foreach (int i in inDices)
-            diceDisplayButtons[i].transform.localScale = Vector3.one;
+        foreach (int i in inDices) diceDisplayButtons[i].transform.localScale = Vector3.one;
 
         yield return new WaitForSeconds(0.2f);
     }
@@ -353,7 +351,6 @@ public class UIManager : MonoBehaviour
     {
         if (roundInfoPanel != null) roundInfoPanel.SetActive(!close);
     }
-
     public void ShowItemPhase(bool show)
     {
         if (itemPhasePanel != null) itemPhasePanel.SetActive(show);
@@ -364,40 +361,34 @@ public class UIManager : MonoBehaviour
         }
         UpdateSubmitText();
     }
-
     public void ShowRoundEndPanel()
     {
         if (roundEndPanel != null) roundEndPanel.SetActive(true);
     }
-
     public void OnFinishClicked()
     {
         if (roundEndPanel != null) roundEndPanel.SetActive(false);
         roundFinished = true;
     }
-
     public void ShowDiceInfo(DiceData dice)
     {
         if (diceInfoIcon != null) diceInfoIcon.sprite = dice.sides[0].sprite;
         if (diceInfoName != null) diceInfoName.text = dice.diceName;
         if (diceInfoDescription != null) diceInfoDescription.text = dice.description;
     }
-
     //coin flip
     public IEnumerator StartCoinAnimation()
     {
         coinFlipAnimator.SetTrigger("Enter");
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1f);
         coinFlipUI.SetActive(true);
     }
-
     public IEnumerator PlayCoinAnimation(bool heads)
     {
         coinFlipUI.SetActive(false);
-        coinFlipAnimator.SetTrigger(heads ? "Enter" : "Flip");
+        coinFlipAnimator.SetTrigger(heads ? "Enter" : "Flip"); //change to heads & tails animations!!!!
         yield return new WaitForSeconds(1f);
     }
-
     public IEnumerator ExitCoinAnimation()
     {
         coinFlipAnimator.SetTrigger("Exit");
