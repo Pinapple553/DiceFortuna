@@ -85,7 +85,7 @@ public class UIManager : MonoBehaviour
 
         if (GameManager.Instance.diceForItemSelection) UpdateDiceHighlights();
         else ClearDiceHighlights();
-       
+
         RefreshItemButtons();
         UpdateSubmitText();
     }
@@ -112,7 +112,7 @@ public class UIManager : MonoBehaviour
 
     public void UpdateRoundNumber(int current, int total)
     {
-        roundNumberText.text = current+"/"+total;
+        roundNumberText.text = current + "/" + total;
     }
 
     //submit button
@@ -123,6 +123,11 @@ public class UIManager : MonoBehaviour
         if (!DiceManager.Instance.diceSelected)
         {
             submitButtonText.text = "Lock In";
+            return;
+        }
+        if (GameManager.Instance.waitingForConfirm)
+        {
+            submitButtonText.text = GameManager.Instance.confirmButtonLabel;
             return;
         }
         if (GameManager.Instance.waitingForPlayerRoll)
@@ -391,7 +396,7 @@ public class UIManager : MonoBehaviour
     }
     public void ShowItemInfo(ItemData item)
     {
-        if (diceInfoIcon != null) diceInfoIcon.sprite = item.icon; 
+        if (diceInfoIcon != null) diceInfoIcon.sprite = item.icon;
         if (diceInfoName != null) diceInfoName.text = item.name;
         if (diceInfoDescription != null) diceInfoDescription.text = item.description;
     }

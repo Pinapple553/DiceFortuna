@@ -47,7 +47,6 @@ MonoBehaviour:
   levels:
   - {fileID: 11400000, guid: 2b7f0bc6cc4fc174eb4a568065c5f112, type: 2}
   - {fileID: 11400000, guid: b1e5cd4c2627bf7429de037f30641eb1, type: 2}
-  - {fileID: 11400000, guid: 18595a6c5e6cec645a26e10cb79c8c2f, type: 2}
   allDiceInGame:
   - {fileID: 11400000, guid: 01c12a29d709d9f4c89ce943ec61bef4, type: 2}
   - {fileID: 11400000, guid: d25ae7173a28aed449cf10f8024042a7, type: 2}

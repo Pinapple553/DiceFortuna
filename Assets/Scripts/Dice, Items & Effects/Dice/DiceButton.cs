@@ -64,7 +64,9 @@ public class DiceButton : MonoBehaviour
         if (icon != null) icon.color = on ? highlightColor : Color.white;
     }
 
-    public void OnPointerEnter() { }
+    public void OnPointerEnter() {
+        if(dice!=null) UIManager.Instance.ShowDiceInfo(dice);
+    }
 
     public void ShowDiceInfo()
     {

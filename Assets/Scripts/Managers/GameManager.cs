@@ -23,6 +23,8 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public bool playerGoesFirst = true;
     [HideInInspector] public bool waitingForPlayerRoll = false;
     [HideInInspector] public bool animationSkippable = false;
+    [HideInInspector] public bool waitingForConfirm = false;
+    [HideInInspector] public string confirmButtonLabel = "Continue";
 
     public int rounds = 2;
     public int maxRoundItems = 3;
@@ -32,6 +34,7 @@ public class GameManager : MonoBehaviour
     private bool itemExecuting = false;
     private bool playerRolled = false;
     private bool skipRequested = false;
+    private bool confirmPressed = false;
     public PlayerBase currentRoller = null;
 
     private void Awake()
@@ -67,6 +70,12 @@ public class GameManager : MonoBehaviour
     {
         if (!DiceManager.Instance.diceSelected) { LockInDice(); return; } //lock-in dice
 
+        if (waitingForConfirm)
+        {
+            confirmPressed = true;
+            return;
+        }
+
         if (animationSkippable) //skip roll/count
         {
             skipRequested = true;
@@ -79,8 +88,8 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (!isPlayerItemTurn) return;
         if (itemExecuting) return;
+        if (!isPlayerItemTurn) return;
 
         if (pendingItem != null) //confirm item use
         {
@@ -170,6 +179,7 @@ public class GameManager : MonoBehaviour
         recountTarget.roundFortunaPoints = 0;
         yield return SkippableCount(recountTarget);
 
+        // Fully done — only NOW allow the item phase loop to see we're finished
         itemExecuting = false;
         UIManager.Instance.RefreshItemPhaseUI();
 
@@ -243,7 +253,7 @@ public class GameManager : MonoBehaviour
     {
         ai.selectedDiceList.Clear();
         var pool = new List<DiceData>(ai.ownedDiceList);
-        int count = Mathf.Min(ai.maxDice, pool.Count, player.selectedDiceList.Count);
+        int count = Mathf.Min(ai.maxDice, pool.Count);
         for (int i = 0; i < count; i++)
         {
             int idx = Random.Range(0, pool.Count);
@@ -270,7 +280,7 @@ public class GameManager : MonoBehaviour
         string coinResult = coinIsHeads ? "Heads" : "Tails";
         string firstTurn = playerGoesFirst ? "Your turn first" : "Opponent goes first";
         UIManager.Instance.LogMessage($"{coinResult} — {firstTurn}");
-        
+
         yield return new WaitForSeconds(1f);
         yield return StartCoroutine(UIManager.Instance.ExitCoinAnimation());
         yield return new WaitForSeconds(1f);
@@ -282,7 +292,7 @@ public class GameManager : MonoBehaviour
     {
         for (int roll = 0; roll < rounds; roll++)
         {
-            UIManager.Instance.UpdateRoundNumber(roll+1, rounds);
+            UIManager.Instance.UpdateRoundNumber(roll + 1, rounds);
             UIManager.Instance.LogMessage($"── Round {roll + 1} ──");
 
             PlayerBase first = playerGoesFirst ? (PlayerBase)player : ai;
@@ -297,6 +307,7 @@ public class GameManager : MonoBehaviour
             //first roller
             yield return StartCoroutine(DoRoll(first, isPlayerRoll: firstIsPlayer));
             yield return StartCoroutine(ItemPhase(nonRollerIsPlayer: !firstIsPlayer));
+            yield return StartCoroutine(WaitForConfirm("End Turn"));
 
             //second roller
             yield return StartCoroutine(DoRoll(second, isPlayerRoll: !firstIsPlayer));
@@ -311,7 +322,11 @@ public class GameManager : MonoBehaviour
             UIManager.Instance.UpdateAllInfo();
 
             //refresh shop
-            if (roll < rounds - 1) WorldManager.Instance.RefreshShopDice();
+            if (roll < rounds - 1)
+            {
+                WorldManager.Instance.RefreshShopDice();
+                yield return StartCoroutine(WaitForConfirm("Next Round"));
+            }
         }
 
         yield return StartCoroutine(ResolveWinner());
@@ -386,7 +401,7 @@ public class GameManager : MonoBehaviour
                         UIManager.Instance.ShowItemPhase(true);
                         UIManager.Instance.LogMessage("Your item turn — use an item or pass");
                         UIManager.Instance.RefreshItemPhaseUI();
-                        yield return new WaitUntil(() => playerPassedItems || !player.CanUseItem());
+                        yield return new WaitUntil(() => (playerPassedItems || !player.CanUseItem()) && !itemExecuting);
                         isPlayerItemTurn = false;
                         ClearItemSelection();
                         UIManager.Instance.ShowItemPhase(false);
@@ -418,7 +433,7 @@ public class GameManager : MonoBehaviour
                         UIManager.Instance.ShowItemPhase(true);
                         UIManager.Instance.LogMessage("Your item turn — use an item or pass");
                         UIManager.Instance.RefreshItemPhaseUI();
-                        yield return new WaitUntil(() => playerPassedItems || !player.CanUseItem());
+                        yield return new WaitUntil(() => (playerPassedItems || !player.CanUseItem()) && !itemExecuting);
                         isPlayerItemTurn = false;
                         ClearItemSelection();
                         UIManager.Instance.ShowItemPhase(false);
@@ -443,12 +458,12 @@ public class GameManager : MonoBehaviour
                 chosen.TryUse();
                 ai.roundItemsUsed++;
                 ai.matchItemsUsed++;
-                int maxT = Random.Range(0,chosen.Tier.diceTargets)+1; //dosent always select max dice
+                int maxT = Random.Range(0, chosen.Tier.diceTargets) + 1; //dosent always select max dice
                 var targets = new List<int>();
                 while (targets.Count < maxT)
                 {
                     targets.Add(Random.Range(0, DiceManager.Instance.activeDiceList.Count)); // random dice
-                } 
+                }
                 yield return chosen.data.effect.Apply(ai, DiceManager.Instance.activeDiceList, chosen.Tier, targets);
                 yield return null;
 
@@ -474,6 +489,18 @@ public class GameManager : MonoBehaviour
         }
         aiPassedItems = true;
     }
+    private IEnumerator WaitForConfirm(string label)
+    {
+        confirmPressed = false;
+        confirmButtonLabel = label;
+        waitingForConfirm = true;
+        UIManager.Instance.UpdateSubmitText();
+        yield return new WaitUntil(() => confirmPressed);
+        waitingForConfirm = false;
+        confirmPressed = false;
+        UIManager.Instance.UpdateSubmitText();
+    }
+
     private IEnumerator ResolveWinner()
     {
         int playerScore = player.matchFortunaPoints;

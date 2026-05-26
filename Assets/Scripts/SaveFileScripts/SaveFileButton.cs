@@ -33,7 +33,7 @@ public class SaveFileButton : MonoBehaviour
         }
         else if (isLocked)
         {
-            if (deleteButton != null) deleteButton.gameObject.SetActive(false);
+            if (deleteButton != null) deleteButton.gameObject.SetActive(true);
             if (pointText != null) pointText.text = saveFileData.fortunaPoints.ToString();
             if (dateText != null) dateText.text = saveFileData.dateSaved;
             if (livesText != null) livesText.text = $"Lives: {saveFileData.lives}";
