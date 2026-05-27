@@ -131,6 +131,7 @@ public class WorldManager : MonoBehaviour
             }
             saveFileData.levels[levelIndex].status = "Lost";
             saveFileData.levels[levelIndex].fortunaPointsEarned = roundFortunaPoints / 2;
+            RefreshShopDice();
         }
 
         saveFileData.fortunaPoints = player.totalFortunaPoints;

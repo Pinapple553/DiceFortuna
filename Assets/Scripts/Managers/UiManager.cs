@@ -445,7 +445,7 @@ public class UIManager : MonoBehaviour
     public IEnumerator PlayCoinAnimation(bool heads)
     {
         coinFlipUI.SetActive(false);
-        coinFlipAnimator.SetTrigger(heads ? "Enter" : "Flip"); //change to heads & tails animations!!!!
+        coinFlipAnimator.SetTrigger(heads ? "Flip" : "Flip"); //change to heads & tails animations!!!!... i was to lazy to make animations
         yield return new WaitForSeconds(1f);
     }
     public IEnumerator ExitCoinAnimation()

@@ -25,14 +25,12 @@ public class GameOverManager : MonoBehaviour
 
         gameOverText.text = "Game Over!";
 
-        string tries = allFirstTry
-            ? "You cleared every level on the first try!"
-            : $"Total attempts across all levels: {totalTries}";
+        string tries = allFirstTry ? "You cleared every level on the first try!"  : $"Total attempts across all levels: {totalTries}";
 
         subText.text =
-            $"Levels won: {won}/{totalLevels}\n" +
-            $"{tries}\n" +
-            $"Lives remaining: {save.lives}\n" +
-            $"Fortuna Points: {save.fortunaPoints}";
+        $"Levels won: {won}/{totalLevels}\n" +
+        $"{tries}\n" +
+        $"Lives remaining: {save.lives}\n" +
+        $"Fortuna Points: {save.fortunaPoints}";
     }
 }

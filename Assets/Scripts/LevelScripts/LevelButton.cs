@@ -65,7 +65,8 @@ public class LevelButton : MonoBehaviour
     public void OnLevelButtonClick()
     {
         SaveFileData save = WorldManager.Instance.GetSaveData(WorldManager.Instance.loadedSaveSlot);
-        if (save == null) return;
+        if (save.lives <= 0) return;
+            if (save == null) return;
         if (save.currentLevelIndex != levelData.levelIndex) return;
 
         WorldManager.Instance.currentLevelIndex = levelData.levelIndex;

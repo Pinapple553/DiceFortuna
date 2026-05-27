@@ -81,7 +81,6 @@ public class GameManager : MonoBehaviour
 
         if (animationSkippable) //skip roll/count
         {
-            skipRequested = true;
             return;
         }
 

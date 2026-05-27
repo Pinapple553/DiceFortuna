@@ -29,19 +29,16 @@ MonoBehaviour:
   ownedItemsList:
   - data: {fileID: 11400000, guid: 417c94ade02ed234084fe06c305c157e, type: 2}
     currentTier: 3
-    usesRemainingThisMatch: 2
+    usesRemainingThisMatch: 3
   - data: {fileID: 11400000, guid: 0a556b88ed626474ab85ff765bcbd4c6, type: 2}
     currentTier: 4
-    usesRemainingThisMatch: 2
+    usesRemainingThisMatch: 3
   - data: {fileID: 11400000, guid: 20b39d48d84152f488165d51d0748236, type: 2}
     currentTier: 2
-    usesRemainingThisMatch: 0
+    usesRemainingThisMatch: 1
   - data: {fileID: 11400000, guid: 6998ee68f2b1086458f48fc8e167baf0, type: 2}
     currentTier: 3
     usesRemainingThisMatch: 2
-  - data: {fileID: 0}
-    currentTier: 0
-    usesRemainingThisMatch: 0
   totalFortunaPoints: 0
   roundFortunaPoints: 0
   matchFortunaPoints: 0
