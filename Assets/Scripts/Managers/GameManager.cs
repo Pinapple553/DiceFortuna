@@ -326,6 +326,7 @@ public class GameManager : MonoBehaviour
             //refresh shop
             if (roll < rounds - 1)
             {
+                WorldManager.Instance.RefreshShopDice();
                 yield return StartCoroutine(WaitForConfirm("Next Round"));
             }
         }

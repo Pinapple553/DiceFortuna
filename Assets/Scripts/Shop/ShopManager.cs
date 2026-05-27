@@ -61,6 +61,7 @@ public class ShopManager : MonoBehaviour
         }
     }
 
+
     public void OnBuyComplete(int boughtSlotIndex = -1)
     {
         fortunaPointsText.text = WorldManager.Instance.player.totalFortunaPoints.ToString();

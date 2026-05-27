@@ -61,40 +61,37 @@ public class WorldManager : MonoBehaviour
         saveFileData.ownedItemTiers.Add(0);
 
         saveFileData.shopSeed = Random.Range(0, 999999);
-        saveFileData.shopDiceIds = GenerateShopDice(saveFileData.shopSeed);
-        saveFileData.shopBoughtSlots = new List<int>();
+		saveFileData.shopDiceIds = GenerateShopDice(saveFileData.shopSeed, 0);
+		saveFileData.shopBoughtSlots = new List<int>();
 
         WriteSave(saveSlot, saveFileData);
     }
 
-    public List<int> GenerateShopDice(int seed)
-    {
-        int levelIdx = Mathf.Max(0, currentLevelIndex - 1);
-        int count = (levels != null && levelIdx < levels.Length && levels[levelIdx] != null)
-            ? levels[levelIdx].shopDiceCount : 5;
+	public List<int> GenerateShopDice(int seed, int levelIndex)
+	{
+		int count = (levels != null && levelIndex < levels.Length && levels[levelIndex] != null) ? levels[levelIndex].shopDiceCount : 5;
 
-        Random.State prevState = Random.state;
-        Random.InitState(seed);
+		Random.State prevState = Random.state;
+		Random.InitState(seed);
 
-        List<int> result = new List<int>();
-        for (int i = 0; i < count; i++)
-            result.Add(Random.Range(0, allDiceInGame.Length));
+		List<int> result = new List<int>();
+		for (int i = 0; i < count; i++) result.Add(Random.Range(0, allDiceInGame.Length));
 
-        Random.state = prevState;
-        return result;
-    }
+		Random.state = prevState;
+		return result;
+	}
 
-    public void RefreshShopDice()
-    {
-        SaveFileData save = GetSaveData(loadedSaveSlot);
-        if (save == null) return;
-        save.shopSeed = Random.Range(0, 999999);
-        save.shopDiceIds = GenerateShopDice(save.shopSeed);
-        save.shopBoughtSlots = new List<int>();
-        WriteSave(loadedSaveSlot, save);
-    }
+	public void RefreshShopDice()
+	{
+		SaveFileData save = GetSaveData(loadedSaveSlot);
+		if (save == null) return;
+		save.shopSeed = Random.Range(0, 999999);
+		save.shopDiceIds = GenerateShopDice(save.shopSeed, currentLevelIndex);
+		save.shopBoughtSlots = new List<int>();
+		WriteSave(loadedSaveSlot, save);
+	}
 
-    public void Save(int levelIndex, int roundFortunaPoints, string levelStatus)
+	public void Save(int levelIndex, int roundFortunaPoints, string levelStatus)
     {
         SaveFileData saveFileData = GetSaveData(loadedSaveSlot);
         if (saveFileData == null) return;

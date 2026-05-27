@@ -11,6 +11,7 @@ public class LevelManager : MonoBehaviour
     {
         UpdateLevelButtons();
         UpdateLivesDisplay();
+
     }
 
     public void UpdateLivesDisplay()
