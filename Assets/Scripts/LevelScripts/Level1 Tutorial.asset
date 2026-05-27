@@ -10,15 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c01d78d0d4bcc08498de98115ddfe11d, type: 3}
-  m_Name: Tutorial
+  m_Name: Level1 Tutorial
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
   levelName: Tutorial
   levelIndex: 0
-  levelDescription: a simple and easy tutorial!
-  levelImage: {fileID: 1217936551997763228, guid: 77daaf306e44b2f41a8212e90f5c60a0, type: 3}
-  lockedRewardIcon: {fileID: -870478441, guid: c48fa94337e9baa459b0e5eb4c9340ed, type: 3}
-  unlockedRewardIcon: {fileID: 1217936551997763228, guid: 77daaf306e44b2f41a8212e90f5c60a0, type: 3}
+  levelDescription: a simple and easy tutorial to introduce you to the system. Earn
+    the most amount of fortuna points to win!
+  levelImage: {fileID: 21300000, guid: 0bac0845e3ba827468be342ba97bc1a3, type: 3}
+  lockedRewardIcon: {fileID: 21300000, guid: 0bac0845e3ba827468be342ba97bc1a3, type: 3}
+  unlockedRewardIcon: {fileID: 21300000, guid: f6fc58b20d0855b48a4e2b64036f2fc1, type: 3}
   opponent: {fileID: 11400000, guid: 016bc7d3459ef3743a1a0ca99be7da36, type: 2}
-  maxRoundItems: 3
-  maxMatchItems: 5
-  rounds: 1
+  maxRoundItems: 2
+  maxMatchItems: 3
+  rounds: 2
+  shopDiceCount: 5

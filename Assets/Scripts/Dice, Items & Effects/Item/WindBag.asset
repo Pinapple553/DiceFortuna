@@ -13,20 +13,20 @@ MonoBehaviour:
   m_Name: WindBag
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Windbag
-  icon: {fileID: 1546359767, guid: a87a5a4322980344f9d293302294894f, type: 3}
+  icon: {fileID: -4242359907045637262, guid: 27979ced220ab834988191af4dd21bd8, type: 3}
   description: A wind bag that lets you reroll selected dice
   playerSelectDice: 1
   effect: {fileID: 11400000, guid: f013c61a8e44a5842984fcf9915f6e70, type: 2}
   tiers:
   - tierDescription: base
-    upgradeCost: 10
+    cost: 0
     uses: 1
     diceTargets: 1
   - tierDescription: add 1 use
-    upgradeCost: 5
+    cost: 10
     uses: 2
     diceTargets: 1
   - tierDescription: adds 1 dice
-    upgradeCost: 5
+    cost: 30
     uses: 2
     diceTargets: 2

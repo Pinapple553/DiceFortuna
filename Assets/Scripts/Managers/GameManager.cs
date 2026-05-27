@@ -56,8 +56,11 @@ public class GameManager : MonoBehaviour
         rounds = level.rounds;
         maxRoundItems = level.maxRoundItems;
         maxMatchItems = level.maxMatchItems;
+
+        ai = level.opponent;
         WorldManager.Instance.player.ResetForNewMatch();
-        WorldManager.Instance.levels[WorldManager.Instance.currentLevelIndex].opponent.ResetForNewMatch();
+        ai.ResetForNewMatch();
+
         UIManager.Instance.UpdateRoundNumber(1, rounds);
         UIManager.Instance.UpdateUI();
     }
@@ -99,6 +102,7 @@ public class GameManager : MonoBehaviour
         }
         //else pass 
         ClearItemSelection();
+        UIManager.Instance.LogMessage("You passed");
         playerPassedItems = true;
         UIManager.Instance.RefreshItemPhaseUI();
     }
@@ -177,7 +181,7 @@ public class GameManager : MonoBehaviour
         //recount
         PlayerBase recountTarget = currentRoller ?? player;
         recountTarget.roundFortunaPoints = 0;
-        yield return SkippableCount(recountTarget);
+        yield return SkippableCount(recountTarget); 
 
         itemExecuting = false;
         UIManager.Instance.RefreshItemPhaseUI();
@@ -259,8 +263,8 @@ public class GameManager : MonoBehaviour
             ai.selectedDiceList.Add(new DiceInstance(pool[idx]));
             pool.RemoveAt(idx);
         }
+        UIManager.Instance.LogMessage($"Opponent selected {count} {(count == 1 ? "die" : "dice")}");
     }
-
     public void PlayerChoseCoinSide(bool heads)
     {
         playerChoseHeads = heads;
@@ -323,7 +327,6 @@ public class GameManager : MonoBehaviour
             //refresh shop
             if (roll < rounds - 1)
             {
-                WorldManager.Instance.RefreshShopDice();
                 yield return StartCoroutine(WaitForConfirm("Next Round"));
             }
         }
@@ -409,7 +412,12 @@ public class GameManager : MonoBehaviour
                 if (!aiPassedItems)
                 {
                     if (ai.CanUseItem()) yield return StartCoroutine(AIUseItem());
-                    else aiPassedItems = true;
+                 
+                    else
+                    {
+                        UIManager.Instance.LogMessage("Opponent has no items to use");
+                        aiPassedItems = true;
+                    }
                 }
             }
             else
@@ -418,7 +426,11 @@ public class GameManager : MonoBehaviour
                 if (!aiPassedItems)
                 {
                     if (ai.CanUseItem()) yield return StartCoroutine(AIUseItem());
-                    else aiPassedItems = true;
+                    else
+                    {
+                        UIManager.Instance.LogMessage("Opponent has no items to use");
+                        aiPassedItems = true;
+                    }
                 }
 
                 if (!playerPassedItems)
@@ -446,21 +458,21 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(1f);
         if (Random.value < 0.4f)
         {
-            var available = ai.ownedItemsList.FindAll(i => i.CanUse()); //get all items ai can use
+            var available = ai.ownedItemsList.FindAll(i => i.CanUse());
             if (available.Count > 0)
             {
                 var chosen = available[Random.Range(0, available.Count)];
                 chosen.TryUse();
                 ai.roundItemsUsed++;
                 ai.matchItemsUsed++;
-                int maxT = Random.Range(0, chosen.Tier.diceTargets) + 1; //dosent always select max dice
+                int maxT = Random.Range(0, chosen.Tier.diceTargets) + 1;
                 var targets = new List<int>();
-                while (targets.Count < maxT)
-                {
-                    targets.Add(Random.Range(0, DiceManager.Instance.activeDiceList.Count)); // random dice
-                }
+                while (targets.Count < maxT) targets.Add(Random.Range(0, DiceManager.Instance.activeDiceList.Count));
+
                 yield return chosen.data.effect.Apply(ai, DiceManager.Instance.activeDiceList, chosen.Tier, targets);
                 yield return null;
+
+                UIManager.Instance.LogMessage($"Opponent used {chosen.data.itemName}");
 
                 animationSkippable = true;
                 UIManager.Instance.UpdateSubmitText();
@@ -472,16 +484,15 @@ public class GameManager : MonoBehaviour
                 animationSkippable = false;
                 skipRequested = false;
 
-                ai.roundFortunaPoints = 0;
-                yield return SkippableCount(currentRoller ?? ai);
-                UIManager.Instance.LogMessage($"Opponent used {chosen.data.itemName}");
+                currentRoller.roundFortunaPoints = 0;
+                yield return SkippableCount(currentRoller);
+
                 yield break;
             }
-            else
-            {
-                UIManager.Instance.LogMessage($"Opponent passed");
-            }
+           
+            UIManager.Instance.LogMessage("Opponent has no usable items");
         }
+        UIManager.Instance.LogMessage("Opponent passed");  
         aiPassedItems = true;
     }
     private IEnumerator WaitForConfirm(string label)

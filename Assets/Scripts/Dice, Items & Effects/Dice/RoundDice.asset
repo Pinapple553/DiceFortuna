@@ -14,6 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DiceData
   diceName: Round Dice
   sides:
+  - name: 6
+    value: 6
+    sprite: {fileID: 8459777460899806319, guid: ac1d59b9d67fa6e4896682c0c67f3707, type: 3}
+    effect: {fileID: 0}
+    effectChance: 0
   - name: 2
     value: 2
     sprite: {fileID: 2714453574471835212, guid: f78aa7478545ed045ba56934cde50a17, type: 3}
@@ -24,10 +29,5 @@ MonoBehaviour:
     sprite: {fileID: 3326971659086699885, guid: ad82bba2a4cf41b4c902a2f8e7d33095, type: 3}
     effect: {fileID: 0}
     effectChance: 0
-  - name: 6
-    value: 6
-    sprite: {fileID: 8459777460899806319, guid: ac1d59b9d67fa6e4896682c0c67f3707, type: 3}
-    effect: {fileID: 0}
-    effectChance: 0
-  description: 
+  description: Round and gooey dice, numbers 2,4 and 6.
   shopPrice: 10

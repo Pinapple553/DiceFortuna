@@ -14,55 +14,56 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DiceData
   diceName: Sharp Dice
   sides:
-  - name: 1
-    value: 1
-    sprite: {fileID: -855298285791758126, guid: 2c50715084c28bf4595b4d8cf8be269a, type: 3}
-    effect: {fileID: 0}
-    effectChance: 0
-  - name: 1
-    value: 1
-    sprite: {fileID: -855298285791758126, guid: 2c50715084c28bf4595b4d8cf8be269a, type: 3}
-    effect: {fileID: 0}
-    effectChance: 0
-  - name: 3
-    value: 3
-    sprite: {fileID: -6470460504253458178, guid: a15351435b0a32a48a5dfee5bd374965, type: 3}
-    effect: {fileID: 0}
-    effectChance: 0
-  - name: 3
-    value: 3
-    sprite: {fileID: -6470460504253458178, guid: a15351435b0a32a48a5dfee5bd374965, type: 3}
-    effect: {fileID: 0}
-    effectChance: 0
-  - name: 5
-    value: 5
-    sprite: {fileID: 4130640169021434097, guid: 067343a32cf4ef349b595876dd8cf3a8, type: 3}
-    effect: {fileID: 0}
-    effectChance: 0
-  - name: 5
-    value: 5
-    sprite: {fileID: 4130640169021434097, guid: 067343a32cf4ef349b595876dd8cf3a8, type: 3}
-    effect: {fileID: 0}
-    effectChance: 0
-  - name: 7
-    value: 7
-    sprite: {fileID: 7028616704906629411, guid: c96d817dcf80bf249890d67f519e392c, type: 3}
-    effect: {fileID: 0}
-    effectChance: 0
-  - name: 7
-    value: 7
-    sprite: {fileID: 7028616704906629411, guid: c96d817dcf80bf249890d67f519e392c, type: 3}
-    effect: {fileID: 0}
-    effectChance: 0
   - name: 9
     value: 9
     sprite: {fileID: 4113829005332862926, guid: d8a98241b2e72914f990aad26fbeefd5, type: 3}
     effect: {fileID: 0}
     effectChance: 0
+  - name: 1
+    value: 1
+    sprite: {fileID: -855298285791758126, guid: 2c50715084c28bf4595b4d8cf8be269a, type: 3}
+    effect: {fileID: 0}
+    effectChance: 0
+  - name: 1
+    value: 1
+    sprite: {fileID: -855298285791758126, guid: 2c50715084c28bf4595b4d8cf8be269a, type: 3}
+    effect: {fileID: 0}
+    effectChance: 0
+  - name: 3
+    value: 3
+    sprite: {fileID: -6470460504253458178, guid: a15351435b0a32a48a5dfee5bd374965, type: 3}
+    effect: {fileID: 0}
+    effectChance: 0
+  - name: 3
+    value: 3
+    sprite: {fileID: -6470460504253458178, guid: a15351435b0a32a48a5dfee5bd374965, type: 3}
+    effect: {fileID: 0}
+    effectChance: 0
+  - name: 5
+    value: 5
+    sprite: {fileID: 4130640169021434097, guid: 067343a32cf4ef349b595876dd8cf3a8, type: 3}
+    effect: {fileID: 0}
+    effectChance: 0
+  - name: 5
+    value: 5
+    sprite: {fileID: 4130640169021434097, guid: 067343a32cf4ef349b595876dd8cf3a8, type: 3}
+    effect: {fileID: 0}
+    effectChance: 0
   - name: 7
     value: 7
     sprite: {fileID: 7028616704906629411, guid: c96d817dcf80bf249890d67f519e392c, type: 3}
     effect: {fileID: 0}
     effectChance: 0
-  description: 
-  shopPrice: 10
+  - name: 7
+    value: 7
+    sprite: {fileID: 7028616704906629411, guid: c96d817dcf80bf249890d67f519e392c, type: 3}
+    effect: {fileID: 0}
+    effectChance: 0
+  - name: 7
+    value: 7
+    sprite: {fileID: 7028616704906629411, guid: c96d817dcf80bf249890d67f519e392c, type: 3}
+    effect: {fileID: 0}
+    effectChance: 0
+  description: A sharp and pointy dice, only rolls odd numbers. numbers 1,3,5,7 and
+    9
+  shopPrice: 15

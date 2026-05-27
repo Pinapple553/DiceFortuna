@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31381ccd072dc434abdefe59526928c0, type: 3}
+  m_Name: Coin 1
+  m_EditorClassIdentifier: Assembly-CSharp::DiceData
+  diceName: Coin
+  sides:
+  - name: Heads
+    value: 1
+    sprite: {fileID: -855298285791758126, guid: 34856eb8bb56e204587ae0da586dd524, type: 3}
+    effect: {fileID: 0}
+    effectChance: 0
+  - name: Tails
+    value: 2
+    sprite: {fileID: 6937817954938267909, guid: 1b39480529d9ce44ab04813b3908da02, type: 3}
+    effect: {fileID: 0}
+    effectChance: 0
+  description: A simple coin depicting a great historical figure, rolls 1 or 2
+  shopPrice: 30

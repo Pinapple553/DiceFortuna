@@ -13,16 +13,14 @@ MonoBehaviour:
   m_Name: Marve
   m_EditorClassIdentifier: Assembly-CSharp::AIPlayer
   ownedDiceList:
-  - {fileID: 11400000, guid: 4e0926f38f448e04da0b9b4809ef8529, type: 2}
-  - {fileID: 11400000, guid: 4e0926f38f448e04da0b9b4809ef8529, type: 2}
-  - {fileID: 11400000, guid: 4e0926f38f448e04da0b9b4809ef8529, type: 2}
-  - {fileID: 11400000, guid: 4e0926f38f448e04da0b9b4809ef8529, type: 2}
+  - {fileID: 11400000, guid: 64f4ad653e149f04184b9478a21e4f49, type: 2}
+  - {fileID: 11400000, guid: 64f4ad653e149f04184b9478a21e4f49, type: 2}
   ownedItemsList:
   - data: {fileID: 11400000, guid: 6998ee68f2b1086458f48fc8e167baf0, type: 2}
-    currentTier: 2
-    usesRemainingThisMatch: 0
+    currentTier: 0
+    usesRemainingThisMatch: 1
   totalFortunaPoints: 0
-  roundFortunaPoints: 87
+  roundFortunaPoints: 0
   matchFortunaPoints: 0
   maxDice: 4
   roundItemsUsed: 0

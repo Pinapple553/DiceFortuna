@@ -20,10 +20,11 @@ public class ItemShopButton : MonoBehaviour
         ownedInstance = owned;
 
         if (index == 0) isUnlocked = true;
+
         else
         {
             ItemInstance prev = allOwned.Find(x => x.data == allItems[index - 1]);
-            isUnlocked = prev != null && !prev.CanUpgrade();
+            isUnlocked = prev != null;
         }
         if (owned != null) isUnlocked = true;
 
@@ -36,7 +37,7 @@ public class ItemShopButton : MonoBehaviour
 
         if (!isUnlocked)
         {
-            if (tierText != null) tierText.text = "Locked";
+            if (tierText != null) tierText.text = "Lv. 0";
             if (buyButton != null) buyButton.interactable = false;
             if (buyButtonText != null) buyButtonText.text = "Locked";
             return;
@@ -84,9 +85,8 @@ public class ItemShopButton : MonoBehaviour
         }
         else return;
 
-        ShopManager shop = GetComponentInParent<ShopManager>();
-        if (shop != null) shop.OnBuyComplete();
-        UpdateUI();
+        ShopManager.Instance.OnBuyComplete();
+        ShopManager.Instance.LoadShop();
     }
 
     public void ShowInfo()

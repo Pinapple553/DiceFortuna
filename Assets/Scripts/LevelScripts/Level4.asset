@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c01d78d0d4bcc08498de98115ddfe11d, type: 3}
+  m_Name: Level4
+  m_EditorClassIdentifier: Assembly-CSharp::LevelData
+  levelName: Level 4
+  levelIndex: 3
+  levelDescription: You stumbled upon a stange gooey creature on the outskits of
+    the town, you chalange them to a duel!
+  levelImage: {fileID: 21300000, guid: 199535a4d9284144e9026267e2dccb3b, type: 3}
+  lockedRewardIcon: {fileID: 21300000, guid: 199535a4d9284144e9026267e2dccb3b, type: 3}
+  unlockedRewardIcon: {fileID: 21300000, guid: 9c2fe9ea176bf4542aa7dcc49f96a69d, type: 3}
+  opponent: {fileID: 11400000, guid: 5c2bfc595ca097c4fb562b6edb6bbcce, type: 2}
+  maxRoundItems: 3
+  maxMatchItems: 10
+  rounds: 4
+  shopDiceCount: 10

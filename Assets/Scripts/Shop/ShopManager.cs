@@ -32,7 +32,7 @@ public class ShopManager : MonoBehaviour
         foreach (Transform child in itemDisplay) Destroy(child.gameObject);
         foreach (Transform child in diceDisplay) Destroy(child.gameObject);
 
-        // Items — ordered unlock/upgrade
+
         var allItems = WorldManager.Instance.allItemsInGame;
         var ownedItems = WorldManager.Instance.player.ownedItemsList;
         for (int i = 0; i < allItems.Length; i++)
@@ -42,7 +42,6 @@ public class ShopManager : MonoBehaviour
             btn.Setup(allItems[i], owned, i, ownedItems, allItems);
         }
 
-        // Dice — one button per shop slot; bought tracked per-slot not per-dice-type
         SaveFileData save = WorldManager.Instance.GetSaveData(WorldManager.Instance.loadedSaveSlot);
         List<int> shopDiceIds = save?.shopDiceIds ?? new List<int>();
         List<int> boughtSlots = save?.shopBoughtSlots ?? new List<int>();

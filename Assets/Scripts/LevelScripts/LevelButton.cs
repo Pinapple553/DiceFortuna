@@ -43,13 +43,12 @@ public class LevelButton : MonoBehaviour
         }
         else
         {
-            levelTitle.color = Color.gray;
+            levelTitle.color = Color.black;
             levelStatus.text = "Locked";
             if (button != null) button.interactable = false;
         }
 
-        if (rewardIcon != null)
-            rewardIcon.sprite = completed ? levelData.unlockedRewardIcon : levelData.lockedRewardIcon;
+        if (rewardIcon != null) rewardIcon.sprite = completed ? levelData.unlockedRewardIcon : levelData.lockedRewardIcon;
     }
 
     public void SetLevelData(LevelData data)

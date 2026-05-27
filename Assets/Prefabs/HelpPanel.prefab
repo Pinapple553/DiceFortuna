@@ -232,7 +232,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 228416066617458397}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.6236145
+  m_Size: 0.62361443
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -271,8 +271,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 2.5180054, y: 216.72998}
-  m_SizeDelta: {x: 1286.1, y: 718.16}
+  m_AnchoredPosition: {x: 2.5180054, y: 207.9513}
+  m_SizeDelta: {x: 1286.1, y: 700.6026}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1668369684663085143
 CanvasRenderer:
@@ -303,6 +303,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: '- Beat all of the opponents and collect their tokens!
+
+    - Ask Egle.
 
 '
   m_isRightToLeft: 0

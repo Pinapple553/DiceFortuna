@@ -47,15 +47,21 @@ MonoBehaviour:
   levels:
   - {fileID: 11400000, guid: 2b7f0bc6cc4fc174eb4a568065c5f112, type: 2}
   - {fileID: 11400000, guid: b1e5cd4c2627bf7429de037f30641eb1, type: 2}
+  - {fileID: 11400000, guid: 18595a6c5e6cec645a26e10cb79c8c2f, type: 2}
+  - {fileID: 11400000, guid: c7cc799e6e4d6b84488ebfb7ea388d1a, type: 2}
+  - {fileID: 11400000, guid: 4b36ade71d87b5a409d9c8091c6b6b30, type: 2}
   allDiceInGame:
+  - {fileID: 11400000, guid: 64f4ad653e149f04184b9478a21e4f49, type: 2}
   - {fileID: 11400000, guid: 01c12a29d709d9f4c89ce943ec61bef4, type: 2}
   - {fileID: 11400000, guid: d25ae7173a28aed449cf10f8024042a7, type: 2}
-  - {fileID: 11400000, guid: 4e0926f38f448e04da0b9b4809ef8529, type: 2}
-  - {fileID: 11400000, guid: 43cd5600a305df54f8de64932ba3d956, type: 2}
-  - {fileID: 11400000, guid: 701d92cee09b3b84e913b726405f6d4a, type: 2}
-  - {fileID: 11400000, guid: 297fbe8a7773e0f4fa34b1ca8d75fb1e, type: 2}
+  - {fileID: 11400000, guid: b7cad29df3fa45746af1d33c23adb533, type: 2}
+  - {fileID: 11400000, guid: ea889aa7c7425c34a967159b5fe9e9c6, type: 2}
   allItemsInGame:
   - {fileID: 11400000, guid: 6998ee68f2b1086458f48fc8e167baf0, type: 2}
+  - {fileID: 11400000, guid: 0a556b88ed626474ab85ff765bcbd4c6, type: 2}
+  - {fileID: 11400000, guid: 417c94ade02ed234084fe06c305c157e, type: 2}
+  - {fileID: 11400000, guid: 57550c1d151f5064abbd3aa548906a25, type: 2}
+  - {fileID: 11400000, guid: 20b39d48d84152f488165d51d0748236, type: 2}
   loadedSaveSlot: 0
   currentLevelIndex: 0
   player: {fileID: 11400000, guid: 1051c8b7de9499740be5f30a7a6ab2f5, type: 2}
