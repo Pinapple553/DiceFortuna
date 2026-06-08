@@ -37,7 +37,7 @@ MonoBehaviour:
     currentTier: 2
     usesRemainingThisMatch: 1
   - data: {fileID: 11400000, guid: 6998ee68f2b1086458f48fc8e167baf0, type: 2}
-    currentTier: 3
+    currentTier: 2
     usesRemainingThisMatch: 2
   totalFortunaPoints: 0
   roundFortunaPoints: 0
